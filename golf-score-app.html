@@ -99,7 +99,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .otbl tr.osub td.hcell{background:var(--green);color:#fff;}
 .otbl tr.otot td{background:#c8e6c9;color:#1a1a1a;font-weight:700;font-size:14px;border:1px solid #a5d6a7;}
 .otbl tr.otot td.hcell{background:var(--green);color:#fff;}
-.oi{width:100%;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:15px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.oi{width:100%;min-width:54px;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:15px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
 .oi::-webkit-inner-spin-button{display:none;}
 .oi:focus{outline:none;border-color:var(--gold);}
 .oi.pos{border-color:#2ecc71;background:#1a3a22;color:#2ecc71;}
@@ -563,7 +563,7 @@ function renderStbl() {
       const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
       // sub行は緑背景: スコア合計(小)・オーバー数(大)とも白で表示
       const ovCol = ov===null?'#999':ov<0?'#27ae60':ov===0?'#7f8c8d':'#e67e22';
-      html += `<td id="sub_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:#fff;background:${ovCol};border-radius:4px;">${sub!==null?sub:'-'}</td>`;
+      html += `<td id="sub_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:#fff;background:var(--green);border-radius:4px;">${sub!==null?sub:'-'}</td>`;
       html += `<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#1a1a1a;">${ovStr}</td>`;
     }
     html += '</tr>';
@@ -594,7 +594,7 @@ function renderStbl() {
     const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
     // tot行は暗緑背景: 白で表示
     const ovCol = ov===null?'#999':ov<0?'#27ae60':ov===0?'#7f8c8d':'#e67e22';
-    html += `<td id="tot_${pi}" style="font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:#fff;background:${ovCol};border-radius:4px;">${any?tot:'-'}</td>`;
+    html += `<td id="tot_${pi}" style="font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:#fff;background:var(--green);border-radius:4px;">${any?tot:'-'}</td>`;
     html += `<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:#1a1a1a;">${ovStr}</td>`;
   }
   html += '</tr>';
@@ -660,7 +660,7 @@ function refreshTot() {
       const ovStr=ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
       const ovCol=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
       const subOvCol=ov===null?'#999':ov<0?'#27ae60':ov===0?'#7f8c8d':'#e67e22';
-      const el=document.getElementById(`sub_${lbl}_${pi}`); if(el){el.textContent=sub!==null?sub:'-';el.style.color='#fff';el.style.background=subOvCol;el.style.borderRadius='4px';el.style.fontSize='20px';el.style.fontFamily="'Oswald',sans-serif";}
+      const el=document.getElementById(`sub_${lbl}_${pi}`); if(el){el.textContent=sub!==null?sub:'-';el.style.color='#fff';el.style.background='var(--green)';el.style.borderRadius='4px';el.style.fontSize='20px';el.style.fontFamily="'Oswald',sans-serif";}
       const oel=document.getElementById(`subov_${lbl}_${pi}`); if(oel){oel.textContent=ovStr;oel.style.color='#1a1a1a';}
     };
     upd('OUT',0,out);
@@ -746,7 +746,7 @@ function renderOlyTbl() {
       html+=`<tr><td class="hcell" style="min-width:28px;">${hi+1}</td>`;
       for(let pi=0;pi<n;pi++){
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td><input class="oi ${cls}" type="number" value="${v!==null?v:''}" placeholder="-" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;
+        html+=`<td><input class="oi ${cls}" type="number" inputmode="numeric" value="${v!==null?v:''}" placeholder="-" oninput="onOly(this,${hi},${pi})" onfocus="this.select()" style="min-width:54px;"></td>`;
       }
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
@@ -779,7 +779,10 @@ function renderOlyTbl() {
 
 function onOly(inp,hi,pi){
   const v=inp.value.trim();
-  G.oly[hi][pi]=(v===''||v==='-')?null:(isNaN(Number(v))?null:Number(v));
+  // "-"だけのとき（入力途中）はnullのまま保持、数値として確定したら保存
+  if(v===''){ G.oly[hi][pi]=null; }
+  else if(v==='-'){ return; } // まだ入力中なのでスキップ
+  else { const n=Number(v); G.oly[hi][pi]=isNaN(n)?null:n; }
   const s=G.oly[hi][pi];
   inp.className='oi '+(s===null?'':(s<0?'neg':'pos'));
   const pts=calcOly(G.oly[hi]);
