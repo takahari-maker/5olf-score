@@ -315,16 +315,16 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
             <tbody>
               <tr>
                 <td><input class="cf-cname-inp" type="text" id="cf-out-name" placeholder="OUT"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_0" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_1" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_2" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_3" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_4" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_5" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_6" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_7" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_8" min="3" max="6" value="4"></td>
-                <td class="cf-sum" id="cf-out-sum">36</td>
+                <td><input class="cf-par-inp" type="number" id="cfp_0" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_1" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_2" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_3" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_4" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_5" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_6" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_7" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_8" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td class="cf-sum" id="cf-out-sum">-</td>
               </tr>
             </tbody>
           </table>
@@ -342,16 +342,16 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
             <tbody>
               <tr>
                 <td><input class="cf-cname-inp" type="text" id="cf-in-name" placeholder="IN"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_9"  min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_10" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_11" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_12" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_13" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_14" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_15" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_16" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_17" min="3" max="6" value="4"></td>
-                <td class="cf-sum" id="cf-in-sum">36</td>
+                <td><input class="cf-par-inp" type="number" id="cfp_9" oninput="updateCfSums()"  min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_10" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_11" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_12" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_13" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_14" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_15" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_16" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_17" oninput="updateCfSums()" min="3" max="6" value="4"></td>
+                <td class="cf-sum" id="cf-in-sum">-</td>
               </tr>
             </tbody>
           </table>
@@ -384,17 +384,15 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
       <button class="modal-x" onclick="closeModal('modal-new')">×</button>
     </div>
     <div class="modal-body">
-      <label class="flbl">① ゴルフ場を選択</label>
-      <select class="fsel" id="club-sel" onchange="onClubSelect()">
-        <option value="">-- ゴルフ場を選択 --</option>
-        <optgroup label="登録済みゴルフ場" id="saved-group"></optgroup>
-      </select>
-      <label class="flbl">② コースを選択</label>
+      <label class="flbl">ゴルフ場名</label>
+      <input class="finp" type="text" id="new-course" placeholder="入力 or 候補から選択"
+        list="club-datalist" oninput="onClubInput(this.value)" autocomplete="off">
+      <datalist id="club-datalist"></datalist>
+
+      <label class="flbl">コース</label>
       <select class="fsel" id="course-sel" onchange="onCourseSelect()">
-        <option value="">-- コースを選択 --</option>
+        <option value="">-- コースを選択（ゴルフ場名を入力後） --</option>
       </select>
-      <label class="flbl">ゴルフ場名（手入力も可）</label>
-      <input class="finp" type="text" id="new-course" placeholder="例：よみうりゴルフ倶楽部">
 
       <div class="frow">
         <div>
@@ -516,14 +514,13 @@ function getCourses() {
 function setCourses(obj) { localStorage.setItem(CKEY, JSON.stringify(obj)); }
 
 function populateCourseSelect() {
-  const g = document.getElementById('saved-group');
-  if(!g) return;
+  const dl = document.getElementById('club-datalist');
+  if(!dl) return;
   const cs = getCourses();
-  g.innerHTML = Object.keys(cs).map(n=>`<option value="s:${n}">${n}</option>`).join('');
+  dl.innerHTML = Object.keys(cs).map(n=>`<option value="${n}">`).join('');
 }
 
 function onClubSelect() {
-  const clubName = document.getElementById('club-sel').value;
   const courseSel = document.getElementById('course-sel');
   document.getElementById('new-course').value = clubName;
   S.pars = [...DPARS];
@@ -539,6 +536,21 @@ function onClubSelect() {
     + courses.map(c=>`<option value="${c}">${c}</option>`).join('');
 
   if(courses.length===1){ courseSel.value=courses[0]; onCourseSelect(); }
+}
+
+function onClubInput(val) {
+  const courseSel = document.getElementById('course-sel');
+  S.pars = [...DPARS];
+  const cs = getCourses();
+  const club = cs[val];
+  if(!club){
+    courseSel.innerHTML='<option value="">-- コースを選択 --</option>';
+    return;
+  }
+  const rounds = Object.keys(club);
+  courseSel.innerHTML = '<option value="">-- コースを選択 --</option>'
+    + rounds.map(r=>`<option value="${r}">${r}</option>`).join('');
+  if(rounds.length===1){ courseSel.value=rounds[0]; onCourseSelect(); }
 }
 
 function onCourseSelect() {
@@ -876,11 +888,6 @@ function renderCoursePage(){
 }
 
 function buildParGrids(){
-  // PAR入力欄はHTMLに直書き。合計計算のイベントだけ設定する。
-  for(let i=0;i<18;i++){
-    const el=document.getElementById('cfp_'+i);
-    if(el) el.addEventListener('input', updateCfSums);
-  }
   updateCfSums();
 }
 
@@ -960,15 +967,19 @@ function cfRemove(name){
 function cfSaveAll(){
   const clubName=document.getElementById('cf-name').value.trim();
   if(!clubName){toast('ゴルフ場名を入力してください');return;}
-  if(!Object.keys(cfTempCourses).length){toast('ラウンドを1つ以上追加してください\n（「＋ このラウンドを追加」ボタンを押してください）');return;}
+  if(!Object.keys(cfTempCourses).length){
+    toast('「＋ 追加」ボタンを押してからゴルフ場を保存してください');return;
+  }
   const cs=getCourses();
   if(!cs[clubName]) cs[clubName]={};
   Object.assign(cs[clubName], cfTempCourses);
   setCourses(cs);
+  // renderCourseListの前にリセット
+  const savedName=clubName;
+  cfReset(); // cfTempCourses={}もここで実行
   populateCourseSelect();
   renderCourseList();
-  cfReset();
-  toast('💾 ゴルフ場を保存しました');
+  toast('💾「'+savedName+'」を保存しました');
 }
 
 function cfCancel(){
@@ -1057,9 +1068,7 @@ function renderCourseList(){
 function openNewRound(){
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('new-course').value='';
-  document.getElementById('club-sel').value='';
-  document.getElementById('course-sel').innerHTML='<option value="">-- ラウンドを選択 --</option>';
-  document.getElementById('course-sel').value='';
+  document.getElementById('course-sel').innerHTML='<option value="">-- コースを選択（ゴルフ場名を入力後） --</option>';
   for(let i=0;i<4;i++){const el=document.getElementById('p'+i);if(el)el.value='';}
   populateCourseSelect();
   openModal('modal-new');
