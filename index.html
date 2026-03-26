@@ -283,39 +283,42 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
   <div id="page-course" class="page">
     <div class="inner">
       <div class="sec-ttl">⛳ ゴルフ場登録</div>
-      <!-- STEP1: ゴルフ場名 -->
-      <div class="card" id="cf-step1">
-        <div style="font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);margin-bottom:10px;">① ゴルフ場名を入力</div>
+      <div class="card">
+        <div style="font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);margin-bottom:10px;" id="cf-ttl">新規ゴルフ場登録</div>
+
         <label class="flbl">ゴルフ場名</label>
         <input class="finp" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
-        <button class="btn btn-gold" onclick="cfStep1Next()" style="width:100%;">次へ → コース入力</button>
-      </div>
 
-      <!-- STEP2: コース追加（ゴルフ場名確定後に表示） -->
-      <div class="card" id="cf-step2" style="display:none;">
-        <div style="font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);margin-bottom:4px;">② コースを追加</div>
-        <div style="font-size:12px;color:var(--gray1);margin-bottom:10px;" id="cf-clubname-lbl"></div>
-        <label class="flbl">コース名</label>
-        <input class="finp" type="text" id="cf-course" placeholder="例：OUTコース、INコース、東コース">
-        <label class="flbl">H1〜H9 PAR</label>
-        <div class="par-grid" id="pg-out"></div>
-        <label class="flbl" style="margin-top:6px;">H10〜H18 PAR</label>
-        <div class="par-grid" id="pg-in"></div>
+        <label class="flbl">ラウンド名（例：OUTコース、INコース、東コース）</label>
+        <input class="finp" type="text" id="cf-course" placeholder="例：OUTコース">
 
-        <!-- 追加済みコース一覧（保存前） -->
-        <div id="cf-added-list" style="margin-top:10px;"></div>
+        <div style="background:var(--bg2);border-radius:8px;padding:10px;margin-bottom:8px;">
+          <label class="flbl">前半コース名（H1〜H9）</label>
+          <input class="finp" type="text" id="cf-out-name" placeholder="例：OUTコース" style="margin-bottom:8px;">
+          <label class="flbl">H1〜H9 PAR</label>
+          <div class="par-grid" id="pg-out"></div>
+        </div>
 
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button class="btn btn-green" onclick="cfAddCourse()" style="flex:1;">＋ このコースを追加</button>
+        <div style="background:var(--bg2);border-radius:8px;padding:10px;margin-bottom:10px;">
+          <label class="flbl">後半コース名（H10〜H18）</label>
+          <input class="finp" type="text" id="cf-in-name" placeholder="例：INコース" style="margin-bottom:8px;">
+          <label class="flbl">H10〜H18 PAR</label>
+          <div class="par-grid" id="pg-in"></div>
+        </div>
+
+        <div id="cf-added-list" style="margin-bottom:8px;"></div>
+
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-green" onclick="cfAddCourse()" style="flex:1;">＋ このラウンドを追加</button>
           <button class="btn btn-out" onclick="cfClearCourse()" style="flex:1;">クリア</button>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;">
           <button class="btn btn-gold" onclick="cfSaveAll()" style="flex:1;">💾 ゴルフ場を保存</button>
-          <button class="btn btn-out" onclick="cfCancel()" style="flex:1;">← 最初から</button>
+          <button class="btn btn-out" onclick="cfCancel()" style="flex:1;">リセット</button>
         </div>
       </div>
 
-      <div class="sec-ttl" style="margin-top:4px;">📋 登録済みゴルフ場・コース</div>
+      <div class="sec-ttl" style="margin-top:4px;">📋 登録済みゴルフ場</div>
       <div id="course-list"></div>
     </div>
   </div>
@@ -808,16 +811,17 @@ function renderStats(){
 }
 
 // ==================== コース管理 ====================
-let cfTempCourses = {}; // 保存前の一時コースデータ
+// データ構造:
+// { "よみうりゴルフ倶楽部": {
+//     "OUTコース": { outName:"OUTコース", inName:"INコース", pars:[4,3,...18ホール] }
+//   }
+// }
+let cfTempCourses = {};
 
 function renderCoursePage(){
   buildParGrids();
   renderCourseList();
-  // フォームを初期状態に
-  document.getElementById('cf-step1').style.display='block';
-  document.getElementById('cf-step2').style.display='none';
-  document.getElementById('cf-name').value='';
-  cfTempCourses={};
+  cfReset();
 }
 
 function buildParGrids(){
@@ -833,62 +837,65 @@ function buildParGrids(){
   grid(9,18,'pg-in');
 }
 
-// STEP1：ゴルフ場名確定→STEP2へ
-function cfStep1Next(){
-  const name=document.getElementById('cf-name').value.trim();
-  if(!name){toast('ゴルフ場名を入力してください');return;}
-  cfTempCourses={};
-  document.getElementById('cf-clubname-lbl').textContent='ゴルフ場：'+name;
-  document.getElementById('cf-step1').style.display='none';
-  document.getElementById('cf-step2').style.display='block';
+function cfReset(){
+  document.getElementById('cf-name').value='';
   document.getElementById('cf-course').value='';
-  cfClearCourse();
+  const o=document.getElementById('cf-out-name'); if(o) o.value='';
+  const i=document.getElementById('cf-in-name');  if(i) i.value='';
+  for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=4;}
+  cfTempCourses={};
   renderCfAddedList();
+  const t=document.getElementById('cf-ttl'); if(t) t.textContent='新規ゴルフ場登録';
 }
 
-// コースをクリア
 function cfClearCourse(){
   document.getElementById('cf-course').value='';
+  const o=document.getElementById('cf-out-name'); if(o) o.value='';
+  const i=document.getElementById('cf-in-name');  if(i) i.value='';
   for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=4;}
 }
 
-// コースを一時追加
+// ラウンド（コース）を一時追加
 function cfAddCourse(){
-  const courseName=document.getElementById('cf-course').value.trim();
-  if(!courseName){toast('コース名を入力してください');return;}
+  const clubName  = document.getElementById('cf-name').value.trim();
+  const roundName = document.getElementById('cf-course').value.trim();
+  const outName   = (document.getElementById('cf-out-name')?.value||'').trim();
+  const inName    = (document.getElementById('cf-in-name')?.value||'').trim();
+  if(!clubName){toast('ゴルフ場名を入力してください');return;}
+  if(!roundName){toast('ラウンド名を入力してください');return;}
   const pars=[];
   for(let i=0;i<18;i++){
     const v=parseInt(document.getElementById('cfp_'+i)?.value);
     pars.push(isNaN(v)?4:v);
   }
-  cfTempCourses[courseName]=pars;
+  cfTempCourses[roundName]={outName, inName, pars};
   cfClearCourse();
   renderCfAddedList();
-  toast('✅ 「'+courseName+'」を追加しました。続けて他のコースを入力するか、保存してください。');
+  toast('✅「'+roundName+'」を追加しました');
 }
 
-// 一時追加コース一覧を表示
 function renderCfAddedList(){
   const el=document.getElementById('cf-added-list');
+  if(!el) return;
   const names=Object.keys(cfTempCourses);
   if(!names.length){el.innerHTML='';return;}
-  el.innerHTML='<div style="font-size:12px;color:var(--gold);margin-bottom:6px;">追加済みコース：</div>'
+  el.innerHTML='<div style="font-size:12px;color:var(--gold);margin-bottom:6px;">追加済みラウンド：</div>'
     +names.map(n=>{
-      const pars=cfTempCourses[n];
-      const out=pars.slice(0,9).reduce((a,b)=>a+b,0);
-      const inn=pars.slice(9,18).reduce((a,b)=>a+b,0);
+      const d=cfTempCourses[n];
+      const out=d.pars.slice(0,9).reduce((a,b)=>a+b,0);
+      const inn=d.pars.slice(9,18).reduce((a,b)=>a+b,0);
+      const sn=n.replace(/'/g,"\'");
       return `<div style="background:var(--bg3);border-radius:6px;padding:7px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <span style="font-weight:700;font-size:13px;">🏌️ ${n}</span>
-          <span style="font-size:11px;color:var(--gray1);margin-left:8px;">OUT:${out} IN:${inn} TOT:${out+inn}</span>
+          <div style="font-weight:700;font-size:13px;">🏌️ ${n}</div>
+          <div style="font-size:11px;color:var(--gray1);">前半:${d.outName||'-'} 後半:${d.inName||'-'} OUT:${out} IN:${inn} TOT:${out+inn}</div>
         </div>
-        <button class="btn-sm btn-sm-r" onclick="cfRemoveCourse('${n.replace(/'/g,"\'")}')">✕</button>
+        <button class="btn-sm btn-sm-r" onclick="cfRemove('${sn}')">✕</button>
       </div>`;
     }).join('');
 }
 
-// 一時追加コースを削除
-function cfRemoveCourse(name){
+function cfRemove(name){
   delete cfTempCourses[name];
   renderCfAddedList();
 }
@@ -896,60 +903,50 @@ function cfRemoveCourse(name){
 // ゴルフ場全体を保存
 function cfSaveAll(){
   const clubName=document.getElementById('cf-name').value.trim();
-  if(!clubName){toast('ゴルフ場名がありません');return;}
-  if(!Object.keys(cfTempCourses).length){toast('コースを1つ以上追加してください');return;}
+  if(!clubName){toast('ゴルフ場名を入力してください');return;}
+  if(!Object.keys(cfTempCourses).length){toast('ラウンドを1つ以上追加してください\n（「＋ このラウンドを追加」ボタンを押してください）');return;}
   const cs=getCourses();
   if(!cs[clubName]) cs[clubName]={};
   Object.assign(cs[clubName], cfTempCourses);
   setCourses(cs);
-  cfTempCourses={};
-  renderCourseList();
   populateCourseSelect();
-  // フォームをリセット
-  document.getElementById('cf-step1').style.display='block';
-  document.getElementById('cf-step2').style.display='none';
-  document.getElementById('cf-name').value='';
+  renderCourseList();
+  cfReset();
   toast('💾 ゴルフ場を保存しました');
 }
 
-// 最初からやり直し
 function cfCancel(){
-  cfTempCourses={};
-  document.getElementById('cf-step1').style.display='block';
-  document.getElementById('cf-step2').style.display='none';
-  document.getElementById('cf-name').value='';
+  cfReset();
 }
 
-// 既存コースの編集（直接localStorage更新）
-function editCourse(clubName, courseName){
+function editCourse(clubName, roundName){
   const cs=getCourses();
-  const pars=cs[clubName]?.[courseName];
-  if(!pars) return;
-  // STEP2に移動して編集状態に
+  const d=cs[clubName]?.[roundName];
+  if(!d) return;
   document.getElementById('cf-name').value=clubName;
+  document.getElementById('cf-course').value=roundName;
+  const o=document.getElementById('cf-out-name'); if(o) o.value=d.outName||'';
+  const i=document.getElementById('cf-in-name');  if(i) i.value=d.inName||'';
+  for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=d.pars[i]||4;}
+  // 一時リストに追加・元データから削除
   cfTempCourses={};
-  cfTempCourses[courseName]=pars; // 編集対象を一時リストに
-  // 既存から削除（上書き保存のため）
-  delete cs[clubName][courseName];
+  cfTempCourses[roundName]=d;
+  delete cs[clubName][roundName];
   if(!Object.keys(cs[clubName]).length) delete cs[clubName];
   setCourses(cs);
   renderCourseList();
   populateCourseSelect();
-  document.getElementById('cf-clubname-lbl').textContent='ゴルフ場：'+clubName;
-  document.getElementById('cf-step1').style.display='none';
-  document.getElementById('cf-step2').style.display='block';
-  document.getElementById('cf-course').value=courseName;
-  for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=pars[i]||4;}
   renderCfAddedList();
-  document.getElementById('cf-step2').scrollIntoView({behavior:'smooth'});
-  toast('編集中：'+clubName+' '+courseName);
+  const t=document.getElementById('cf-ttl'); if(t) t.textContent='編集：'+clubName+' '+roundName;
+  showPage('course');
+  toast('編集中：'+roundName);
 }
 
-function deleteCourse(clubName, courseName){
-  if(!confirm('「'+clubName+' '+courseName+'」を削除しますか？')) return;
+function deleteCourse(clubName, roundName){
+  if(!confirm('「'+clubName+' '+roundName+'」を削除しますか？')) return;
   const cs=getCourses();
   if(cs[clubName]){
-    delete cs[clubName][courseName];
+    delete cs[clubName][roundName];
     if(!Object.keys(cs[clubName]).length) delete cs[clubName];
   }
   setCourses(cs);
@@ -958,24 +955,33 @@ function deleteCourse(clubName, courseName){
 
 function renderCourseList(){
   const el=document.getElementById('course-list');
+  if(!el) return;
   const cs=getCourses(); const clubs=Object.keys(cs);
-  if(!clubs.length){el.innerHTML='<div class="empty"><div class="empty-icon">⛳</div><div>登録済みゴルフ場がありません</div></div>';return;}
+  if(!clubs.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">⛳</div><div>登録済みゴルフ場がありません</div></div>';
+    return;
+  }
   el.innerHTML=clubs.map(clubName=>{
-    const courses=cs[clubName];
-    const courseNames=Object.keys(courses);
-    const courseCards=courseNames.map(courseName=>{
-      const pars=courses[courseName];
+    const rounds=cs[clubName];
+    const roundCards=Object.keys(rounds).map(roundName=>{
+      const d=rounds[roundName];
+      // 旧形式(配列)への後方互換
+      const pars=Array.isArray(d)?d:d.pars;
+      const outName=Array.isArray(d)?'前半':d.outName;
+      const inName =Array.isArray(d)?'後半':d.inName;
       const out=pars.slice(0,9).reduce((a,b)=>a+b,0);
       const inn=pars.slice(9,18).reduce((a,b)=>a+b,0);
       const cells=pars.map((p,i)=>`<div class="cc-par-cell"><div class="cc-par-lbl">${i+1}</div><div class="cc-par-val">${p}</div></div>`).join('');
-      const sc=clubName.replace(/'/g,"\\'");
-      const ss=courseName.replace(/'/g,"\\'");
+      const sc=clubName.replace(/'/g,"\'"), sr=roundName.replace(/'/g,"\'");
       return `<div style="background:var(--bg2);border-radius:8px;margin-bottom:6px;overflow:hidden;">
         <div style="background:#1a3a2e;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-weight:600;font-size:13px;">🏌️ ${courseName}</div>
+          <div>
+            <span style="font-weight:600;font-size:13px;">🏌️ ${roundName}</span>
+            <span style="font-size:11px;color:var(--gray1);margin-left:6px;">${outName?'前半:'+outName:''} ${inName?'後半:'+inName:''}</span>
+          </div>
           <div style="display:flex;gap:5px;">
-            <button class="btn-sm btn-sm-g" onclick="editCourse('${sc}','${ss}')">✏️</button>
-            <button class="btn-sm btn-sm-r" onclick="deleteCourse('${sc}','${ss}')">🗑️</button>
+            <button class="btn-sm btn-sm-g" onclick="editCourse('${sc}','${sr}')">✏️</button>
+            <button class="btn-sm btn-sm-r" onclick="deleteCourse('${sc}','${sr}')">🗑️</button>
           </div>
         </div>
         <div class="cc-body">
@@ -986,7 +992,7 @@ function renderCourseList(){
     }).join('');
     return `<div class="course-card">
       <div class="cc-hdr"><div class="cc-name">⛳ ${clubName}</div></div>
-      <div class="cc-body">${courseCards}</div>
+      <div class="cc-body">${roundCards}</div>
     </div>`;
   }).join('');
 }
@@ -996,7 +1002,7 @@ function openNewRound(){
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('new-course').value='';
   document.getElementById('club-sel').value='';
-  document.getElementById('course-sel').innerHTML='<option value="">-- コースを選択 --</option>';
+  document.getElementById('course-sel').innerHTML='<option value="">-- ラウンドを選択 --</option>';
   document.getElementById('course-sel').value='';
   for(let i=0;i<4;i++){const el=document.getElementById('p'+i);if(el)el.value='';}
   populateCourseSelect();
