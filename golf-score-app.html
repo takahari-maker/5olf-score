@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Golynpic</title>
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDgiIGZpbGw9IiMxZTg0NDkiLz48dGV4dCB4PSI1MCIgeT0iNjIiIGZvbnQtc2l6ZT0iNTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJPc3dhbGQsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjcwMCI+RzwvdGV4dD48Y2lyY2xlIGN4PSI3MiIgY3k9IjI4IiByPSIxMCIgZmlsbD0iI2M5YTg0YyIvPjwvc3ZnPg==">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,7 +27,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .hdr{background:var(--green);border-bottom:1px solid #1a6b3c;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;flex-shrink:0;}
 .hdr-logo{font-family:'Oswald',sans-serif;font-size:17px;font-weight:700;color:#fff;letter-spacing:2px;}
 .hdr-sub{font-size:11px;color:rgba(255,255,255,0.8);margin-top:1px;}
-.hdr-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+.hdr-btns{display:flex;flex-direction:column;gap:0;align-items:flex-end;}
 .hbtn{border:1px solid rgba(255,255,255,0.7);color:#fff;background:rgba(255,255,255,0.15);padding:5px 9px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;}
 .hbtn.solid{background:#fff;color:var(--green);}
 .hbtn.on{border-color:#fff;color:#fff;background:rgba(52,152,219,0.5);}
@@ -143,7 +144,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .vtbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px;}
 .vtbl th{background:var(--green);color:#fff;padding:6px 10px;text-align:center;font-size:11px;border:1px solid rgba(255,255,255,0.2);}
 .vtbl td{padding:5px 8px;text-align:center;border:1px solid #ddd;background:#fff;}
-.vtbl tbody tr:nth-child(even) td{background:#f8f9fa;}
+/* vtbl の行色はJS側で3ホールごとに制御 */
 .vtbl tfoot td{background:#e8f5ed;color:#1a1a1a;font-weight:700;color:var(--gold);font-family:'Oswald',sans-serif;}
 .cpi{width:50px;height:32px;background:#f8f9fa;border:1px solid #ccc;color:#1a1a1a;border-radius:4px;text-align:center;font-size:14px;font-weight:700;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
 .cpi::-webkit-inner-spin-button{display:none;}
@@ -204,14 +205,25 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 <!-- ヘッダー -->
 <div class="hdr">
   <div>
-    <div class="hdr-logo">⛳ Golynpic</div>
+    <div class="hdr-logo" style="display:flex;align-items:center;gap:6px;">
+      <svg width="28" height="28" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="#1e8449"/>
+        <text x="50" y="62" font-size="52" text-anchor="middle" fill="#fff" font-family="Oswald,sans-serif" font-weight="700">G</text>
+        <circle cx="72" cy="28" r="10" fill="#c9a84c"/>
+      </svg>
+      Golynpic
+    </div>
     <div class="hdr-sub" id="hdr-course">-</div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn" id="hist-btn" onclick="showPage('history')">📋 履歴</button>
-    <button class="hbtn" onclick="saveToHistory()">💾 保存</button>
-    <button class="hbtn solid" onclick="openNewRound()">＋ 新規ラウンド</button>
-    <button class="hbtn" id="reg-btn" onclick="showPage('course')">⛳ ゴルフ場登録</button>
+    <div style="display:flex;gap:5px;justify-content:flex-end;">
+      <button class="hbtn solid" onclick="openNewRound()">＋ 新規ラウンド</button>
+      <button class="hbtn" id="reg-btn" onclick="showPage('course')">⛳ ゴルフ場登録</button>
+    </div>
+    <div style="display:flex;gap:5px;justify-content:flex-end;margin-top:4px;">
+      <button class="hbtn" id="hist-btn" onclick="showPage('history')">📋 履歴</button>
+      <button class="hbtn" onclick="saveToHistory()">💾 保存</button>
+    </div>
   </div>
 </div>
 
@@ -964,16 +976,21 @@ function buildVtbl(){
   const ob=document.getElementById('vtbl-out');
   const ib=document.getElementById('vtbl-in');
   if(!ob||!ib) return;
+  // 3ホールごとに背景色を変える（0-2:白, 3-5:薄緑, 6-8:白）
+  const rowBg=['#ffffff','#ffffff','#ffffff','#e8f5ed','#e8f5ed','#e8f5ed','#ffffff','#ffffff','#ffffff'];
   ob.innerHTML='';
   for(let i=0;i<9;i++){
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;">H${i+1}</td><td><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
+    tr.style.background=rowBg[i];
+    tr.innerHTML=`<td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;background:${rowBg[i]};">H${i+1}</td><td style="background:${rowBg[i]};"><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
     ob.appendChild(tr);
   }
   ib.innerHTML='';
   for(let i=9;i<18;i++){
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;">H${i+1}</td><td><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
+    const bi=i-9;
+    tr.style.background=rowBg[bi];
+    tr.innerHTML=`<td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;background:${rowBg[bi]};">H${i+1}</td><td style="background:${rowBg[bi]};"><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
     ib.appendChild(tr);
   }
   calcCfSum();
