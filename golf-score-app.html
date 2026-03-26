@@ -14,205 +14,191 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@400;600;700&display=swap');
 
 :root {
-  --bg:     #1a1a1a;
-  --bg2:    #2a2a2a;
-  --bg3:    #333;
-  --card:   #222;
-  --green:  #2d7a4f;
-  --greenl: #3da366;
-  --gold:   #c9a84c;
-  --goldl:  #f0d98a;
-  --red:    #e74c3c;
-  --blue:   #3498db;
-  --gray1:  #aaa;
-  --gray2:  #666;
-  --gray3:  #444;
-  --active: #e67e22;
+  --bg:#1a1a1a; --bg2:#2a2a2a; --bg3:#333; --card:#222;
+  --green:#2d7a4f; --greenl:#3da366;
+  --gold:#c9a84c; --goldl:#f0d98a;
+  --red:#e74c3c; --blue:#3498db;
+  --gray1:#aaa; --gray2:#666; --gray3:#444;
+  --active:#e67e22;
 }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;display:flex;flex-direction:column;font-size:14px;}
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html,body { height:100%; overflow:hidden; }
-body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; display:flex; flex-direction:column; font-size:14px; }
+/* Header */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;padding:10px 14px;flex-shrink:0;}
+.hdr-logo{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:var(--gold);letter-spacing:2px;}
+.hdr-course{font-size:12px;color:var(--gray1);margin-top:1px;}
+.hdr-btns{display:flex;gap:6px;}
+.hdr-btn{border:1px solid var(--gold);color:var(--gold);background:transparent;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;}
+.hdr-btn.solid{background:var(--gold);color:#1a1a1a;}
 
-/* ── ヘッダー ── */
-.hdr { background:var(--bg2); border-bottom:1px solid var(--bg3); display:flex; align-items:center; justify-content:space-between; padding:10px 14px; flex-shrink:0; }
-.hdr-logo { font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:var(--gold); letter-spacing:2px; }
-.hdr-course { font-size:12px; color:var(--gray1); margin-top:1px; }
-.hdr-btns { display:flex; gap:6px; }
-.hdr-btn { border:1px solid var(--gold); color:var(--gold); background:transparent; padding:6px 11px; border-radius:5px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Noto Sans JP',sans-serif; }
-.hdr-btn.solid { background:var(--gold); color:#1a1a1a; }
+/* Nav */
+.nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--bg3);flex-shrink:0;}
+.nav-tab{flex:1;padding:9px 2px;text-align:center;font-size:11px;color:var(--gray2);cursor:pointer;border-bottom:2px solid transparent;}
+.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
 
-/* ── ナビ ── */
-.nav { display:flex; background:var(--bg2); border-bottom:1px solid var(--bg3); flex-shrink:0; }
-.nav-tab { flex:1; padding:9px 2px; text-align:center; font-size:11px; color:var(--gray2); cursor:pointer; border-bottom:2px solid transparent; }
-.nav-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+/* Pages */
+.pages{flex:1;overflow:hidden;position:relative;}
+.page{display:none;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.page.active{display:block;}
 
-/* ── ページ ── */
-.pages { flex:1; overflow:hidden; position:relative; }
-.page { display:none; position:absolute; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-.page.active { display:block; }
+/* Common */
+.inner{padding:10px;}
+.sec-ttl{font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);padding:8px 0 6px;border-bottom:1px solid var(--bg3);margin-bottom:8px;}
+.card{background:var(--card);border-radius:10px;padding:14px;margin-bottom:10px;}
+.empty{text-align:center;padding:40px 20px;color:var(--gray2);}
+.empty-icon{font-size:40px;margin-bottom:8px;}
 
-/* ── 共通 ── */
-.inner { padding:10px; }
-.sec-ttl { font-family:'Oswald',sans-serif; font-size:15px; color:var(--gold); padding:8px 0 6px; border-bottom:1px solid var(--bg3); margin-bottom:8px; }
-.card { background:var(--card); border-radius:10px; padding:14px; margin-bottom:10px; }
-.empty { text-align:center; padding:40px 20px; color:var(--gray2); }
-.empty-icon { font-size:40px; margin-bottom:8px; }
+/* Score page */
+.score-page{display:flex;flex-direction:column;height:100%;}
+.score-tbl-wrap{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;}
+.score-tbl{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
+.score-tbl thead th{background:var(--green);color:#fff;padding:7px 4px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,0.15);position:sticky;top:0;z-index:5;}
+.score-tbl thead th.h-col{background:var(--gold);color:#1a1a1a;min-width:32px;left:0;z-index:6;}
+.score-tbl td{padding:3px;text-align:center;border:1px solid var(--bg3);vertical-align:middle;}
+.score-tbl tbody tr:nth-child(even) td{background:#1e1e1e;}
+.score-tbl td.hcell{background:var(--bg2);font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:var(--gold);position:sticky;left:0;z-index:4;}
+.score-tbl tr.sub td{background:var(--green);color:#fff;font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,0.2);}
+.score-tbl tr.sub td.hcell{background:var(--green);}
+.score-tbl tr.tot td{background:#0d2b1a;color:#fff;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,0.2);}
+.score-tbl tr.tot td.hcell{background:#0d2b1a;}
 
-/* ── スコアページ ── */
-.score-page { display:flex; flex-direction:column; height:100%; }
-.score-tbl-wrap { flex:1; overflow:auto; -webkit-overflow-scrolling:touch; }
-.score-tbl { width:100%; border-collapse:collapse; font-size:13px; white-space:nowrap; }
-.score-tbl thead th { background:var(--green); color:#fff; padding:7px 4px; text-align:center; font-size:11px; font-weight:600; border:1px solid rgba(255,255,255,0.15); position:sticky; top:0; z-index:5; }
-.score-tbl thead th.h-col { background:var(--gold); color:#1a1a1a; min-width:32px; left:0; z-index:6; }
-.score-tbl td { padding:3px; text-align:center; border:1px solid var(--bg3); vertical-align:middle; }
-.score-tbl tbody tr:nth-child(even) td { background:#1e1e1e; }
-.score-tbl td.hcell { background:var(--bg2); font-family:'Oswald',sans-serif; font-size:13px; font-weight:600; color:var(--gold); position:sticky; left:0; z-index:4; }
-.score-tbl tr.sub td { background:var(--green); color:#fff; font-weight:700; font-size:13px; border:1px solid rgba(255,255,255,0.2); }
-.score-tbl tr.sub td.hcell { background:var(--green); }
-.score-tbl tr.tot td { background:#0d2b1a; color:#fff; font-weight:700; font-size:14px; border:1px solid rgba(255,255,255,0.2); }
-.score-tbl tr.tot td.hcell { background:#0d2b1a; }
+/* PAR input in score table */
+.par-inp{width:36px;height:30px;background:transparent;border:none;text-align:center;font-size:13px;font-weight:700;color:var(--gray1);font-family:'Noto Sans JP',sans-serif;-moz-appearance:textfield;}
+.par-inp::-webkit-inner-spin-button{display:none;}
+.par-inp:focus{outline:1px solid var(--gold);border-radius:3px;}
 
-/* PAR入力（スコアテーブル内） */
-.par-inp { width:36px; height:30px; background:transparent; border:none; text-align:center; font-size:13px; font-weight:700; color:var(--gray1); font-family:'Noto Sans JP',sans-serif; -moz-appearance:textfield; }
-.par-inp::-webkit-inner-spin-button { display:none; }
-.par-inp:focus { outline:1px solid var(--gold); border-radius:3px; }
+/* Score input */
+.sc-inp{width:46px;height:38px;background:var(--bg3);border:1.5px solid var(--gray3);border-radius:5px;text-align:center;font-size:17px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.sc-inp::-webkit-inner-spin-button{display:none;}
+.sc-inp:focus{outline:none;border-color:var(--gold);}
+.sc-inp.eagle {background:#3a2800;border-color:#f39c12;color:#f39c12;}
+.sc-inp.birdie{background:#3a1a1a;border-color:#e74c3c;color:#e74c3c;}
+.sc-inp.par   {background:#1a3a22;border-color:#2ecc71;color:#2ecc71;}
+.sc-inp.bogey {background:#1a2a3a;border-color:#3498db;color:#3498db;}
+.sc-inp.double{background:#2a1a3a;border-color:#9b59b6;color:#9b59b6;}
+.sc-inp.triple{background:#3a1a1a;border-color:#c0392b;color:#c0392b;}
 
-/* スコア入力 */
-.sc-inp { width:46px; height:38px; background:var(--bg3); border:1.5px solid var(--gray3); border-radius:5px; text-align:center; font-size:17px; font-weight:700; color:#fff; font-family:'Oswald',sans-serif; -moz-appearance:textfield; }
-.sc-inp::-webkit-inner-spin-button { display:none; }
-.sc-inp:focus { outline:none; border-color:var(--gold); }
-.sc-inp.eagle  { background:#3a2800; border-color:#f39c12; color:#f39c12; }
-.sc-inp.birdie { background:#3a1a1a; border-color:#e74c3c; color:#e74c3c; }
-.sc-inp.par    { background:#1a3a22; border-color:#2ecc71; color:#2ecc71; }
-.sc-inp.bogey  { background:#1a2a3a; border-color:#3498db; color:#3498db; }
-.sc-inp.double { background:#2a1a3a; border-color:#9b59b6; color:#9b59b6; }
-.sc-inp.triple { background:#3a1a1a; border-color:#c0392b; color:#c0392b; }
+/* Summary bar */
+.score-summary{background:var(--bg2);border-top:1px solid var(--bg3);display:flex;flex-shrink:0;}
+.ss-item{flex:1;text-align:center;padding:5px 4px;border-right:1px solid var(--bg3);}
+.ss-item:last-child{border-right:none;}
+.ss-name{font-size:10px;color:var(--gray1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ss-gross{font-family:'Oswald',sans-serif;font-size:19px;font-weight:700;line-height:1.1;}
+.ss-diff{font-size:11px;color:var(--gray1);font-weight:600;}
 
-/* サマリーバー */
-.score-summary { background:var(--bg2); border-top:1px solid var(--bg3); display:flex; flex-shrink:0; }
-.ss-item { flex:1; text-align:center; padding:5px 4px; border-right:1px solid var(--bg3); }
-.ss-item:last-child { border-right:none; }
-.ss-name { font-size:10px; color:var(--gray1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ss-gross { font-family:'Oswald',sans-serif; font-size:19px; font-weight:700; line-height:1.1; }
-.ss-diff { font-size:11px; color:var(--gray1); font-weight:600; }
+/* Olympic */
+.oly-wrap{overflow-x:auto;margin-bottom:12px;}
+.oly-tbl{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
+.oly-tbl thead th{background:var(--green);color:#fff;padding:7px 4px;text-align:center;font-size:11px;border:1px solid rgba(255,255,255,0.15);}
+.oly-tbl thead th.h-col{background:var(--gold);color:#1a1a1a;}
+.oly-tbl td{padding:3px;text-align:center;border:1px solid var(--bg3);vertical-align:middle;}
+.oly-tbl tbody tr:nth-child(even) td{background:#1e1e1e;}
+.oly-tbl tr.oly-sub td{background:var(--green);color:#fff;font-weight:700;border:1px solid rgba(255,255,255,0.2);}
+.oly-tbl tr.oly-tot td{background:#0d2b1a;color:#fff;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,0.2);}
+.oly-inp{width:48px;height:38px;background:var(--bg3);border:1.5px solid var(--gray3);border-radius:5px;text-align:center;font-size:16px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.oly-inp::-webkit-inner-spin-button{display:none;}
+.oly-inp:focus{outline:none;border-color:var(--gold);}
+.oly-inp.pos{border-color:#2ecc71;background:#1a3a22;color:#2ecc71;}
+.oly-inp.neg{border-color:#e74c3c;background:#3a1a1a;color:#e74c3c;}
+.pt-p{color:#2ecc71;font-weight:700;} .pt-m{color:#e74c3c;font-weight:700;} .pt-z{color:var(--gray2);} .pt-n{color:var(--bg3);}
+.rank-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.rank-tbl thead th{background:var(--green);color:#fff;padding:8px 6px;text-align:center;font-size:11px;}
+.rank-tbl td{padding:9px 6px;text-align:center;border-bottom:1px solid var(--bg3);}
+.rank-tbl tbody tr:last-child td{border-bottom:none;}
+.pname{text-align:left !important;padding-left:12px !important;font-weight:600;}
+.rb{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-weight:700;font-size:11px;}
+.r1{background:var(--gold);color:#1a1a1a;} .r2{background:#888;color:#fff;} .r3{background:#cd7f32;color:#fff;}
 
-/* ── オリンピックページ ── */
-.oly-wrap { overflow-x:auto; margin-bottom:12px; }
-.oly-tbl { width:100%; border-collapse:collapse; font-size:13px; white-space:nowrap; }
-.oly-tbl thead th { background:var(--green); color:#fff; padding:7px 4px; text-align:center; font-size:11px; font-weight:600; border:1px solid rgba(255,255,255,0.15); }
-.oly-tbl thead th.h-col { background:var(--gold); color:#1a1a1a; }
-.oly-tbl td { padding:3px; text-align:center; border:1px solid var(--bg3); vertical-align:middle; }
-.oly-tbl tbody tr:nth-child(even) td { background:#1e1e1e; }
-.oly-tbl tr.oly-sub td { background:var(--green); color:#fff; font-weight:700; border:1px solid rgba(255,255,255,0.2); }
-.oly-tbl tr.oly-tot td { background:#0d2b1a; color:#fff; font-weight:700; font-size:14px; border:1px solid rgba(255,255,255,0.2); }
-.oly-inp { width:48px; height:38px; background:var(--bg3); border:1.5px solid var(--gray3); border-radius:5px; text-align:center; font-size:16px; font-weight:700; color:#fff; font-family:'Oswald',sans-serif; -moz-appearance:textfield; }
-.oly-inp::-webkit-inner-spin-button { display:none; }
-.oly-inp:focus { outline:none; border-color:var(--gold); }
-.oly-inp.pos { border-color:#2ecc71; background:#1a3a22; color:#2ecc71; }
-.oly-inp.neg { border-color:#e74c3c; background:#3a1a1a; color:#e74c3c; }
-.pt-cell { font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; }
-.pt-p { color:#2ecc71; } .pt-m { color:#e74c3c; } .pt-z { color:var(--gray2); } .pt-n { color:var(--bg3); }
-.rank-tbl { width:100%; border-collapse:collapse; font-size:13px; }
-.rank-tbl thead th { background:var(--green); color:#fff; padding:8px 6px; text-align:center; font-size:11px; }
-.rank-tbl td { padding:9px 6px; text-align:center; border-bottom:1px solid var(--bg3); }
-.rank-tbl tbody tr:last-child td { border-bottom:none; }
-.pname { text-align:left !important; padding-left:12px !important; font-weight:600; }
-.rb { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; font-weight:700; font-size:11px; }
-.r1 { background:var(--gold); color:#1a1a1a; } .r2 { background:#888; color:#fff; } .r3 { background:#cd7f32; color:#fff; }
+/* History */
+.rc{background:var(--card);border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.rc-hdr{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;}
+.rc-title{font-weight:700;font-size:14px;}
+.rc-date{font-size:11px;opacity:.8;}
+.rc-body{padding:10px 12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.rc-stat{text-align:center;}
+.rc-val{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--gold);}
+.rc-lbl{font-size:10px;color:var(--gray1);}
+.rc-actions{margin-left:auto;display:flex;gap:6px;}
+.rc-saved{font-size:10px;color:var(--gray2);padding:2px 12px 8px;}
 
-/* ── 履歴ページ ── */
-.rc { background:var(--card); border-radius:10px; margin-bottom:8px; overflow:hidden; }
-.rc-hdr { background:linear-gradient(90deg,var(--green),#1a4a2e); padding:8px 12px; display:flex; justify-content:space-between; align-items:center; }
-.rc-title { font-weight:700; font-size:14px; }
-.rc-date { font-size:11px; opacity:.8; }
-.rc-body { padding:10px 12px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-.rc-stat { text-align:center; }
-.rc-val { font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--gold); }
-.rc-lbl { font-size:10px; color:var(--gray1); }
-.rc-actions { margin-left:auto; display:flex; gap:6px; }
-.rc-saved { font-size:10px; color:var(--gray2); padding:2px 12px 8px; }
+/* Stats */
+.p-chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 10px;}
+.p-chip{padding:5px 14px;border-radius:20px;font-size:12px;border:1px solid var(--bg3);background:var(--bg2);cursor:pointer;color:var(--gray1);}
+.p-chip.active{background:var(--green);border-color:var(--green);color:#fff;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.stat-box{text-align:center;padding:9px;background:var(--bg2);border-radius:8px;}
+.stat-val{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--gold);}
+.stat-lbl{font-size:10px;color:var(--gray1);margin-top:2px;}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:60px;margin:8px 0;}
+.bar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.bar-fill{width:100%;border-radius:3px 3px 0 0;}
+.bar-lbl{font-size:9px;color:var(--gray1);text-align:center;line-height:1.2;}
+.bar-val{font-size:9px;font-weight:700;}
 
-/* ── 統計ページ ── */
-.p-chips { display:flex; gap:6px; flex-wrap:wrap; padding:8px 0 10px; }
-.p-chip { padding:5px 14px; border-radius:20px; font-size:12px; border:1px solid var(--bg3); background:var(--bg2); cursor:pointer; color:var(--gray1); }
-.p-chip.active { background:var(--green); border-color:var(--green); color:#fff; }
-.stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
-.stat-box { text-align:center; padding:9px; background:var(--bg2); border-radius:8px; }
-.stat-val { font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:var(--gold); }
-.stat-lbl { font-size:10px; color:var(--gray1); margin-top:2px; }
-.bar-chart { display:flex; align-items:flex-end; gap:4px; height:60px; margin:8px 0; }
-.bar-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
-.bar-fill { width:100%; border-radius:3px 3px 0 0; }
-.bar-lbl { font-size:9px; color:var(--gray1); text-align:center; line-height:1.2; }
-.bar-val { font-size:9px; font-weight:700; }
+/* ===== ゴルフ場登録テーブル ===== */
+.cf-tbl-wrap{overflow-x:auto;margin-bottom:10px;}
+.cf-tbl{border-collapse:collapse;font-size:12px;min-width:560px;width:100%;}
+.cf-tbl th{background:var(--green);color:#fff;padding:6px 3px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,0.2);}
+.cf-tbl th.lbl-col{background:var(--gold);color:#1a1a1a;min-width:72px;}
+.cf-tbl th.sum-col{background:#0d2b1a;min-width:32px;}
+.cf-tbl td{padding:3px 2px;text-align:center;border:1px solid var(--bg3);background:var(--bg2);vertical-align:middle;}
+.cf-name-inp{width:68px;height:32px;background:var(--bg3);border:1px solid var(--gray3);border-radius:4px;text-align:center;font-size:12px;color:#fff;font-family:'Noto Sans JP',sans-serif;}
+.cf-name-inp:focus{outline:none;border-color:var(--gold);}
+.cf-par-inp{width:32px;height:32px;background:var(--bg3);border:1px solid var(--gray3);border-radius:4px;text-align:center;font-size:14px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.cf-par-inp::-webkit-inner-spin-button{display:none;}
+.cf-par-inp:focus{outline:none;border-color:var(--gold);}
+.cf-sum{font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:var(--gold);background:#0d2b1a !important;}
 
-/* ── コース管理ページ ── */
-.par-grid { display:grid; grid-template-columns:repeat(9,1fr); gap:3px; margin-bottom:8px; }
-.par-hbox { display:flex; flex-direction:column; align-items:center; gap:2px; }
-.par-hlbl { font-size:9px; color:var(--gray2); }
-.par-hinp { width:100%; height:32px; background:var(--bg3); border:1px solid var(--gray3); border-radius:4px; text-align:center; font-size:14px; font-weight:700; color:#fff; font-family:'Oswald',sans-serif; -moz-appearance:textfield; }
-.par-hinp::-webkit-inner-spin-button { display:none; }
-.par-hinp:focus { outline:none; border-color:var(--gold); }
-.course-card { background:var(--card); border-radius:10px; margin-bottom:8px; overflow:hidden; }
-.cc-hdr { background:linear-gradient(90deg,var(--green),#1a4a2e); padding:9px 12px; display:flex; justify-content:space-between; align-items:center; }
-.cc-name { font-weight:700; font-size:14px; }
-.cc-body { padding:10px 12px; }
-.cc-par-row { display:flex; gap:3px; overflow-x:auto; padding-bottom:2px; }
-.cc-par-cell { text-align:center; flex-shrink:0; min-width:26px; }
-.cc-par-lbl { font-size:9px; color:var(--gray2); }
-.cc-par-val { font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; color:var(--gold); }
-.cc-sub { font-size:11px; color:var(--gray1); margin-top:4px; }
+/* 登録済みゴルフ場一覧 */
+.gc{background:var(--card);border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.gc-hdr{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:9px 12px;display:flex;justify-content:space-between;align-items:center;}
+.gc-name{font-weight:700;font-size:14px;}
+.gc-course{background:var(--bg2);border-radius:6px;margin:6px;padding:8px 10px;}
+.gc-course-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.gc-course-name{font-weight:600;font-size:13px;color:var(--gold);}
+.gc-par-row{display:flex;gap:3px;overflow-x:auto;padding-bottom:2px;}
+.gc-par-cell{text-align:center;flex-shrink:0;min-width:26px;}
+.gc-par-lbl{font-size:9px;color:var(--gray2);}
+.gc-par-val{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:#fff;}
+.gc-sub{font-size:11px;color:var(--gray1);margin-top:3px;}
 
-/* ── モーダル ── */
-.modal-ov { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:200; align-items:center; justify-content:center; padding:16px; }
-.modal-ov.open { display:flex; }
-.modal { background:var(--bg2); border-radius:14px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid var(--bg3); }
-.modal-hdr { background:var(--green); color:#fff; padding:13px 16px; border-radius:14px 14px 0 0; display:flex; justify-content:space-between; align-items:center; }
-.modal-ttl { font-family:'Oswald',sans-serif; font-size:16px; font-weight:600; }
-.modal-x { background:none; border:none; color:#fff; font-size:22px; cursor:pointer; line-height:1; }
-.modal-body { padding:14px 16px; }
-.modal-ftr { padding:10px 16px; border-top:1px solid var(--bg3); display:flex; gap:8px; justify-content:flex-end; }
+/* Modal */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-ov.open{display:flex;}
+.modal{background:var(--bg2);border-radius:14px;width:100%;max-width:420px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid var(--bg3);}
+.modal-hdr{background:var(--green);color:#fff;padding:13px 16px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;}
+.modal-ttl{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;}
+.modal-x{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;}
+.modal-body{padding:14px 16px;}
+.modal-ftr{padding:10px 16px;border-top:1px solid var(--bg3);display:flex;gap:8px;justify-content:flex-end;}
 
-/* フォーム部品 */
-.flbl { font-size:12px; color:var(--gray1); margin-bottom:4px; display:block; }
-.finp { width:100%; padding:8px 10px; border:1.5px solid var(--bg3); border-radius:6px; font-size:14px; color:#fff; font-family:'Noto Sans JP',sans-serif; background:var(--bg3); margin-bottom:10px; }
-.finp:focus { outline:none; border-color:var(--green); }
-.fsel { width:100%; padding:8px 10px; border:1.5px solid var(--bg3); border-radius:6px; font-size:14px; color:#fff; font-family:'Noto Sans JP',sans-serif; background:var(--bg3); margin-bottom:10px; }
-.fsel:focus { outline:none; border-color:var(--green); }
-.frow { display:flex; gap:8px; }
-.frow > div { flex:1; }
+/* Form parts */
+.flbl{font-size:12px;color:var(--gray1);margin-bottom:4px;display:block;}
+.finp{width:100%;padding:8px 10px;border:1.5px solid var(--bg3);border-radius:6px;font-size:14px;color:#fff;font-family:'Noto Sans JP',sans-serif;background:var(--bg3);margin-bottom:10px;}
+.finp:focus{outline:none;border-color:var(--green);}
+.fsel{width:100%;padding:8px 10px;border:1.5px solid var(--bg3);border-radius:6px;font-size:14px;color:#fff;font-family:'Noto Sans JP',sans-serif;background:var(--bg3);margin-bottom:10px;}
+.fsel:focus{outline:none;border-color:var(--green);}
+.frow{display:flex;gap:8px;}
+.frow>div{flex:1;}
 
-/* ボタン */
-.btn { padding:9px 16px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; border:none; font-family:'Noto Sans JP',sans-serif; }
-.btn-gold { background:var(--gold); color:#1a1a1a; }
-.btn-out { background:transparent; border:1.5px solid var(--bg3); color:var(--gray1); }
-.btn-green { background:var(--green); color:#fff; }
-.btn-sm { padding:5px 10px; border-radius:5px; font-size:11px; font-weight:600; cursor:pointer; border:none; font-family:'Noto Sans JP',sans-serif; }
-.btn-sm-g { background:var(--green); color:#fff; }
-.btn-sm-r { background:#3a1a1a; color:var(--red); border:1px solid #5a2a2a; }
+/* Buttons */
+.btn{padding:9px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans JP',sans-serif;}
+.btn-gold{background:var(--gold);color:#1a1a1a;}
+.btn-out{background:transparent;border:1.5px solid var(--bg3);color:var(--gray1);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-sm{padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans JP',sans-serif;}
+.btn-sm-g{background:var(--green);color:#fff;}
+.btn-sm-r{background:#3a1a1a;color:var(--red);border:1px solid #5a2a2a;}
 
-/* トースト */
-.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px); background:#333; color:#fff; padding:10px 20px; border-radius:8px; font-size:13px; box-shadow:0 4px 20px rgba(0,0,0,.5); z-index:300; transition:transform .3s; pointer-events:none; white-space:nowrap; }
-.toast.show { transform:translateX(-50%) translateY(0); }
-
-/* ── ゴルフ場登録テーブル ── */
-.cf-par-tbl { border-collapse:collapse; font-size:12px; min-width:600px; width:100%; }
-.cf-par-tbl th { background:var(--green); color:#fff; padding:5px 3px; text-align:center; font-size:11px; font-weight:600; border:1px solid rgba(255,255,255,0.2); }
-.cf-par-tbl th.cf-th-label { min-width:70px; background:var(--gold); color:#1a1a1a; }
-.cf-par-tbl th.cf-th-sum { background:#0d2b1a; min-width:36px; }
-.cf-par-tbl td { padding:3px 2px; text-align:center; border:1px solid var(--bg3); background:var(--bg2); vertical-align:middle; }
-.cf-cname-inp { width:68px; height:32px; background:var(--bg3); border:1px solid var(--gray3); border-radius:4px; text-align:center; font-size:12px; color:#fff; font-family:'Noto Sans JP',sans-serif; padding:0 2px; }
-.cf-cname-inp:focus { outline:none; border-color:var(--gold); }
-.cf-par-inp { width:34px; height:32px; background:var(--bg3); border:1px solid var(--gray3); border-radius:4px; text-align:center; font-size:14px; font-weight:700; color:#fff; font-family:'Oswald',sans-serif; -moz-appearance:textfield; }
-.cf-par-inp::-webkit-inner-spin-button { display:none; }
-.cf-par-inp:focus { outline:none; border-color:var(--gold); }
-.cf-sum { font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; color:var(--gold); background:#0d2b1a !important; }
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:300;transition:transform .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 
-<!-- ヘッダー -->
 <div class="hdr">
   <div>
     <div class="hdr-logo">⛳ GOLF SCORE</div>
@@ -225,7 +211,6 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
   </div>
 </div>
 
-<!-- ナビ -->
 <div class="nav">
   <div class="nav-tab active" onclick="showPage('score')">🏌️ スコア</div>
   <div class="nav-tab" onclick="showPage('olympic')">🏅 五輪</div>
@@ -235,7 +220,7 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
 
 <div class="pages">
 
-  <!-- ===== スコア ===== -->
+  <!-- スコア -->
   <div id="page-score" class="page active">
     <div class="score-page">
       <div class="score-tbl-wrap">
@@ -245,7 +230,7 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
     </div>
   </div>
 
-  <!-- ===== オリンピック ===== -->
+  <!-- オリンピック -->
   <div id="page-olympic" class="page">
     <div class="inner">
       <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;">
@@ -258,17 +243,13 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
         <div style="font-size:11px;color:var(--gray1);">スコアタブと独立して入力できます。マイナス可。</div>
       </div>
       <div class="sec-ttl">✏️ スコア入力 &amp; ポイント</div>
-      <div class="oly-wrap">
-        <table class="oly-tbl" id="oly-tbl"></table>
-      </div>
+      <div class="oly-wrap"><table class="oly-tbl" id="oly-tbl"></table></div>
       <div class="sec-ttl">🏆 順位・収支</div>
-      <div style="overflow-x:auto;">
-        <table class="rank-tbl" id="rank-tbl"></table>
-      </div>
+      <div style="overflow-x:auto;"><table class="rank-tbl" id="rank-tbl"></table></div>
     </div>
   </div>
 
-  <!-- ===== 履歴 ===== -->
+  <!-- 履歴 -->
   <div id="page-history" class="page">
     <div class="inner">
       <div class="sec-ttl">📋 ラウンド履歴</div>
@@ -276,7 +257,7 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
     </div>
   </div>
 
-  <!-- ===== 統計 ===== -->
+  <!-- 統計 -->
   <div id="page-stats" class="page">
     <div class="inner">
       <div class="p-chips" id="stats-chips"></div>
@@ -292,7 +273,7 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
     </div>
   </div>
 
-  <!-- ===== コース管理 ===== -->
+  <!-- ゴルフ場登録 -->
   <div id="page-course" class="page">
     <div class="inner">
       <div class="sec-ttl">⛳ ゴルフ場登録</div>
@@ -302,74 +283,73 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
         <label class="flbl">ゴルフ場名</label>
         <input class="finp" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
 
-        <!-- 前半・後半 表形式PAR入力 -->
-        <div style="overflow-x:auto;margin-bottom:8px;">
-          <table class="cf-par-tbl">
+        <!-- 前半テーブル -->
+        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:4px;">前半（H1〜H9）</div>
+        <div class="cf-tbl-wrap">
+          <table class="cf-tbl">
             <thead>
               <tr>
-                <th class="cf-th-label">コース名</th>
-                <th>H1</th><th>H2</th><th>H3</th><th>H4</th><th>H5</th><th>H6</th><th>H7</th><th>H8</th><th>H9</th>
-                <th class="cf-th-sum">計</th>
+                <th class="lbl-col">コース名</th>
+                <th>H1</th><th>H2</th><th>H3</th><th>H4</th><th>H5</th>
+                <th>H6</th><th>H7</th><th>H8</th><th>H9</th>
+                <th class="sum-col">計</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><input class="cf-cname-inp" type="text" id="cf-out-name" placeholder="OUT"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_0" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_1" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_2" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_3" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_4" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_5" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_6" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_7" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_8" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td class="cf-sum" id="cf-out-sum">-</td>
+                <td><input class="cf-name-inp" type="text" id="cf-out-name" placeholder="例：OUT"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp0" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp1" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp2" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp3" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp4" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp5" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp6" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp7" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp8" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td class="cf-sum" id="cf-out-sum">36</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div style="overflow-x:auto;margin-bottom:10px;">
-          <table class="cf-par-tbl">
+        <!-- 後半テーブル -->
+        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:4px;margin-top:8px;">後半（H10〜H18）</div>
+        <div class="cf-tbl-wrap">
+          <table class="cf-tbl">
             <thead>
               <tr>
-                <th class="cf-th-label">コース名</th>
-                <th>H10</th><th>H11</th><th>H12</th><th>H13</th><th>H14</th><th>H15</th><th>H16</th><th>H17</th><th>H18</th>
-                <th class="cf-th-sum">計</th>
+                <th class="lbl-col">コース名</th>
+                <th>H10</th><th>H11</th><th>H12</th><th>H13</th><th>H14</th>
+                <th>H15</th><th>H16</th><th>H17</th><th>H18</th>
+                <th class="sum-col">計</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><input class="cf-cname-inp" type="text" id="cf-in-name" placeholder="IN"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_9" oninput="updateCfSums()"  min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_10" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_11" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_12" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_13" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_14" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_15" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_16" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp_17" oninput="updateCfSums()" min="3" max="6" value="4"></td>
-                <td class="cf-sum" id="cf-in-sum">-</td>
+                <td><input class="cf-name-inp" type="text" id="cf-in-name" placeholder="例：IN"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp9"  min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp10" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp11" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp12" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp13" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp14" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp15" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp16" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp17" min="3" max="6" value="4" oninput="calcCfSum()"></td>
+                <td class="cf-sum" id="cf-in-sum">36</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div id="cf-added-list" style="margin-bottom:8px;"></div>
-
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-green" onclick="cfAddCourse()" style="flex:1;">＋ 追加</button>
-          <button class="btn btn-out" onclick="cfClearCourse()" style="flex:1;">クリア</button>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button class="btn btn-gold" onclick="cfSaveAll()" style="flex:1;">💾 ゴルフ場を保存</button>
-          <button class="btn btn-out" onclick="cfCancel()" style="flex:1;">リセット</button>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-gold" onclick="saveCourse()" style="flex:1;">💾 ゴルフ場を保存</button>
+          <button class="btn btn-out" onclick="resetCf()" style="flex:1;">リセット</button>
         </div>
       </div>
 
-      <div class="sec-ttl" style="margin-top:4px;">📋 登録済みゴルフ場</div>
+      <div class="sec-ttl">📋 登録済みゴルフ場</div>
       <div id="course-list"></div>
     </div>
   </div>
@@ -381,18 +361,28 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
   <div class="modal">
     <div class="modal-hdr">
       <div class="modal-ttl">⛳ 新規ラウンド</div>
-      <button class="modal-x" onclick="closeModal('modal-new')">×</button>
+      <button class="modal-x" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <label class="flbl">ゴルフ場名</label>
-      <input class="finp" type="text" id="new-course" placeholder="入力 or 候補から選択"
-        list="club-datalist" oninput="onClubInput(this.value)" autocomplete="off">
-      <datalist id="club-datalist"></datalist>
 
-      <label class="flbl">コース</label>
-      <select class="fsel" id="course-sel" onchange="onCourseSelect()">
-        <option value="">-- コースを選択（ゴルフ場名を入力後） --</option>
+      <label class="flbl">ゴルフ場を選択</label>
+      <select class="fsel" id="sel-club" onchange="onClubChange()">
+        <option value="">-- ゴルフ場を選択 --</option>
       </select>
+
+      <div id="course-sel-area">
+        <label class="flbl">前半コースを選択</label>
+        <select class="fsel" id="sel-out" onchange="onCourseChange()">
+          <option value="">-- 前半コース --</option>
+        </select>
+        <label class="flbl">後半コースを選択</label>
+        <select class="fsel" id="sel-in" onchange="onCourseChange()">
+          <option value="">-- 後半コース --</option>
+        </select>
+      </div>
+
+      <label class="flbl">コース名（自動入力・変更可）</label>
+      <input class="finp" type="text" id="new-course" placeholder="例：よみうりゴルフ倶楽部 OUT/IN">
 
       <div class="frow">
         <div>
@@ -407,6 +397,7 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
           </select>
         </div>
       </div>
+
       <div style="font-weight:700;color:var(--gold);margin-bottom:8px;">プレイヤー（最大4名）</div>
       <input class="finp" type="text" id="p0" placeholder="プレイヤー1">
       <input class="finp" type="text" id="p1" placeholder="プレイヤー2">
@@ -414,7 +405,7 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
       <input class="finp" type="text" id="p3" placeholder="プレイヤー4">
     </div>
     <div class="modal-ftr">
-      <button class="btn btn-out" onclick="closeModal('modal-new')">キャンセル</button>
+      <button class="btn btn-out" onclick="closeModal()">キャンセル</button>
       <button class="btn btn-gold" onclick="createRound()">開始 ▶</button>
     </div>
   </div>
@@ -423,22 +414,22 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== STATE ====================
-const SKEY  = 'golf_v4';
-const CKEY  = 'golf_courses_v1';
-const DPARS = [4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4];
+// ==================== CONSTANTS ====================
+const SKEY   = 'golf_v5';
+const CKEY   = 'golf_courses_v2';
+const DPARS  = [4,3,4,5,4,3,5,4,4, 4,4,3,5,4,4,3,5,4];
 
+// ==================== STATE ====================
 let S = {
   id:null, course:'', date:'', holes:18,
   players:[], pars:[...DPARS],
   scores:null, putts:null, oly:null,
   history:[], statsP:0
 };
+let scoreTimers = {};
+let cfEditing = null; // 編集中のゴルフ場名
 
-let editingCourse = null;
-let scoreTimers   = {};
-
-function initData() {
+function initData(){
   const h=S.holes, n=S.players.length;
   S.scores = Array.from({length:h},()=>Array(n).fill(null));
   S.putts  = Array.from({length:h},()=>Array(n).fill(null));
@@ -446,23 +437,23 @@ function initData() {
 }
 
 // ==================== 永続化 ====================
-function persist() {
+function persist(){
   try {
     localStorage.setItem(SKEY, JSON.stringify({
-      history: S.history,
-      cur: { id:S.id, course:S.course, date:S.date, holes:S.holes,
-             players:S.players, pars:S.pars,
-             scores:S.scores, putts:S.putts, oly:S.oly, statsP:S.statsP }
+      history:S.history,
+      cur:{id:S.id,course:S.course,date:S.date,holes:S.holes,
+           players:S.players,pars:S.pars,
+           scores:S.scores,putts:S.putts,oly:S.oly,statsP:S.statsP}
     }));
-  } catch(e){}
+  }catch(e){}
 }
 
-function load() {
-  try {
-    const d = JSON.parse(localStorage.getItem(SKEY)||'null');
+function loadState(){
+  try{
+    const d=JSON.parse(localStorage.getItem(SKEY)||'null');
     if(!d) return;
-    if(d.history) S.history = d.history;
-    if(d.cur) {
+    if(d.history) S.history=d.history;
+    if(d.cur){
       const c=d.cur;
       S.id=c.id||null; S.course=c.course||''; S.date=c.date||'';
       S.holes=c.holes||18; S.players=c.players||[]; S.pars=c.pars||[...DPARS];
@@ -470,25 +461,24 @@ function load() {
       S.statsP=c.statsP||0;
       if(!S.scores) initData();
     }
-  } catch(e){}
+  }catch(e){}
 }
 
-function saveRound() {
-  const e = {
+function saveRound(){
+  const e={
     id:S.id||Date.now(), course:S.course, date:S.date, holes:S.holes,
     players:[...S.players], pars:[...S.pars],
     scores:S.scores.map(r=>[...r]), putts:S.putts.map(r=>[...r]),
     oly:S.oly.map(r=>[...r]), savedAt:new Date().toISOString()
   };
-  S.id = e.id;
-  const i = S.history.findIndex(h=>h.id===e.id);
+  S.id=e.id;
+  const i=S.history.findIndex(h=>h.id===e.id);
   if(i>=0) S.history[i]=e; else S.history.unshift(e);
-  persist();
-  toast('💾 保存しました');
+  persist(); toast('💾 保存しました');
 }
 
-function loadEntry(id) {
-  const e = S.history.find(h=>h.id===id);
+function loadEntry(id){
+  const e=S.history.find(h=>h.id===id);
   if(!e) return;
   S.id=e.id; S.course=e.course; S.date=e.date; S.holes=e.holes;
   S.players=[...e.players]; S.pars=[...e.pars];
@@ -496,95 +486,40 @@ function loadEntry(id) {
   S.putts=e.putts?e.putts.map(r=>[...r]):Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
   S.oly=e.oly?e.oly.map(r=>[...r]):Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
   S.statsP=0;
-  document.getElementById('hdr-course').textContent = S.course||'-';
+  document.getElementById('hdr-course').textContent=S.course||'-';
   renderScore(); showPage('score');
   toast('📂 読み込みました');
 }
 
-function deleteEntry(id) {
+function deleteEntry(id){
   if(!confirm('削除しますか？')) return;
-  S.history = S.history.filter(h=>h.id!==id);
+  S.history=S.history.filter(h=>h.id!==id);
   persist(); renderHistory(); toast('🗑️ 削除しました');
 }
 
 // ==================== コースデータ ====================
-function getCourses() {
-  try { return JSON.parse(localStorage.getItem(CKEY)||'{}'); } catch(e){return{};}
+// 構造: { "よみうりゴルフ倶楽部": { "OUT": [p1..p9], "IN": [p10..p18] } }
+function getCourses(){
+  try{ return JSON.parse(localStorage.getItem(CKEY)||'{}'); }catch(e){ return {}; }
 }
-function setCourses(obj) { localStorage.setItem(CKEY, JSON.stringify(obj)); }
-
-function populateCourseSelect() {
-  const dl = document.getElementById('club-datalist');
-  if(!dl) return;
-  const cs = getCourses();
-  dl.innerHTML = Object.keys(cs).map(n=>`<option value="${n}">`).join('');
-}
-
-function onClubSelect() {
-  const courseSel = document.getElementById('course-sel');
-  document.getElementById('new-course').value = clubName;
-  S.pars = [...DPARS];
-
-  if(!clubName){ courseSel.innerHTML='<option value="">-- コースを選択 --</option>'; return; }
-
-  const cs = getCourses();
-  const club = cs[clubName];
-  if(!club){ courseSel.innerHTML='<option value="">-- コースを選択 --</option>'; return; }
-
-  const courses = Object.keys(club);
-  courseSel.innerHTML = '<option value="">-- コースを選択 --</option>'
-    + courses.map(c=>`<option value="${c}">${c}</option>`).join('');
-
-  if(courses.length===1){ courseSel.value=courses[0]; onCourseSelect(); }
-}
-
-function onClubInput(val) {
-  const courseSel = document.getElementById('course-sel');
-  S.pars = [...DPARS];
-  const cs = getCourses();
-  const club = cs[val];
-  if(!club){
-    courseSel.innerHTML='<option value="">-- コースを選択 --</option>';
-    return;
-  }
-  const rounds = Object.keys(club);
-  courseSel.innerHTML = '<option value="">-- コースを選択 --</option>'
-    + rounds.map(r=>`<option value="${r}">${r}</option>`).join('');
-  if(rounds.length===1){ courseSel.value=rounds[0]; onCourseSelect(); }
-}
-
-function onCourseSelect() {
-  const v = document.getElementById('course-sel').value;
-  if(!v) return;
-  if(v.startsWith('p:')) {
-    const parts=v.slice(2).split(':');
-    document.getElementById('new-course').value=parts[0];
-    S.pars=parts[1].split(',').map(Number);
-  } else if(v.startsWith('s:')) {
-    const name=v.slice(2);
-    document.getElementById('new-course').value=name;
-    const cs=getCourses();
-    if(cs[name]) S.pars=cs[name];
-  }
-  // コース欄はクリアして手入力を促す
-}
+function setCourses(obj){ localStorage.setItem(CKEY, JSON.stringify(obj)); }
 
 // ==================== ナビ ====================
-const PAGE_IDX = {score:0,olympic:1,history:2,stats:3,course:99};
-function showPage(p) {
+const PAGE_IDX={score:0,olympic:1,history:2,stats:3,course:99};
+function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
-  document.querySelectorAll('.nav-tab')[PAGE_IDX[p]].classList.add('active');
+  if(PAGE_IDX[p]<4) document.querySelectorAll('.nav-tab')[PAGE_IDX[p]].classList.add('active');
   if(p==='score')   renderScore();
   if(p==='olympic') { renderOlyTable(); renderOlySummary(); }
   if(p==='history') renderHistory();
   if(p==='stats')   { renderStatsChips(); renderStats(); }
-  if(p==='course')  renderCoursePage();
+  if(p==='course')  { calcCfSum(); renderCourseList(); }
 }
 
 // ==================== スコアページ ====================
-function scoreClass(s, par) {
+function scoreClass(s,par){
   if(s===null) return '';
   const d=s-par;
   if(d<=-2) return 'eagle';
@@ -595,16 +530,13 @@ function scoreClass(s, par) {
   return 'triple';
 }
 
-function renderScore() {
+function renderScore(){
   renderScoreTable();
   renderSummary();
 }
 
-function renderScoreTable() {
-  if(!S.players.length) {
-    document.getElementById('score-tbl').innerHTML='';
-    return;
-  }
+function renderScoreTable(){
+  if(!S.players.length){ document.getElementById('score-tbl').innerHTML=''; return; }
   const n=S.players.length, h=S.holes;
   let html='<thead><tr>'
     +'<th class="h-col">H</th>'
@@ -612,7 +544,7 @@ function renderScoreTable() {
     +S.players.map(p=>`<th style="min-width:50px;font-size:11px;">${p}</th>`).join('')
     +'</tr></thead><tbody>';
 
-  function half(start, end, label) {
+  function half(start,end,label){
     for(let hi=start;hi<end;hi++){
       const par=S.pars[hi];
       html+='<tr>'
@@ -624,17 +556,16 @@ function renderScoreTable() {
       }
       html+='</tr>';
     }
-    // 小計
     html+='<tr class="sub"><td class="hcell">'+label+'</td><td>'+S.pars.slice(start,end).reduce((a,b)=>a+b,0)+'</td>';
     for(let pi=0;pi<n;pi++){
-      const entered=S.scores.slice(start,end).filter(r=>r[pi]!==null);
-      html+=`<td id="sub_${label}_${pi}">${entered.length?entered.reduce((a,r)=>a+r[pi],0):'-'}</td>`;
+      const en=S.scores.slice(start,end).filter(r=>r[pi]!==null);
+      html+=`<td id="sub_${label}_${pi}">${en.length?en.reduce((a,r)=>a+r[pi],0):'-'}</td>`;
     }
     html+='</tr>';
   }
 
-  half(0, Math.min(9,h), 'OUT');
-  if(h>9) half(9, h, 'IN');
+  half(0,Math.min(9,h),'OUT');
+  if(h>9) half(9,h,'IN');
 
   html+='<tr class="tot"><td class="hcell">TOT</td><td>'+S.pars.slice(0,h).reduce((a,b)=>a+b,0)+'</td>';
   for(let pi=0;pi<n;pi++){
@@ -646,31 +577,30 @@ function renderScoreTable() {
   document.getElementById('score-tbl').innerHTML=html;
 }
 
-function setPar(inp, hi) {
+function setPar(inp,hi){
   const v=parseInt(inp.value);
   if(!isNaN(v)&&v>=1){ S.pars[hi]=v; renderScoreTable(); renderSummary(); }
 }
 
-function onScoreInput(inp, hi, pi) {
+function onScoreInput(inp,hi,pi){
   const key=`${hi}_${pi}`;
   clearTimeout(scoreTimers[key]);
   const raw=inp.value;
-  if(raw===''){ S.scores[hi][pi]=null; inp.className='sc-inp'; refreshTots(); renderSummary(); return; }
+  if(raw===''){S.scores[hi][pi]=null;inp.className='sc-inp';refreshTots();renderSummary();return;}
   const v=parseInt(raw);
   if(isNaN(v)) return;
-  // 2桁 or 7以上→即確定、それ以外は600ms待機
-  if(raw.length>=2 || v>=7) { applyScore(inp,hi,pi,v); }
+  if(raw.length>=2||v>=7){ applyScore(inp,hi,pi,v); }
   else { scoreTimers[key]=setTimeout(()=>applyScore(inp,hi,pi,parseInt(inp.value)),600); }
 }
 
-function applyScore(inp, hi, pi, v) {
+function applyScore(inp,hi,pi,v){
   S.scores[hi][pi]=(!v||v<1)?null:v;
-  inp.className='sc-inp '+scoreClass(S.scores[hi][pi], S.pars[hi]);
+  inp.className='sc-inp '+scoreClass(S.scores[hi][pi],S.pars[hi]);
   refreshTots(); renderSummary();
 }
 
-function refreshTots() {
-  const n=S.players.length, h=S.holes, out=Math.min(9,h);
+function refreshTots(){
+  const n=S.players.length,h=S.holes,out=Math.min(9,h);
   for(let pi=0;pi<n;pi++){
     const calc=(s,e)=>{const en=S.scores.slice(s,e).filter(r=>r[pi]!==null);return en.length?en.reduce((a,r)=>a+r[pi],0):'-';};
     const o=document.getElementById('sub_OUT_'+pi); if(o) o.textContent=calc(0,out);
@@ -680,12 +610,11 @@ function refreshTots() {
   }
 }
 
-function renderSummary() {
+function renderSummary(){
   let html='';
   S.players.forEach((name,pi)=>{
     const ent=S.scores.map((r,hi)=>({s:r[pi],par:S.pars[hi]})).filter(x=>x.s!==null);
-    const g=ent.reduce((a,x)=>a+x.s,0);
-    const p=ent.reduce((a,x)=>a+x.par,0);
+    const g=ent.reduce((a,x)=>a+x.s,0), p=ent.reduce((a,x)=>a+x.par,0);
     const d=g-p, any=ent.length>0;
     const ds=any?(d===0?'E':d>0?'+'+d:''+d):'-';
     html+=`<div class="ss-item"><div class="ss-name">${name}</div><div class="ss-gross">${any?g:'-'}</div><div class="ss-diff">${ds}</div></div>`;
@@ -694,9 +623,8 @@ function renderSummary() {
 }
 
 // ==================== オリンピック ====================
-function calcOly(row) {
-  const n=row.length;
-  const valid=row.map((s,i)=>({s,i})).filter(x=>x.s!==null);
+function calcOly(row){
+  const n=row.length, valid=row.map((s,i)=>({s,i})).filter(x=>x.s!==null);
   const pts=Array(n).fill(null);
   if(valid.length<2) return pts;
   valid.forEach(({s:my,i:pi})=>{
@@ -705,49 +633,33 @@ function calcOly(row) {
   });
   return pts;
 }
-
-function subPts(s,e,pi){ let t=0,any=false; for(let hi=s;hi<e;hi++){const p=calcOly(S.oly[hi]);if(p[pi]!==null){t+=p[pi];any=true;}} return any?t:null; }
-
+function subPts(s,e,pi){let t=0,any=false;for(let hi=s;hi<e;hi++){const p=calcOly(S.oly[hi]);if(p[pi]!==null){t+=p[pi];any=true;}}return any?t:null;}
 function fmtPt(v){
-  if(v===null) return '<span class="pt-cell pt-n">-</span>';
-  if(v===0)    return '<span class="pt-cell pt-z">0</span>';
-  return v>0?`<span class="pt-cell pt-p">+${v}</span>`:`<span class="pt-cell pt-m">${v}</span>`;
+  if(v===null) return '<span class="pt-n">-</span>';
+  if(v===0)    return '<span class="pt-z">0</span>';
+  return v>0?`<span class="pt-p">+${v}</span>`:`<span class="pt-m">${v}</span>`;
 }
 
-function renderOlyTable() {
-  if(!S.players.length){ document.getElementById('oly-tbl').innerHTML=''; return; }
+function renderOlyTable(){
+  if(!S.players.length){document.getElementById('oly-tbl').innerHTML='';return;}
   const n=S.players.length, h=S.holes;
-  let html='<thead><tr>'
-    +'<th class="h-col">H</th><th style="background:#1a3a2e;color:var(--gray1);">PAR</th>'
+  let html='<thead><tr><th class="h-col">H</th><th style="background:#1a3a2e;color:var(--gray1);">PAR</th>'
     +S.players.map(p=>`<th style="font-size:10px;">${p}</th>`).join('')
     +S.players.map(p=>`<th style="font-size:10px;background:#0d2b1a;">${p}<br>pt</th>`).join('')
     +'</tr></thead><tbody>';
-
   function half(s,e,lbl){
     for(let hi=s;hi<e;hi++){
-      const row=S.oly[hi], pts=calcOly(row), par=S.pars[hi];
-      html+='<tr>'
-        +`<td class="hcell">${hi+1}</td><td style="background:#1a3a2e;color:var(--gray1);">${par}</td>`;
-      for(let pi=0;pi<n;pi++){
-        const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td><input class="oly-inp ${cls}" type="number" value="${v!==null?v:''}" placeholder="-" oninput="onOlyInput(this,${hi},${pi})" onfocus="this.select()"></td>`;
-      }
+      const row=S.oly[hi],pts=calcOly(row),par=S.pars[hi];
+      html+='<tr><td class="hcell">'+(hi+1)+'</td><td style="background:#1a3a2e;color:var(--gray1);">'+par+'</td>';
+      for(let pi=0;pi<n;pi++){const v=row[pi],cls=v!==null?(v<0?'neg':'pos'):'';html+=`<td><input class="oly-inp ${cls}" type="number" value="${v!==null?v:''}" placeholder="-" oninput="onOlyInput(this,${hi},${pi})" onfocus="this.select()"></td>`;}
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fmtPt(pts[pi])}</td>`;
       html+='</tr>';
     }
-    html+='<tr class="oly-sub"><td colspan="2">'+lbl+'</td>'
-      +S.players.map(()=>'<td>-</td>').join('')
-      +S.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fmtPt(subPts(s,e,pi))}</td>`).join('')
-      +'</tr>';
+    html+='<tr class="oly-sub"><td colspan="2">'+lbl+'</td>'+S.players.map(()=>'<td>-</td>').join('')+S.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fmtPt(subPts(s,e,pi))}</td>`).join('')+'</tr>';
   }
-
   half(0,Math.min(9,h),'OUT');
   if(h>9) half(9,h,'IN');
-
-  html+='<tr class="oly-tot"><td colspan="2">TOTAL</td>'
-    +S.players.map(()=>'<td>-</td>').join('')
-    +S.players.map((_,pi)=>`<td id="ot_${pi}">${fmtPt(subPts(0,h,pi))}</td>`).join('')
-    +'</tr></tbody>';
+  html+='<tr class="oly-tot"><td colspan="2">TOTAL</td>'+S.players.map(()=>'<td>-</td>').join('')+S.players.map((_,pi)=>`<td id="ot_${pi}">${fmtPt(subPts(0,h,pi))}</td>`).join('')+'</tr></tbody>';
   document.getElementById('oly-tbl').innerHTML=html;
 }
 
@@ -757,40 +669,29 @@ function onOlyInput(inp,hi,pi){
   const s=S.oly[hi][pi];
   inp.className='oly-inp '+(s===null?'':(s<0?'neg':'pos'));
   const pts=calcOly(S.oly[hi]);
-  S.players.forEach((_,p)=>{const el=document.getElementById('op_'+hi+'_'+p);if(el)el.innerHTML=fmtPt(pts[p]);});
+  S.players.forEach((_,p)=>{const el=document.getElementById(`op_${hi}_${p}`);if(el)el.innerHTML=fmtPt(pts[p]);});
   refreshOlySubs(); renderOlySummary();
 }
-
 function refreshOlySubs(){
-  const n=S.players.length, h=S.holes, out=Math.min(9,h);
+  const n=S.players.length,h=S.holes,out=Math.min(9,h);
   for(let pi=0;pi<n;pi++){
-    const o=document.getElementById('os_OUT_'+pi); if(o) o.innerHTML=fmtPt(subPts(0,out,pi));
-    if(h>9){const i=document.getElementById('os_IN_'+pi); if(i) i.innerHTML=fmtPt(subPts(9,h,pi));}
-    const t=document.getElementById('ot_'+pi); if(t) t.innerHTML=fmtPt(subPts(0,h,pi));
+    const o=document.getElementById('os_OUT_'+pi);if(o)o.innerHTML=fmtPt(subPts(0,out,pi));
+    if(h>9){const i=document.getElementById('os_IN_'+pi);if(i)i.innerHTML=fmtPt(subPts(9,h,pi));}
+    const t=document.getElementById('ot_'+pi);if(t)t.innerHTML=fmtPt(subPts(0,h,pi));
   }
 }
-
 function renderOlySummary(){
   const unit=parseInt(document.getElementById('unit-price').value)||100;
-  const n=S.players.length, h=S.holes, out=Math.min(9,h);
+  const n=S.players.length,h=S.holes,out=Math.min(9,h);
   const tots=S.players.map((_,pi)=>subPts(0,h,pi));
-  const ranked=tots.map((p,i)=>({i,p})).sort((a,b)=>{
-    if(a.p===null&&b.p===null) return 0;
-    if(a.p===null) return 1; if(b.p===null) return -1;
-    return a.p-b.p;
-  });
-  const fp=v=>{
-    if(v===null) return '<span style="color:var(--gray2)">-</span>';
-    if(v===0) return '<span style="color:var(--gray2)">0pt</span>';
-    return v>0?`<span class="pt-p">+${v}pt</span>`:`<span class="pt-m">${v}pt</span>`;
-  };
+  const ranked=tots.map((p,i)=>({i,p})).sort((a,b)=>{if(a.p===null&&b.p===null)return 0;if(a.p===null)return 1;if(b.p===null)return -1;return a.p-b.p;});
+  const fp=v=>{if(v===null)return '<span style="color:var(--gray2)">-</span>';if(v===0)return '<span style="color:var(--gray2)">0pt</span>';return v>0?`<span class="pt-p">+${v}pt</span>`:`<span class="pt-m">${v}pt</span>`;};
   let html='<thead><tr><th>順位</th><th class="pname">プレイヤー</th><th>OUT</th>'+(h>9?'<th>IN</th>':'')+'<th>合計</th><th>収支</th></tr></thead><tbody>';
   ranked.forEach(({i:pi},rank)=>{
-    const badge=rank<3?`<span class="rb r${rank+1}">${rank+1}</span>`:`${rank+1}`;
-    const tot=tots[pi];
-    const m=tot!==null?(-tot)*unit:null;
+    const badge=rank<3?`<span class="rb r${rank+1}">${rank+1}</span>`:rank+1;
+    const tot=tots[pi],m=tot!==null?(-tot)*unit:null;
     const ms=m===null?'-':m>=0?`<span class="pt-p">+¥${m.toLocaleString()}</span>`:`<span class="pt-m">¥${m.toLocaleString()}</span>`;
-    html+=`<tr><td>${badge}</td><td class="pname">${S.players[pi]}</td><td>${fp(subPts(0,out,pi))}</td>`+(h>9?`<td>${fp(subPts(9,h,pi))}</td>`:'')+`<td style="font-weight:700;">${fp(tot)}</td><td style="font-weight:700;">${ms}</td></tr>`;
+    html+=`<tr><td>${badge}</td><td class="pname">${S.players[pi]}</td><td>${fp(subPts(0,out,pi))}</td>${h>9?`<td>${fp(subPts(9,h,pi))}</td>`:''}<td style="font-weight:700;">${fp(tot)}</td><td style="font-weight:700;">${ms}</td></tr>`;
   });
   document.getElementById('rank-tbl').innerHTML=html+'</tbody>';
 }
@@ -798,14 +699,11 @@ function renderOlySummary(){
 // ==================== 履歴 ====================
 function renderHistory(){
   const el=document.getElementById('history-list');
-  if(!S.history.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>保存されたラウンドがありません</div></div>';
-    return;
-  }
+  if(!S.history.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>保存されたラウンドがありません</div></div>';return;}
   el.innerHTML=S.history.map(r=>{
     const p0=r.scores.map(row=>row[0]);
-    const g=p0.reduce((a,s)=>a+(s||0),0), any=p0.some(s=>s!==null);
-    const pt=r.pars.reduce((a,b)=>a+b,0), d=g-pt;
+    const g=p0.reduce((a,s)=>a+(s||0),0),any=p0.some(s=>s!==null);
+    const pt=r.pars.reduce((a,b)=>a+b,0),d=g-pt;
     const saved=r.savedAt?new Date(r.savedAt).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
     return `<div class="rc">
       <div class="rc-hdr"><div class="rc-title">⛳ ${r.course||'（未設定）'}</div><div class="rc-date">${r.date}</div></div>
@@ -825,16 +723,15 @@ function renderHistory(){
 
 // ==================== 統計 ====================
 function renderStatsChips(){
-  document.getElementById('stats-chips').innerHTML=
-    S.players.map((p,i)=>`<div class="p-chip ${i===S.statsP?'active':''}" onclick="selSP(${i})">${p}</div>`).join('');
+  document.getElementById('stats-chips').innerHTML=S.players.map((p,i)=>
+    `<div class="p-chip ${i===S.statsP?'active':''}" onclick="selSP(${i})">${p}</div>`).join('');
 }
-function selSP(i){ S.statsP=i; renderStatsChips(); renderStats(); }
-
+function selSP(i){S.statsP=i;renderStatsChips();renderStats();}
 function renderStats(){
   const pi=S.statsP;
   let eagle=0,birdie=0,par=0,bogey=0,dbl=0,triple=0;
   S.scores.forEach((row,hi)=>{
-    const s=row[pi]; if(s===null) return;
+    const s=row[pi];if(s===null)return;
     const d=s-S.pars[hi];
     if(d<=-2)eagle++;else if(d===-1)birdie++;else if(d===0)par++;else if(d===1)bogey++;else if(d===2)dbl++;else triple++;
   });
@@ -844,9 +741,8 @@ function renderStats(){
     {l:'Par',v:par,c:'#2ecc71'},{l:'Bogey',v:bogey,c:'#3498db'},
     {l:'Dbl',v:dbl,c:'#9b59b6'},{l:'Triple+',v:triple,c:'#c0392b'},
   ].map(b=>`<div class="bar-item"><div class="bar-val" style="color:${b.c}">${b.v||''}</div><div class="bar-fill" style="height:${b.v/max*50}px;background:${b.c}"></div><div class="bar-lbl">${b.l}</div></div>`).join('');
-
-  const g=S.scores.reduce((a,r)=>a+(r[pi]||0),0), any=S.scores.some(r=>r[pi]!==null);
-  const putt=S.putts.reduce((a,r)=>a+(r[pi]||0),0), pany=S.putts.some(r=>r[pi]!==null);
+  const g=S.scores.reduce((a,r)=>a+(r[pi]||0),0),any=S.scores.some(r=>r[pi]!==null);
+  const putt=S.putts.reduce((a,r)=>a+(r[pi]||0),0),pany=S.putts.some(r=>r[pi]!==null);
   const played=eagle+birdie+par+bogey+dbl+triple;
   document.getElementById('stats-grid').innerHTML=`
     <div class="stat-box"><div class="stat-val">${any?g:'-'}</div><div class="stat-lbl">グロス</div></div>
@@ -855,223 +751,198 @@ function renderStats(){
     <div class="stat-box"><div class="stat-val">${bogey}</div><div class="stat-lbl">ボギー</div></div>
     <div class="stat-box"><div class="stat-val">${dbl}</div><div class="stat-lbl">ダブル</div></div>
     <div class="stat-box"><div class="stat-val">${pany?putt:'-'}</div><div class="stat-lbl">パット数</div></div>`;
-
   let det='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;">'
     +'<tr style="background:var(--green);"><th style="padding:5px 8px;">H</th><th>Par</th><th>Score</th><th>±</th></tr>';
   S.scores.forEach((row,hi)=>{
-    const s=row[pi]; if(s===null) return;
-    const d=s-S.pars[hi], ds=d===0?'E':d>0?'+'+d:''+d;
-    const colors={eagle:'#f39c12',birdie:'#e74c3c',par:'#2ecc71',bogey:'#3498db',double:'#9b59b6',triple:'#c0392b'};
-    const sc=scoreClass(s,S.pars[hi]);
+    const s=row[pi];if(s===null)return;
+    const d=s-S.pars[hi],ds=d===0?'E':d>0?'+'+d:''+d;
+    const cols={eagle:'#f39c12',birdie:'#e74c3c',par:'#2ecc71',bogey:'#3498db',double:'#9b59b6',triple:'#c0392b'};
     det+=`<tr style="border-bottom:1px solid var(--bg3);">
       <td style="padding:5px 8px;text-align:center;">${hi+1}</td>
       <td style="text-align:center;">${S.pars[hi]}</td>
-      <td style="text-align:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:${colors[sc]||'#fff'}">${s}</td>
+      <td style="text-align:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:${cols[scoreClass(s,S.pars[hi])]||'#fff'}">${s}</td>
       <td style="text-align:center;font-weight:700;color:${d<0?'#e74c3c':d>0?'#3498db':'#2ecc71'}">${ds}</td>
     </tr>`;
   });
   document.getElementById('stats-detail').innerHTML=det+'</table></div>';
 }
 
-// ==================== コース管理 ====================
-// データ構造:
-// { "よみうりゴルフ倶楽部": {
-//     "OUTコース": { outName:"OUTコース", inName:"INコース", pars:[4,3,...18ホール] }
-//   }
-// }
-let cfTempCourses = {};
-
-function renderCoursePage(){
-  buildParGrids();
-  renderCourseList();
-  cfReset();
-}
-
-function buildParGrids(){
-  updateCfSums();
-}
-
-function updateCfSums(){
+// ==================== ゴルフ場登録 ====================
+function calcCfSum(){
   let out=0, inn=0;
-  for(let i=0;i<9;i++){const v=parseInt(document.getElementById('cfp_'+i)?.value)||0; out+=v;}
-  for(let i=9;i<18;i++){const v=parseInt(document.getElementById('cfp_'+i)?.value)||0; inn+=v;}
+  for(let i=0;i<9;i++)  out += parseInt(document.getElementById('cfp'+i)?.value)||0;
+  for(let i=9;i<18;i++) inn += parseInt(document.getElementById('cfp'+i)?.value)||0;
   const o=document.getElementById('cf-out-sum'); if(o) o.textContent=out;
   const i=document.getElementById('cf-in-sum');  if(i) i.textContent=inn;
 }
 
-function cfReset(){
-  document.getElementById('cf-name').value='';
-  const o=document.getElementById('cf-out-name'); if(o) o.value='';
-  const i=document.getElementById('cf-in-name');  if(i) i.value='';
-  for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=4;}
-  cfTempCourses={};
-  renderCfAddedList();
-  updateCfSums();
-  const t=document.getElementById('cf-ttl'); if(t) t.textContent='新規ゴルフ場登録';
-}
-
-function cfClearCourse(){
-  const o=document.getElementById('cf-out-name'); if(o) o.value='';
-  const i=document.getElementById('cf-in-name');  if(i) i.value='';
-  for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=4;}
-  updateCfSums();
-}
-
-// ラウンド（コース）を一時追加
-function cfAddCourse(){
+function saveCourse(){
   const clubName = document.getElementById('cf-name').value.trim();
-  const outName  = (document.getElementById('cf-out-name')?.value||'').trim();
-  const inName   = (document.getElementById('cf-in-name')?.value||'').trim();
-  if(!clubName){toast('ゴルフ場名を入力してください');return;}
-  if(!outName&&!inName){toast('前半または後半のコース名を入力してください');return;}
-  // キー = "OUT / IN" または片方だけ
-  const roundName = [outName,inName].filter(Boolean).join(' / ');
-  const pars=[];
+  if(!clubName){ toast('ゴルフ場名を入力してください'); return; }
+  const outName = document.getElementById('cf-out-name').value.trim() || 'OUT';
+  const inName  = document.getElementById('cf-in-name').value.trim()  || 'IN';
+  const pars = [];
   for(let i=0;i<18;i++){
-    const v=parseInt(document.getElementById('cfp_'+i)?.value);
+    const v = parseInt(document.getElementById('cfp'+i)?.value);
     pars.push(isNaN(v)?4:v);
   }
-  cfTempCourses[roundName]={outName, inName, pars};
-  cfClearCourse();
-  renderCfAddedList();
-  toast('✅「'+roundName+'」を追加しました');
-}
-
-function renderCfAddedList(){
-  const el=document.getElementById('cf-added-list');
-  if(!el) return;
-  const names=Object.keys(cfTempCourses);
-  if(!names.length){el.innerHTML='';return;}
-  el.innerHTML='<div style="font-size:12px;color:var(--gold);margin-bottom:6px;">追加済みラウンド：</div>'
-    +names.map(n=>{
-      const d=cfTempCourses[n];
-      const out=d.pars.slice(0,9).reduce((a,b)=>a+b,0);
-      const inn=d.pars.slice(9,18).reduce((a,b)=>a+b,0);
-      const sn=n.replace(/'/g,"\'");
-      return `<div style="background:var(--bg3);border-radius:6px;padding:7px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div style="font-weight:700;font-size:13px;">🏌️ ${n}</div>
-          <div style="font-size:11px;color:var(--gray1);">前半:${d.outName||'-'} 後半:${d.inName||'-'} OUT:${out} IN:${inn} TOT:${out+inn}</div>
-        </div>
-        <button class="btn-sm btn-sm-r" onclick="cfRemove('${sn}')">✕</button>
-      </div>`;
-    }).join('');
-}
-
-function cfRemove(name){
-  delete cfTempCourses[name];
-  renderCfAddedList();
-}
-
-// ゴルフ場全体を保存
-function cfSaveAll(){
-  const clubName=document.getElementById('cf-name').value.trim();
-  if(!clubName){toast('ゴルフ場名を入力してください');return;}
-  if(!Object.keys(cfTempCourses).length){
-    toast('「＋ 追加」ボタンを押してからゴルフ場を保存してください');return;
-  }
-  const cs=getCourses();
-  if(!cs[clubName]) cs[clubName]={};
-  Object.assign(cs[clubName], cfTempCourses);
-  setCourses(cs);
-  // renderCourseListの前にリセット
-  const savedName=clubName;
-  cfReset(); // cfTempCourses={}もここで実行
-  populateCourseSelect();
-  renderCourseList();
-  toast('💾「'+savedName+'」を保存しました');
-}
-
-function cfCancel(){
-  cfReset();
-}
-
-function editCourse(clubName, roundName){
-  const cs=getCourses();
-  const d=cs[clubName]?.[roundName];
-  if(!d) return;
-  document.getElementById('cf-name').value=clubName;
-  document.getElementById('cf-course').value=roundName;
-  const o=document.getElementById('cf-out-name'); if(o) o.value=d.outName||'';
-  const i=document.getElementById('cf-in-name');  if(i) i.value=d.inName||'';
-  for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=d.pars[i]||4;}
-  // 一時リストに追加・元データから削除
-  cfTempCourses={};
-  cfTempCourses[roundName]=d;
-  delete cs[clubName][roundName];
-  if(!Object.keys(cs[clubName]).length) delete cs[clubName];
+  const cs = getCourses();
+  if(!cs[clubName]) cs[clubName] = {};
+  // 前半・後半それぞれを保存
+  cs[clubName][outName] = pars.slice(0,9);
+  cs[clubName][inName]  = pars.slice(9,18);
   setCourses(cs);
   renderCourseList();
-  populateCourseSelect();
-  renderCfAddedList();
-  const t=document.getElementById('cf-ttl'); if(t) t.textContent='編集：'+clubName+' '+roundName;
+  cfEditing = null;
+  document.getElementById('cf-ttl').textContent = '新規ゴルフ場登録';
+  toast('💾「'+clubName+'」を保存しました');
+}
+
+function resetCf(){
+  document.getElementById('cf-name').value='';
+  document.getElementById('cf-out-name').value='';
+  document.getElementById('cf-in-name').value='';
+  for(let i=0;i<18;i++){const el=document.getElementById('cfp'+i);if(el)el.value=4;}
+  calcCfSum();
+  cfEditing=null;
+  document.getElementById('cf-ttl').textContent='新規ゴルフ場登録';
+}
+
+function editCourse(clubName, courseName){
+  // courseName = "OUT" or "IN" （前半・後半の片方）
+  // 両方含むゴルフ場全体を編集フォームに読み込む
+  const cs = getCourses();
+  const club = cs[clubName];
+  if(!club) return;
+  document.getElementById('cf-name').value = clubName;
+  document.getElementById('cf-ttl').textContent = '編集：'+clubName;
+  cfEditing = clubName;
+  // コース名とPARを復元
+  const courseNames = Object.keys(club);
+  const outKey = courseNames[0]||'OUT';
+  const inKey  = courseNames[1]||'IN';
+  document.getElementById('cf-out-name').value = outKey;
+  document.getElementById('cf-in-name').value  = inKey;
+  const outPars = club[outKey]||Array(9).fill(4);
+  const inPars  = club[inKey] ||Array(9).fill(4);
+  for(let i=0;i<9;i++){const el=document.getElementById('cfp'+i);if(el)el.value=outPars[i]||4;}
+  for(let i=0;i<9;i++){const el=document.getElementById('cfp'+(i+9));if(el)el.value=inPars[i]||4;}
+  calcCfSum();
   showPage('course');
-  toast('編集中：'+roundName);
+  document.getElementById('course-form-card')?.scrollIntoView({behavior:'smooth'});
+  toast('編集中：'+clubName);
 }
 
-function deleteCourse(clubName, roundName){
-  if(!confirm('「'+clubName+' '+roundName+'」を削除しますか？')) return;
+function deleteClub(clubName){
+  if(!confirm('「'+clubName+'」を削除しますか？')) return;
   const cs=getCourses();
-  if(cs[clubName]){
-    delete cs[clubName][roundName];
-    if(!Object.keys(cs[clubName]).length) delete cs[clubName];
-  }
+  delete cs[clubName];
   setCourses(cs);
-  renderCourseList(); populateCourseSelect(); toast('🗑️ 削除しました');
+  renderCourseList();
+  toast('🗑️ 削除しました');
 }
 
 function renderCourseList(){
   const el=document.getElementById('course-list');
-  if(!el) return;
-  const cs=getCourses(); const clubs=Object.keys(cs);
+  const cs=getCourses();
+  const clubs=Object.keys(cs);
   if(!clubs.length){
     el.innerHTML='<div class="empty"><div class="empty-icon">⛳</div><div>登録済みゴルフ場がありません</div></div>';
     return;
   }
   el.innerHTML=clubs.map(clubName=>{
-    const rounds=cs[clubName];
-    const roundCards=Object.keys(rounds).map(roundName=>{
-      const d=rounds[roundName];
-      // 旧形式(配列)への後方互換
-      const pars=Array.isArray(d)?d:d.pars;
-      const outName=Array.isArray(d)?'前半':d.outName;
-      const inName =Array.isArray(d)?'後半':d.inName;
-      const out=pars.slice(0,9).reduce((a,b)=>a+b,0);
-      const inn=pars.slice(9,18).reduce((a,b)=>a+b,0);
-      const cells=pars.map((p,i)=>`<div class="cc-par-cell"><div class="cc-par-lbl">${i+1}</div><div class="cc-par-val">${p}</div></div>`).join('');
-      const sc=clubName.replace(/'/g,"\'"), sr=roundName.replace(/'/g,"\'");
-      return `<div style="background:var(--bg2);border-radius:8px;margin-bottom:6px;overflow:hidden;">
-        <div style="background:#1a3a2e;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <span style="font-weight:600;font-size:13px;">🏌️ ${roundName}</span>
-            <span style="font-size:11px;color:var(--gray1);margin-left:6px;">${outName?'前半:'+outName:''} ${inName?'後半:'+inName:''}</span>
-          </div>
-          <div style="display:flex;gap:5px;">
-            <button class="btn-sm btn-sm-g" onclick="editCourse('${sc}','${sr}')">✏️</button>
-            <button class="btn-sm btn-sm-r" onclick="deleteCourse('${sc}','${sr}')">🗑️</button>
-          </div>
+    const courses=cs[clubName];
+    const courseCards=Object.keys(courses).map(cname=>{
+      const pars=courses[cname];
+      const sum=pars.reduce((a,b)=>a+b,0);
+      const cells=pars.map((p,i)=>`<div class="gc-par-cell"><div class="gc-par-lbl">${i+1}</div><div class="gc-par-val">${p}</div></div>`).join('');
+      return `<div class="gc-course">
+        <div class="gc-course-hdr">
+          <div class="gc-course-name">🏌️ ${cname}</div>
         </div>
-        <div class="cc-body">
-          <div class="cc-par-row">${cells}</div>
-          <div class="cc-sub">OUT:${out}　IN:${inn}　TOTAL:${out+inn}</div>
-        </div>
+        <div class="gc-par-row">${cells}</div>
+        <div class="gc-sub">計：${sum}</div>
       </div>`;
     }).join('');
-    return `<div class="course-card">
-      <div class="cc-hdr"><div class="cc-name">⛳ ${clubName}</div></div>
-      <div class="cc-body">${roundCards}</div>
+    const sc=clubName.replace(/'/g,"\\'");
+    return `<div class="gc">
+      <div class="gc-hdr">
+        <div class="gc-name">⛳ ${clubName}</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-sm btn-sm-g" onclick="editCourse('${sc}','')">✏️ 編集</button>
+          <button class="btn-sm btn-sm-r" onclick="deleteClub('${sc}')">🗑️</button>
+        </div>
+      </div>
+      ${courseCards}
     </div>`;
   }).join('');
 }
 
 // ==================== 新規ラウンド ====================
+function populateClubSel(){
+  const sel=document.getElementById('sel-club');
+  if(!sel) return;
+  const cs=getCourses();
+  sel.innerHTML='<option value="">-- ゴルフ場を選択 --</option>'
+    +Object.keys(cs).map(n=>`<option value="${n}">${n}</option>`).join('');
+}
+
+function onClubChange(){
+  const clubName=document.getElementById('sel-club').value;
+  const selOut=document.getElementById('sel-out');
+  const selIn =document.getElementById('sel-in');
+  document.getElementById('new-course').value=clubName;
+  S.pars=[...DPARS];
+  if(!clubName){
+    selOut.innerHTML='<option value="">-- 前半コース --</option>';
+    selIn.innerHTML ='<option value="">-- 後半コース --</option>';
+    return;
+  }
+  const cs=getCourses();
+  const club=cs[clubName];
+  if(!club){return;}
+  const courses=Object.keys(club);
+  const opts='<option value="">-- 選択 --</option>'+courses.map(c=>`<option value="${c}">${c}</option>`).join('');
+  selOut.innerHTML=opts;
+  selIn.innerHTML =opts;
+  // デフォルト：1つ目を前半、2つ目を後半に自動選択
+  if(courses.length>=1){ selOut.value=courses[0]; }
+  if(courses.length>=2){ selIn.value=courses[1]; }
+  onCourseChange();
+}
+
+function onCourseChange(){
+  const clubName=document.getElementById('sel-club').value;
+  const outName =document.getElementById('sel-out').value;
+  const inName  =document.getElementById('sel-in').value;
+  if(!clubName) return;
+  const cs=getCourses();
+  const club=cs[clubName];
+  if(!club) return;
+  // 前半9ホール
+  const outPars = outName&&club[outName] ? club[outName] : Array(9).fill(4);
+  // 後半9ホール
+  const inPars  = inName&&club[inName]   ? club[inName]  : Array(9).fill(4);
+  S.pars = [...outPars, ...inPars];
+  // コース名を自動生成
+  const courseTxt=[outName,inName].filter(Boolean).join('/');
+  document.getElementById('new-course').value=clubName+(courseTxt?' '+courseTxt:'');
+}
+
 function openNewRound(){
+  populateClubSel();
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('new-course').value='';
-  document.getElementById('course-sel').innerHTML='<option value="">-- コースを選択（ゴルフ場名を入力後） --</option>';
+  document.getElementById('sel-club').value='';
+  document.getElementById('sel-out').innerHTML='<option value="">-- 前半コース --</option>';
+  document.getElementById('sel-in').innerHTML ='<option value="">-- 後半コース --</option>';
   for(let i=0;i<4;i++){const el=document.getElementById('p'+i);if(el)el.value='';}
-  populateCourseSelect();
-  openModal('modal-new');
+  S.pars=[...DPARS];
+  document.getElementById('modal-new').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modal-new').classList.remove('open');
 }
 
 function createRound(){
@@ -1089,34 +960,29 @@ function createRound(){
   S.holes=holes; S.players=players; S.pars=pars; S.statsP=0;
   initData();
   document.getElementById('hdr-course').textContent=S.course;
-  closeModal('modal-new');
-  renderScore();
-  showPage('score');
+  closeModal();
+  renderScore(); showPage('score');
   toast('ラウンドを作成しました ⛳');
 }
 
-// ==================== ユーティリティ ====================
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
+// ==================== UTILS ====================
 function fmtDate(s){
   const d=new Date(s+'T00:00:00');
   const days=['日','月','火','水','木','金','土'];
   return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
 }
-
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-// ==================== 初期化 ====================
+// ==================== INIT ====================
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
-load();
-populateCourseSelect();
+loadState();
+calcCfSum();
 document.getElementById('hdr-course').textContent=S.course||'-';
 if(S.players.length) renderScore();
 </script>
