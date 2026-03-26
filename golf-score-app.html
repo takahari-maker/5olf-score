@@ -297,25 +297,13 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
         <label class="flbl">ゴルフ場名</label>
         <input class="fi" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
 
-        <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:6px;">前半（H1〜H9）</div>
-        <label class="flbl">コース名</label>
-        <input class="fi" type="text" id="cf-out-name" placeholder="例：OUT">
-        <table class="vtbl">
-          <thead><tr><th>ホール</th><th>PAR</th></tr></thead>
-          <tbody id="vtbl-out"></tbody>
-          <tfoot><tr><td style="text-align:right;padding-right:8px;">計</td><td id="cf-out-sum">36</td></tr></tfoot>
-        </table>
+        <!-- コース一覧（動的追加） -->
+        <div id="cf-courses-area"></div>
 
-        <div style="font-size:12px;color:var(--green);font-weight:600;margin:12px 0 6px;">後半（H10〜H18）</div>
-        <label class="flbl">コース名</label>
-        <input class="fi" type="text" id="cf-in-name" placeholder="例：IN">
-        <table class="vtbl">
-          <thead><tr><th>ホール</th><th>PAR</th></tr></thead>
-          <tbody id="vtbl-in"></tbody>
-          <tfoot><tr><td style="text-align:right;padding-right:8px;">計</td><td id="cf-in-sum">36</td></tr></tfoot>
-        </table>
-
-        <div style="display:flex;gap:8px;margin-top:10px;">
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-gr" onclick="addCfCourse()" style="flex:1;">＋ コースを追加</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
           <button class="btn btn-g" onclick="saveCourse()" style="flex:1;">💾 保存</button>
           <button class="btn btn-o" onclick="resetCf()" style="flex:1;">リセット</button>
         </div>
@@ -965,58 +953,100 @@ function renderStats(){
 function getCourses(){try{return JSON.parse(localStorage.getItem(CKEY)||'{}');}catch(e){return {};}}
 function setCourses(obj){localStorage.setItem(CKEY,JSON.stringify(obj));}
 
+// cfCoursesは登録フォームで一時保持するコース配列
+// [{name:'OUT', pars:[4,4,4,4,4,4,4,4,4]}, ...]
+let cfCourses = [];
+
 function buildVtbl(){
-  const ob=document.getElementById('vtbl-out');
-  const ib=document.getElementById('vtbl-in');
-  if(!ob||!ib) return;
-  // 3ホールごとに背景色を変える（0-2:白, 3-5:薄緑, 6-8:白）
-  const rowBg=['#ffffff','#ffffff','#ffffff','#e8f5ed','#e8f5ed','#e8f5ed','#ffffff','#ffffff','#ffffff'];
-  ob.innerHTML='';
-  for(let i=0;i<9;i++){
-    const tr=document.createElement('tr');
-    tr.style.background=rowBg[i];
-    tr.innerHTML=`<td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;background:${rowBg[i]};">H${i+1}</td><td style="background:${rowBg[i]};"><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
-    ob.appendChild(tr);
-  }
-  ib.innerHTML='';
-  for(let i=9;i<18;i++){
-    const tr=document.createElement('tr');
-    const bi=i-9;
-    tr.style.background=rowBg[bi];
-    tr.innerHTML=`<td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;background:${rowBg[bi]};">H${i+1}</td><td style="background:${rowBg[bi]};"><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
-    ib.appendChild(tr);
-  }
-  calcCfSum();
+  // 初期コース2つで開始
+  cfCourses=[
+    {name:'OUT', pars:Array(9).fill(4)},
+    {name:'IN',  pars:Array(9).fill(4)},
+  ];
+  renderCfCourses();
 }
 
-function calcCfSum(){
-  let out=0,inn=0;
-  for(let i=0;i<9;i++)  out+=parseInt(document.getElementById('cfp'+i)?.value)||0;
-  for(let i=9;i<18;i++) inn+=parseInt(document.getElementById('cfp'+i)?.value)||0;
-  const o=document.getElementById('cf-out-sum');if(o)o.textContent=out;
-  const i=document.getElementById('cf-in-sum'); if(i)i.textContent=inn;
+function addCfCourse(){
+  cfCourses.push({name:'', pars:Array(9).fill(4)});
+  renderCfCourses();
+  // 追加されたコースまでスクロール
+  setTimeout(()=>{
+    const area=document.getElementById('cf-courses-area');
+    if(area) area.lastElementChild?.scrollIntoView({behavior:'smooth'});
+  },100);
 }
+
+function removeCfCourse(idx){
+  if(cfCourses.length<=1){toast('コースは1つ以上必要です');return;}
+  cfCourses.splice(idx,1);
+  renderCfCourses();
+}
+
+function renderCfCourses(){
+  const area=document.getElementById('cf-courses-area');
+  if(!area) return;
+  const rowBg=['#ffffff','#ffffff','#ffffff','#e8f5ed','#e8f5ed','#e8f5ed','#ffffff','#ffffff','#ffffff'];
+  area.innerHTML=cfCourses.map((c,ci)=>{
+    const rows=c.pars.map((p,hi)=>{
+      return `<tr>
+        <td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;background:${rowBg[hi]};">H${hi+1}</td>
+        <td style="background:${rowBg[hi]};"><input class="cpi" type="number" min="3" max="6" value="${p}"
+          oninput="cfSetPar(${ci},${hi},this.value)"></td>
+      </tr>`;
+    }).join('');
+    const sum=c.pars.reduce((a,b)=>a+b,0);
+    return `<div style="background:#f8f9fa;border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="font-size:12px;color:var(--green);font-weight:600;flex:1;">コース ${ci+1}</div>
+        ${cfCourses.length>1?`<button class="bsm bsm-r" onclick="removeCfCourse(${ci})">✕ 削除</button>`:''}
+      </div>
+      <label class="flbl">コース名</label>
+      <input class="fi" type="text" value="${c.name}" placeholder="例：OUT、東コース"
+        oninput="cfSetName(${ci},this.value)" style="margin-bottom:8px;">
+      <table class="vtbl">
+        <thead><tr><th>ホール</th><th>PAR</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr>
+          <td style="text-align:right;padding-right:8px;">計</td>
+          <td id="cf-sum-${ci}">${sum}</td>
+        </tr></tfoot>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function cfSetName(ci,val){
+  if(cfCourses[ci]) cfCourses[ci].name=val;
+}
+
+function cfSetPar(ci,hi,val){
+  if(cfCourses[ci]){
+    cfCourses[ci].pars[hi]=parseInt(val)||4;
+    const sumEl=document.getElementById('cf-sum-'+ci);
+    if(sumEl) sumEl.textContent=cfCourses[ci].pars.reduce((a,b)=>a+b,0);
+  }
+}
+
+function calcCfSum(){} // 旧関数（互換性のため残す）
 
 function saveCourse(){
   const club=document.getElementById('cf-name').value.trim();
   if(!club){toast('ゴルフ場名を入力してください');return;}
-  const outName=document.getElementById('cf-out-name').value.trim()||'OUT';
-  const inName =document.getElementById('cf-in-name').value.trim() ||'IN';
-  const pars=[];
-  for(let i=0;i<18;i++){const v=parseInt(document.getElementById('cfp'+i)?.value);pars.push(isNaN(v)?4:v);}
+  if(!cfCourses.length){toast('コースを1つ以上追加してください');return;}
   const cs=getCourses();
   if(!cs[club]) cs[club]={};
-  cs[club][outName]=pars.slice(0,9);
-  cs[club][inName] =pars.slice(9,18);
+  cfCourses.forEach((c,i)=>{
+    const name=c.name.trim()||(i===0?'OUT':i===1?'IN':'コース'+(i+1));
+    cs[club][name]=c.pars;
+  });
   setCourses(cs);
   renderGcList();
+  populateClubSel();
   toast('💾「'+club+'」を保存しました');
 }
 
 function resetCf(){
   document.getElementById('cf-name').value='';
-  document.getElementById('cf-out-name').value='';
-  document.getElementById('cf-in-name').value='';
   document.getElementById('cf-ttl').textContent='新規登録';
   buildVtbl();
 }
@@ -1026,18 +1056,10 @@ function editGc(club){
   const c=cs[club];if(!c)return;
   document.getElementById('cf-name').value=club;
   document.getElementById('cf-ttl').textContent='編集：'+club;
-  const names=Object.keys(c);
-  const outKey=names[0]||'OUT', inKey=names[1]||'IN';
-  document.getElementById('cf-out-name').value=outKey;
-  document.getElementById('cf-in-name').value=inKey;
+  // 既存コースをcfCoursesにロード
+  cfCourses=Object.entries(c).map(([name,pars])=>({name,pars:[...pars]}));
   showPage('course');
-  setTimeout(()=>{
-    const op=c[outKey]||Array(9).fill(4);
-    const ip=c[inKey] ||Array(9).fill(4);
-    for(let i=0;i<9;i++){const el=document.getElementById('cfp'+i);if(el)el.value=op[i]||4;}
-    for(let i=0;i<9;i++){const el=document.getElementById('cfp'+(i+9));if(el)el.value=ip[i]||4;}
-    calcCfSum();
-  },100);
+  setTimeout(()=>renderCfCourses(),100);
 }
 
 function delGc(club){
