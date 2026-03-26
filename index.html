@@ -62,7 +62,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .stbl tr.putt-row td.hcell{background:#d6eaf8;}
 
 /* スコア入力 */
-.par-inp{width:34px;height:28px;background:transparent;border:none;text-align:center;font-size:13px;font-weight:700;color:#444;font-family:'Noto Sans JP',sans-serif;-moz-appearance:textfield;}
+.par-inp{width:34px;height:28px;background:transparent;border:none;text-align:center;font-size:13px;font-weight:700;color:#1a1a1a;font-family:'Noto Sans JP',sans-serif;-moz-appearance:textfield;}
 .par-inp::-webkit-inner-spin-button{display:none;}
 .par-inp:focus{outline:1px solid var(--gold);border-radius:3px;}
 .sc-inp{width:44px;height:38px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:17px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
@@ -141,19 +141,19 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .vtbl th{background:var(--green);color:#fff;padding:6px 10px;text-align:center;font-size:11px;border:1px solid rgba(255,255,255,0.2);}
 .vtbl td{padding:5px 8px;text-align:center;border:1px solid #ddd;background:#fff;}
 .vtbl tbody tr:nth-child(even) td{background:#f8f9fa;}
-.vtbl tfoot td{background:#e8f5ed;font-weight:700;color:var(--gold);font-family:'Oswald',sans-serif;}
-.cpi{width:50px;height:32px;background:#f8f9fa;border:1px solid #ccc;border-radius:4px;text-align:center;font-size:14px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.vtbl tfoot td{background:#e8f5ed;color:#1a1a1a;font-weight:700;color:var(--gold);font-family:'Oswald',sans-serif;}
+.cpi{width:50px;height:32px;background:#f8f9fa;border:1px solid #ccc;color:#1a1a1a;border-radius:4px;text-align:center;font-size:14px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
 .cpi::-webkit-inner-spin-button{display:none;}
 .cpi:focus{outline:none;border-color:var(--gold);}
 .gcc{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.1);border-radius:10px;margin-bottom:8px;overflow:hidden;}
 .gcch{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:9px 12px;display:flex;justify-content:space-between;align-items:center;}
-.gccn{font-weight:700;font-size:14px;}
-.gccr{background:#f8f9fa;border-radius:6px;margin:6px;padding:8px 10px;}
+.gccn{font-weight:700;font-size:14px;color:#fff;}
+.gccr{background:#f0f7f3;border-radius:6px;margin:6px;padding:8px 10px;}
 .gpr{display:flex;gap:3px;overflow-x:auto;padding-bottom:2px;}
 .gpc{text-align:center;flex-shrink:0;min-width:26px;}
-.gpnl{font-size:9px;color:var(--g2);}
-.gpv{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:#fff;}
-.gsub{font-size:11px;color:var(--g1);margin-top:3px;}
+.gpnl{font-size:9px;color:#666;}
+.gpv{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:#1a1a1a;}
+.gsub{font-size:11px;color:#555;margin-top:3px;}
 
 /* ── モーダル ── */
 .mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:14px;}
@@ -166,7 +166,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .mftr{padding:10px 16px;border-top:1px solid var(--bg3);display:flex;gap:8px;justify-content:flex-end;}
 
 /* フォーム */
-.flbl{font-size:12px;color:var(--g1);margin-bottom:4px;display:block;}
+.flbl{font-size:12px;color:#555;margin-bottom:4px;display:block;}
 .fi{width:100%;padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;color:#1a1a1a;font-family:'Noto Sans JP',sans-serif;background:#f8f9fa;margin-bottom:10px;}
 .fi:focus{outline:none;border-color:var(--green);background:#fff;}
 .fsel{width:100%;padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;color:#1a1a1a;font-family:'Noto Sans JP',sans-serif;background:#f8f9fa;margin-bottom:10px;}
@@ -196,6 +196,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
     <div class="hdr-sub" id="hdr-course">-</div>
   </div>
   <div class="hdr-btns">
+    <button class="hbtn" id="hist-btn" onclick="showPage('history')">📋 履歴</button>
     <button class="hbtn solid" onclick="openNewRound()">＋ 新規ラウンド</button>
     <button class="hbtn" id="reg-btn" onclick="showPage('course')">⛳ ゴルフ場登録</button>
   </div>
@@ -205,7 +206,6 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 <div class="nav">
   <div class="tab active" onclick="showPage('score')">🏌️ スコア</div>
   <div class="tab" onclick="showPage('olympic')">🏅 オリンピック</div>
-  <div class="tab" onclick="showPage('history')">📋 履歴</div>
   <div class="tab" onclick="showPage('stats')">📊 統計</div>
 </div>
 
@@ -235,12 +235,11 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
         <div>
           <label class="flbl" style="margin-bottom:2px;">単価（円/pt）</label>
           <input type="number" id="unit-price" value="100" min="1"
-            style="width:88px;padding:6px 8px;border:1.5px solid var(--bg3);border-radius:6px;font-size:14px;color:#fff;background:var(--bg3);"
+            style="width:88px;padding:6px 8px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;color:#1a1a1a;background:#f8f9fa;"
             oninput="renderOlySummary()">
         </div>
-        <div style="font-size:11px;color:var(--g1);">スコアタブと独立。マイナス入力可。</div>
+        <div style="font-size:11px;color:#666;">スコアタブと独立して入力。未入力は0として計算。</div>
       </div>
-      <div class="sec">✏️ スコア &amp; ポイント</div>
       <div class="otbl-wrap"><table class="otbl" id="otbl"></table></div>
       <div class="sec">🏆 順位・収支</div>
       <div style="overflow-x:auto;"><table class="rtbl" id="rtbl"></table></div>
@@ -276,11 +275,11 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
     <div class="inner">
       <div class="sec">⛳ ゴルフ場登録</div>
       <div class="card">
-        <div style="font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);margin-bottom:10px;" id="cf-ttl">新規登録</div>
+        <div style="font-family:'Oswald',sans-serif;font-size:15px;color:var(--green);margin-bottom:10px;" id="cf-ttl">新規登録</div>
         <label class="flbl">ゴルフ場名</label>
         <input class="fi" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
 
-        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:6px;">前半（H1〜H9）</div>
+        <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:6px;">前半（H1〜H9）</div>
         <label class="flbl">コース名</label>
         <input class="fi" type="text" id="cf-out-name" placeholder="例：OUT">
         <table class="vtbl">
@@ -289,7 +288,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           <tfoot><tr><td style="text-align:right;padding-right:8px;">計</td><td id="cf-out-sum">36</td></tr></tfoot>
         </table>
 
-        <div style="font-size:12px;color:var(--gold);font-weight:600;margin:12px 0 6px;">後半（H10〜H18）</div>
+        <div style="font-size:12px;color:var(--green);font-weight:600;margin:12px 0 6px;">後半（H10〜H18）</div>
         <label class="flbl">コース名</label>
         <input class="fi" type="text" id="cf-in-name" placeholder="例：IN">
         <table class="vtbl">
@@ -448,17 +447,22 @@ function delEntry(id) {
 }
 
 // ===== ナビ =====
-const PG = {score:0, olympic:1, history:2, stats:3, course:99};
+const PG = {score:0, olympic:1, history:99, stats:2, course:99};
 function showPage(p) {
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   if (PG[p] < 4) document.querySelectorAll('.tab')[PG[p]].classList.add('active');
-  // ゴルフ場登録ボタンのハイライト
+  // ヘッダーボタンのハイライト
   const regBtn = document.getElementById('reg-btn');
   if (regBtn) {
-    regBtn.style.background = p==='course' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)';
-    regBtn.style.color = '#fff';
+    regBtn.style.background = p==='course' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)';
+    regBtn.style.fontWeight = p==='course' ? '900' : '700';
+  }
+  const histBtn = document.getElementById('hist-btn');
+  if (histBtn) {
+    histBtn.style.background = p==='history' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)';
+    histBtn.style.fontWeight = p==='history' ? '900' : '700';
   }
   if (p==='score')   renderScore();
   if (p==='olympic') { renderOlyTbl(); renderOlySummary(); }
@@ -512,7 +516,7 @@ function renderStbl() {
   // ヘッダー：プレイヤー名（スコア+オーバー の2列）
   let html = '<thead>'
     + '<tr><th class="hcol">H</th>'
-    + '<th style="background:#1a3a2e;color:var(--g1);min-width:34px;">PAR</th>'
+    + '<th style="background:#1a3a2e;color:#fff;min-width:34px;">PAR</th>'
     + G.players.map(p=>`<th colspan="2" style="min-width:72px;font-size:11px;">${p}</th>`).join('')
     + '</tr>'
     + '<tr><th class="hcol"></th><th style="background:#1a3a2e;"></th>'
@@ -686,38 +690,58 @@ function renderSummary() {
 
 // ===== オリンピック =====
 function calcOly(row) {
-  const n=row.length, valid=row.map((s,i)=>({s,i})).filter(x=>x.s!==null);
+  const n=row.length;
   const pts=Array(n).fill(null);
-  if (valid.length<2) return pts;
-  valid.forEach(({s:my,i:pi})=>{
-    const oth=valid.filter(x=>x.i!==pi);
-    pts[pi]=my*oth.length-oth.reduce((a,x)=>a+x.s,0);
-  });
+  // 全員nullなら計算しない
+  if (row.every(v=>v===null)) return pts;
+  // 未入力は0として計算
+  const vals=row.map(v=>v===null?0:v);
+  for(let pi=0;pi<n;pi++){
+    const oth=vals.filter((_,i)=>i!==pi);
+    pts[pi]=vals[pi]*oth.length-oth.reduce((a,b)=>a+b,0);
+  }
   return pts;
 }
-function subPts(s,e,pi){let t=0,any=false;for(let hi=s;hi<e;hi++){const p=calcOly(G.oly[hi]);if(p[pi]!==null){t+=p[pi];any=true;}}return any?t:null;}
+function subPts(s,e,pi){
+  let t=0,any=false;
+  for(let hi=s;hi<e;hi++){
+    const p=calcOly(G.oly[hi]);
+    if(p[pi]!==null){t+=p[pi];any=true;}
+  }
+  return any?t:null;
+}
 function fp(v){if(v===null)return '<span class="pn">-</span>';if(v===0)return '<span class="pz">0</span>';return v>0?`<span class="pp">+${v}</span>`:`<span class="pm">${v}</span>`;}
 
 function renderOlyTbl() {
   if (!G.players.length){document.getElementById('otbl').innerHTML='';return;}
   const n=G.players.length, h=G.holes;
-  let html='<thead><tr><th class="hcol">H</th><th style="background:#1a3a2e;color:var(--g1);">PAR</th>'
-    +G.players.map(p=>`<th style="font-size:10px;">${p}</th>`).join('')
-    +G.players.map(p=>`<th style="font-size:10px;background:#0d2b1a;">${p}<br>pt</th>`).join('')
+  // ヘッダー：H列 + プレイヤースコア列 + プレイヤーpt列
+  let html='<thead><tr><th class="hcol">H</th>'
+    +G.players.map(p=>`<th style="font-size:10px;min-width:46px;">${p}</th>`).join('')
+    +G.players.map(p=>`<th style="font-size:10px;background:#d5e8d4;color:#1a1a1a;min-width:40px;">${p}<br>pt</th>`).join('')
     +'</tr></thead><tbody>';
   function half(s,e,lbl){
     for(let hi=s;hi<e;hi++){
-      const row=G.oly[hi],pts=calcOly(row),par=G.pars[hi];
-      html+=`<tr><td class="hcell">${hi+1}</td><td style="background:#1a3a2e;color:var(--g1);">${par}</td>`;
-      for(let pi=0;pi<n;pi++){const v=row[pi],cls=v!==null?(v<0?'neg':'pos'):'';html+=`<td><input class="oi ${cls}" type="number" value="${v!==null?v:''}" placeholder="-" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;}
+      const row=G.oly[hi], pts=calcOly(row);
+      html+=`<tr><td class="hcell">${hi+1}</td>`;
+      for(let pi=0;pi<n;pi++){
+        const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
+        html+=`<td><input class="oi ${cls}" type="number" value="${v!==null?v:''}" placeholder="-" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;
+      }
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
     }
-    html+=`<tr class="osub"><td colspan="2">${lbl}</td>`+G.players.map(()=>'<td>-</td>').join('')+G.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fp(subPts(s,e,pi))}</td>`).join('')+'</tr>';
+    html+=`<tr class="osub"><td>${lbl}</td>`
+      +G.players.map(()=>'<td>-</td>').join('')
+      +G.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fp(subPts(s,e,pi))}</td>`).join('')
+      +'</tr>';
   }
   half(0,Math.min(9,h),'OUT');
   if(h>9) half(9,h,'IN');
-  html+='<tr class="otot"><td colspan="2">TOTAL</td>'+G.players.map(()=>'<td>-</td>').join('')+G.players.map((_,pi)=>`<td id="ot_${pi}">${fp(subPts(0,h,pi))}</td>`).join('')+'</tr></tbody>';
+  html+='<tr class="otot"><td>TOTAL</td>'
+    +G.players.map(()=>'<td>-</td>').join('')
+    +G.players.map((_,pi)=>`<td id="ot_${pi}">${fp(subPts(0,h,pi))}</td>`).join('')
+    +'</tr></tbody>';
   document.getElementById('otbl').innerHTML=html;
 }
 
@@ -838,13 +862,13 @@ function buildVtbl(){
   ob.innerHTML='';
   for(let i=0;i<9;i++){
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="color:var(--gold);font-weight:700;text-align:left;padding-left:10px;">H${i+1}</td><td><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
+    tr.innerHTML=`<td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;">H${i+1}</td><td><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
     ob.appendChild(tr);
   }
   ib.innerHTML='';
   for(let i=9;i<18;i++){
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="color:var(--gold);font-weight:700;text-align:left;padding-left:10px;">H${i+1}</td><td><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
+    tr.innerHTML=`<td style="color:var(--green);font-weight:700;text-align:left;padding-left:10px;">H${i+1}</td><td><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
     ib.appendChild(tr);
   }
   calcCfSum();
