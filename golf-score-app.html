@@ -216,7 +216,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
     <div class="hdr-course" id="hdr-course">-</div>
   </div>
   <div class="hdr-btns">
-    <button class="hdr-btn" onclick="saveRound()">💾 保存</button>
+    <button class="hdr-btn" id="putt-toggle-btn" onclick="togglePutt()">P 非表示</button>
     <button class="hdr-btn solid" onclick="openNewRound()">＋ 新規</button>
     <button class="hdr-btn" onclick="showPage('course')">⛳ ゴルフ場登録</button>
   </div>
@@ -396,7 +396,7 @@ let S = {
   id:null, course:'', date:'', holes:18,
   players:[], pars:[...DPARS],
   scores:null, putts:null, oly:null,
-  history:[], statsP:0
+  showPutt:false, history:[], statsP:0
 };
 let scoreTimers = {};
 let cfEditing = null; // 編集中のゴルフ場名
@@ -415,7 +415,7 @@ function persist(){
       history:S.history,
       cur:{id:S.id,course:S.course,date:S.date,holes:S.holes,
            players:S.players,pars:S.pars,
-           scores:S.scores,putts:S.putts,oly:S.oly,statsP:S.statsP}
+           scores:S.scores,putts:S.putts,oly:S.oly,statsP:S.statsP,showPutt:S.showPutt}
     }));
   }catch(e){}
 }
@@ -430,7 +430,7 @@ function loadState(){
       S.id=c.id||null; S.course=c.course||''; S.date=c.date||'';
       S.holes=c.holes||18; S.players=c.players||[]; S.pars=c.pars||[...DPARS];
       S.scores=c.scores||null; S.putts=c.putts||null; S.oly=c.oly||null;
-      S.statsP=c.statsP||0;
+      S.statsP=c.statsP||0; S.showPutt=c.showPutt||false;
       if(!S.scores) initData();
     }
   }catch(e){}
@@ -537,7 +537,8 @@ function renderScoreTable(){
         html+=`<td id="over_${hi}_${pi}" style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:${overColor};">${overStr}</td>`;
       }
       html+='</tr>';
-      // パット行
+      // パット行（表示時のみ）
+      if(S.showPutt){
       html+='<tr style="background:#1a1a2e;">'
         +`<td style="font-size:9px;color:#3498db;padding:1px 3px;">P</td>`
         +`<td style="font-size:9px;color:var(--gray2);">putt</td>`;
@@ -546,6 +547,7 @@ function renderScoreTable(){
         html+=`<td colspan="2"><input class="putt-inp" type="number" min="0" max="10" value="${pt!==null?pt:''}" placeholder="-" oninput="onPuttInput(this,${hi},${pi})" onfocus="this.select()"></td>`;
       }
       html+='</tr>';
+      } // end showPutt
     }
     // スコア小計行
     html+='<tr class="sub"><td class="hcell">'+label+'</td><td>'+S.pars.slice(start,end).reduce((a,b)=>a+b,0)+'</td>';
@@ -560,6 +562,7 @@ function renderScoreTable(){
     }
     html+='</tr>';
     // パット小計行
+    if(S.showPutt){
     html+='<tr style="background:#1a1a2e;"><td style="font-size:9px;color:#3498db;" class="hcell">P</td><td style="font-size:9px;color:var(--gray2);">合計</td>';
     for(let pi=0;pi<n;pi++){
       const en=S.putts.slice(start,end).filter(r=>r[pi]!==null);
@@ -585,13 +588,15 @@ function renderScoreTable(){
   }
   html+='</tr>';
   // TOTALパット行
+  if(S.showPutt){
   html+='<tr style="background:#1a1a2e;"><td style="font-size:9px;color:#3498db;" class="hcell">P</td><td style="font-size:9px;color:var(--gray2);">合計</td>';
   for(let pi=0;pi<n;pi++){
     const any=S.putts.some(r=>r[pi]!==null);
     const tot=S.putts.reduce((a,r)=>a+(r[pi]||0),0);
     html+=`<td colspan="2" id="ptot_${pi}" style="font-size:13px;color:#3498db;">${any?tot:'-'}</td>`;
   }
-  html+='</tr></tbody>';
+  } // end showPutt
+  html+='</tbody>';
   document.getElementById('score-tbl').innerHTML=html;
 }
 
@@ -621,12 +626,14 @@ function applyScore(inp,hi,pi,v){
   const oel=document.getElementById('over_'+hi+'_'+pi);
   if(oel){oel.textContent=overStr;oel.style.color=overColor;}
   refreshTots(); renderSummary();
+  persist(); // 自動保存
 }
 
 function onPuttInput(inp,hi,pi){
   const v=parseInt(inp.value);
   S.putts[hi][pi]=isNaN(v)||v<0?null:v;
   refreshPuttTots();
+  persist(); // 自動保存
 }
 
 function refreshPuttTots(){
@@ -1084,12 +1091,32 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+// ==================== パット表示切替 ====================
+function togglePutt(){
+  S.showPutt = !S.showPutt;
+  const btn = document.getElementById('putt-toggle-btn');
+  if(btn) btn.textContent = S.showPutt ? 'P 表示中' : 'P 非表示';
+  if(btn) btn.style.borderColor = S.showPutt ? '#3498db' : '';
+  if(btn) btn.style.color = S.showPutt ? '#3498db' : '';
+  persist();
+  renderScoreTable();
+}
+
+function updatePuttBtn(){
+  const btn = document.getElementById('putt-toggle-btn');
+  if(!btn) return;
+  btn.textContent = S.showPutt ? 'P 表示中' : 'P 非表示';
+  btn.style.borderColor = S.showPutt ? '#3498db' : '';
+  btn.style.color = S.showPutt ? '#3498db' : '';
+}
+
 // ==================== INIT ====================
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 loadState();
 calcCfSum();
+updatePuttBtn();
 document.getElementById('hdr-course').textContent=S.course||'-';
 if(S.players.length) renderScore();
 </script>
