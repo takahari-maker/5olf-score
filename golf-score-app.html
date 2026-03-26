@@ -195,6 +195,19 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
 /* トースト */
 .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px); background:#333; color:#fff; padding:10px 20px; border-radius:8px; font-size:13px; box-shadow:0 4px 20px rgba(0,0,0,.5); z-index:300; transition:transform .3s; pointer-events:none; white-space:nowrap; }
 .toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ── ゴルフ場登録テーブル ── */
+.cf-par-tbl { border-collapse:collapse; font-size:12px; min-width:600px; width:100%; }
+.cf-par-tbl th { background:var(--green); color:#fff; padding:5px 3px; text-align:center; font-size:11px; font-weight:600; border:1px solid rgba(255,255,255,0.2); }
+.cf-par-tbl th.cf-th-label { min-width:70px; background:var(--gold); color:#1a1a1a; }
+.cf-par-tbl th.cf-th-sum { background:#0d2b1a; min-width:36px; }
+.cf-par-tbl td { padding:3px 2px; text-align:center; border:1px solid var(--bg3); background:var(--bg2); vertical-align:middle; }
+.cf-cname-inp { width:68px; height:32px; background:var(--bg3); border:1px solid var(--gray3); border-radius:4px; text-align:center; font-size:12px; color:#fff; font-family:'Noto Sans JP',sans-serif; padding:0 2px; }
+.cf-cname-inp:focus { outline:none; border-color:var(--gold); }
+.cf-par-inp { width:34px; height:32px; background:var(--bg3); border:1px solid var(--gray3); border-radius:4px; text-align:center; font-size:14px; font-weight:700; color:#fff; font-family:'Oswald',sans-serif; -moz-appearance:textfield; }
+.cf-par-inp::-webkit-inner-spin-button { display:none; }
+.cf-par-inp:focus { outline:none; border-color:var(--gold); }
+.cf-sum { font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; color:var(--gold); background:#0d2b1a !important; }
 </style>
 </head>
 <body>
@@ -289,27 +302,65 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:#fff; 
         <label class="flbl">ゴルフ場名</label>
         <input class="finp" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
 
-        <label class="flbl">ラウンド名（例：OUTコース、INコース、東コース）</label>
-        <input class="finp" type="text" id="cf-course" placeholder="例：OUTコース">
-
-        <div style="background:var(--bg2);border-radius:8px;padding:10px;margin-bottom:8px;">
-          <label class="flbl">前半コース名（H1〜H9）</label>
-          <input class="finp" type="text" id="cf-out-name" placeholder="例：OUTコース" style="margin-bottom:8px;">
-          <label class="flbl">H1〜H9 PAR</label>
-          <div class="par-grid" id="pg-out"></div>
+        <!-- 前半・後半 表形式PAR入力 -->
+        <div style="overflow-x:auto;margin-bottom:8px;">
+          <table class="cf-par-tbl">
+            <thead>
+              <tr>
+                <th class="cf-th-label">コース名</th>
+                <th>H1</th><th>H2</th><th>H3</th><th>H4</th><th>H5</th><th>H6</th><th>H7</th><th>H8</th><th>H9</th>
+                <th class="cf-th-sum">計</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input class="cf-cname-inp" type="text" id="cf-out-name" placeholder="OUT"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_0" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_1" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_2" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_3" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_4" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_5" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_6" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_7" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_8" min="3" max="6" value="4"></td>
+                <td class="cf-sum" id="cf-out-sum">36</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div style="background:var(--bg2);border-radius:8px;padding:10px;margin-bottom:10px;">
-          <label class="flbl">後半コース名（H10〜H18）</label>
-          <input class="finp" type="text" id="cf-in-name" placeholder="例：INコース" style="margin-bottom:8px;">
-          <label class="flbl">H10〜H18 PAR</label>
-          <div class="par-grid" id="pg-in"></div>
+        <div style="overflow-x:auto;margin-bottom:10px;">
+          <table class="cf-par-tbl">
+            <thead>
+              <tr>
+                <th class="cf-th-label">コース名</th>
+                <th>H10</th><th>H11</th><th>H12</th><th>H13</th><th>H14</th><th>H15</th><th>H16</th><th>H17</th><th>H18</th>
+                <th class="cf-th-sum">計</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input class="cf-cname-inp" type="text" id="cf-in-name" placeholder="IN"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_9"  min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_10" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_11" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_12" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_13" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_14" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_15" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_16" min="3" max="6" value="4"></td>
+                <td><input class="cf-par-inp" type="number" id="cfp_17" min="3" max="6" value="4"></td>
+                <td class="cf-sum" id="cf-in-sum">36</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div id="cf-added-list" style="margin-bottom:8px;"></div>
 
         <div style="display:flex;gap:8px;">
-          <button class="btn btn-green" onclick="cfAddCourse()" style="flex:1;">＋ このラウンドを追加</button>
+          <button class="btn btn-green" onclick="cfAddCourse()" style="flex:1;">＋ 追加</button>
           <button class="btn btn-out" onclick="cfClearCourse()" style="flex:1;">クリア</button>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;">
@@ -825,44 +876,49 @@ function renderCoursePage(){
 }
 
 function buildParGrids(){
-  function grid(start,end,id){
-    let html='';
-    for(let i=start;i<end;i++){
-      html+=`<div class="par-hbox"><div class="par-hlbl">H${i+1}</div><input class="par-hinp" type="number" min="3" max="6" id="cfp_${i}" value="4"></div>`;
-    }
-    const el=document.getElementById(id);
-    if(el) el.innerHTML=html;
+  // PAR入力欄はHTMLに直書き。合計計算のイベントだけ設定する。
+  for(let i=0;i<18;i++){
+    const el=document.getElementById('cfp_'+i);
+    if(el) el.addEventListener('input', updateCfSums);
   }
-  grid(0,9,'pg-out');
-  grid(9,18,'pg-in');
+  updateCfSums();
+}
+
+function updateCfSums(){
+  let out=0, inn=0;
+  for(let i=0;i<9;i++){const v=parseInt(document.getElementById('cfp_'+i)?.value)||0; out+=v;}
+  for(let i=9;i<18;i++){const v=parseInt(document.getElementById('cfp_'+i)?.value)||0; inn+=v;}
+  const o=document.getElementById('cf-out-sum'); if(o) o.textContent=out;
+  const i=document.getElementById('cf-in-sum');  if(i) i.textContent=inn;
 }
 
 function cfReset(){
   document.getElementById('cf-name').value='';
-  document.getElementById('cf-course').value='';
   const o=document.getElementById('cf-out-name'); if(o) o.value='';
   const i=document.getElementById('cf-in-name');  if(i) i.value='';
   for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=4;}
   cfTempCourses={};
   renderCfAddedList();
+  updateCfSums();
   const t=document.getElementById('cf-ttl'); if(t) t.textContent='新規ゴルフ場登録';
 }
 
 function cfClearCourse(){
-  document.getElementById('cf-course').value='';
   const o=document.getElementById('cf-out-name'); if(o) o.value='';
   const i=document.getElementById('cf-in-name');  if(i) i.value='';
   for(let i=0;i<18;i++){const el=document.getElementById('cfp_'+i);if(el)el.value=4;}
+  updateCfSums();
 }
 
 // ラウンド（コース）を一時追加
 function cfAddCourse(){
-  const clubName  = document.getElementById('cf-name').value.trim();
-  const roundName = document.getElementById('cf-course').value.trim();
-  const outName   = (document.getElementById('cf-out-name')?.value||'').trim();
-  const inName    = (document.getElementById('cf-in-name')?.value||'').trim();
+  const clubName = document.getElementById('cf-name').value.trim();
+  const outName  = (document.getElementById('cf-out-name')?.value||'').trim();
+  const inName   = (document.getElementById('cf-in-name')?.value||'').trim();
   if(!clubName){toast('ゴルフ場名を入力してください');return;}
-  if(!roundName){toast('ラウンド名を入力してください');return;}
+  if(!outName&&!inName){toast('前半または後半のコース名を入力してください');return;}
+  // キー = "OUT / IN" または片方だけ
+  const roundName = [outName,inName].filter(Boolean).join(' / ');
   const pars=[];
   for(let i=0;i<18;i++){
     const v=parseInt(document.getElementById('cfp_'+i)?.value);
