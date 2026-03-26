@@ -54,10 +54,10 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .stbl td{padding:2px;text-align:center;border:1px solid #ddd;vertical-align:middle;}
 .stbl tbody tr:nth-child(even) td{background:#f8f9fa;}
 .stbl td.hcell{background:#f0f2f5;font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:var(--gold);position:sticky;left:0;z-index:4;}
-.stbl tr.sub td{background:var(--green);color:#fff;font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,0.2);}
-.stbl tr.sub td.hcell{background:var(--green);}
-.stbl tr.tot td{background:#0d2b1a;color:#fff;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,0.2);}
-.stbl tr.tot td.hcell{background:#0d2b1a;}
+.stbl tr.sub td{background:#e8f5ed;color:#1a1a1a;font-weight:700;font-size:13px;border:1px solid #b2dfdb;}
+.stbl tr.sub td.hcell{background:var(--green);color:#fff;}
+.stbl tr.tot td{background:#c8e6c9;color:#1a1a1a;font-weight:700;font-size:14px;border:1px solid #a5d6a7;}
+.stbl tr.tot td.hcell{background:var(--green);color:#fff;}
 .stbl tr.putt-row td{background:#e8f4fd;}
 .stbl tr.putt-row td.hcell{background:#d6eaf8;}
 
@@ -95,10 +95,10 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .otbl td{padding:2px;text-align:center;border:1px solid #ddd;background:#fff;vertical-align:middle;color:#1a1a1a;}
 .otbl tbody tr:nth-child(even) td{background:#f0f7f3;}
 .otbl td.hcell{background:#f0f7f3;font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:var(--green);position:sticky;left:0;z-index:4;border-right:2px solid #ccc;}
-.otbl tr.osub td{background:var(--green);color:#fff;font-weight:700;border:1px solid rgba(255,255,255,0.2);}
-.otbl tr.osub td.hcell{background:var(--green);}
-.otbl tr.otot td{background:#1e8449;color:#fff;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,0.2);}
-.otbl tr.otot td.hcell{background:#1e8449;}
+.otbl tr.osub td{background:#e8f5ed;color:#1a1a1a;font-weight:700;border:1px solid #b2dfdb;}
+.otbl tr.osub td.hcell{background:var(--green);color:#fff;}
+.otbl tr.otot td{background:#c8e6c9;color:#1a1a1a;font-weight:700;font-size:14px;border:1px solid #a5d6a7;}
+.otbl tr.otot td.hcell{background:var(--green);color:#fff;}
 .oi{width:100%;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:15px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
 .oi::-webkit-inner-spin-button{display:none;}
 .oi:focus{outline:none;border-color:var(--gold);}
@@ -563,8 +563,8 @@ function renderStbl() {
       const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
       // sub行は緑背景: スコア合計(小)・オーバー数(大)とも白で表示
       const ovCol = ov===null?'#fff':ov<0?'#7dffb3':ov===0?'#fff':'#ffd580';
-      html += `<td id="sub_${label}_${pi}" style="color:#fff;font-size:12px;">${sub!==null?sub:'-'}</td>`;
-      html += `<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:${ovCol};">${ovStr}</td>`;
+      html += `<td id="sub_${label}_${pi}" style="color:#1a1a1a;font-size:13px;font-weight:700;">${sub!==null?sub:'-'}</td>`;
+      html += `<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;background:var(--green);color:${ovCol};">${ovStr}</td>`;
     }
     html += '</tr>';
     // パット小計（showPuttのみ）
@@ -594,8 +594,8 @@ function renderStbl() {
     const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
     // tot行は暗緑背景: 白で表示
     const ovCol = ov===null?'#fff':ov<0?'#7dffb3':ov===0?'#fff':'#ffd580';
-    html += `<td id="tot_${pi}" style="color:#fff;font-size:13px;">${any?tot:'-'}</td>`;
-    html += `<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:17px;font-weight:700;color:${ovCol};">${ovStr}</td>`;
+    html += `<td id="tot_${pi}" style="color:#1a1a1a;font-size:14px;font-weight:700;">${any?tot:'-'}</td>`;
+    html += `<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;background:#1e8449;color:${ovCol};">${ovStr}</td>`;
   }
   html += '</tr>';
   // TOTAL パット（showPuttのみ）
@@ -659,7 +659,7 @@ function refreshTot() {
       const ov=sub!==null?sub-parS:null;
       const ovStr=ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
       const ovCol=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
-      const el=document.getElementById(`sub_${lbl}_${pi}`); if(el){el.textContent=sub!==null?sub:'-';el.style.color='#fff';}
+      const el=document.getElementById(`sub_${lbl}_${pi}`); if(el){el.textContent=sub!==null?sub:'-';el.style.color='#1a1a1a';}
       const subOvCol=ov===null?'#fff':ov<0?'#7dffb3':ov===0?'#fff':'#ffd580';
       const oel=document.getElementById(`subov_${lbl}_${pi}`); if(oel){oel.textContent=ovStr;oel.style.color=subOvCol;}
     };
@@ -758,7 +758,7 @@ function renderOlyTbl() {
       return any?t:null;
     });
     html+=`<tr class="osub"><td class="hcell">${lbl}</td>`
-      +scSub.map(v=>`<td style="font-weight:700;color:#fff;font-size:14px;">${v!==null?v:'-'}</td>`).join('')
+      +scSub.map(v=>`<td style="font-weight:700;color:#1a1a1a;font-size:14px;">${v!==null?v:'-'}</td>`).join('')
       +G.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fp(subPts(s,e,pi))}</td>`).join('')
       +'</tr>';
   }
@@ -771,7 +771,7 @@ function renderOlyTbl() {
     return any?t:null;
   });
   html+='<tr class="otot"><td class="hcell">TOT</td>'
-    +scTot.map(v=>`<td style="font-weight:700;color:#fff;font-size:15px;">${v!==null?v:'-'}</td>`).join('')
+    +scTot.map(v=>`<td style="font-weight:700;color:#1a1a1a;font-size:15px;">${v!==null?v:'-'}</td>`).join('')
     +G.players.map((_,pi)=>`<td id="ot_${pi}">${fp(subPts(0,h,pi))}</td>`).join('')
     +'</tr></tbody>';
   document.getElementById('otbl').innerHTML=html;
