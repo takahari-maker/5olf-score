@@ -33,8 +33,8 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
 
 /* ── ナビ ── */
 .nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--bg3);flex-shrink:0;}
-.tab{flex:1;padding:9px 2px;text-align:center;font-size:11px;color:var(--g2);cursor:pointer;border-bottom:2px solid transparent;}
-.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab{flex:1;padding:9px 2px;text-align:center;font-size:11px;color:var(--g2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(201,168,76,0.12);}
 
 /* ── ページ ── */
 .pages{flex:1;overflow:hidden;position:relative;}
@@ -196,9 +196,8 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
     <div class="hdr-sub" id="hdr-course">-</div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn" id="putt-btn" onclick="togglePutt()">P 非表示</button>
     <button class="hbtn solid" onclick="openNewRound()">＋ 新規</button>
-    <button class="hbtn" onclick="showPage('course')">⛳ 登録</button>
+    <button class="hbtn" id="reg-btn" onclick="showPage('course')">⛳ 登録</button>
   </div>
 </div>
 
@@ -215,6 +214,13 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
   <!-- スコア -->
   <div id="page-score" class="page active">
     <div class="score-page">
+      <div style="background:var(--bg2);padding:6px 12px;border-bottom:1px solid var(--bg3);display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <button id="putt-btn" onclick="togglePutt()"
+          style="border:1px solid var(--g3);color:var(--g2);background:transparent;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">
+          🏌️ パット 非表示
+        </button>
+        <span style="font-size:11px;color:var(--g2);">タップでパット入力の表示切替</span>
+      </div>
       <div class="stbl-wrap">
         <table class="stbl" id="stbl"></table>
       </div>
@@ -448,6 +454,12 @@ function showPage(p) {
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   if (PG[p] < 4) document.querySelectorAll('.tab')[PG[p]].classList.add('active');
+  // ゴルフ場登録ボタンのハイライト
+  const regBtn = document.getElementById('reg-btn');
+  if (regBtn) {
+    regBtn.style.background = p==='course' ? 'var(--gold)' : 'transparent';
+    regBtn.style.color = p==='course' ? '#1a1a1a' : 'var(--gold)';
+  }
   if (p==='score')   renderScore();
   if (p==='olympic') { renderOlyTbl(); renderOlySummary(); }
   if (p==='history') renderHist();
@@ -458,11 +470,25 @@ function showPage(p) {
 // ===== パット表示切替 =====
 function togglePutt() {
   G.showPutt = !G.showPutt;
-  const btn = document.getElementById('putt-btn');
-  btn.textContent = G.showPutt ? 'P 表示中' : 'P 非表示';
-  btn.classList.toggle('on', G.showPutt);
+  updatePuttBtn();
   persist();
   renderScore();
+}
+
+function updatePuttBtn() {
+  const btn = document.getElementById('putt-btn');
+  if (!btn) return;
+  if (G.showPutt) {
+    btn.textContent = '🏌️ パット 表示中';
+    btn.style.borderColor = 'var(--blue)';
+    btn.style.color = '#fff';
+    btn.style.background = 'var(--blue)';
+  } else {
+    btn.textContent = '🏌️ パット 非表示';
+    btn.style.borderColor = 'var(--g3)';
+    btn.style.color = 'var(--g2)';
+    btn.style.background = 'transparent';
+  }
 }
 
 // ===== スコア =====
@@ -988,8 +1014,7 @@ if('serviceWorker' in navigator){
 }
 loadSaved();
 // パットボタンの初期状態
-const _pb=document.getElementById('putt-btn');
-if(_pb){_pb.textContent=G.showPutt?'P 表示中':'P 非表示';_pb.classList.toggle('on',G.showPutt);}
+updatePuttBtn();
 document.getElementById('hdr-course').textContent=G.course||'-';
 if(G.players.length) renderScore();
 </script>
