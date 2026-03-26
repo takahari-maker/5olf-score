@@ -747,7 +747,12 @@ function renderOlyTbl() {
       html+=`<tr><td class="hcell" style="min-width:28px;">${hi+1}</td>`;
       for(let pi=0;pi<n;pi++){
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td><input class="oi ${cls}" type="text" inputmode="decimal" value="${v!==null?v:''}" placeholder="-" oninput="onOly(this,${hi},${pi})" onfocus="this.select()" style="min-width:54px;"></td>`;
+        html+=`<td style="padding:2px;">
+          <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
+            <button onclick="toggleOlySign(${hi},${pi})" style="width:22px;height:36px;border:1px solid #ccc;border-radius:4px;background:#f0f0f0;color:#333;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;padding:0;">±</button>
+            <input class="oi ${cls}" type="text" inputmode="decimal" id="oi_${hi}_${pi}" value="${v!==null?v:''}" placeholder="0" oninput="onOly(this,${hi},${pi})" onfocus="this.select()" style="width:46px;min-width:46px;">
+          </div>
+        </td>`;
       }
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
@@ -778,6 +783,20 @@ function renderOlyTbl() {
   document.getElementById('otbl').innerHTML=html;
 }
 
+function toggleOlySign(hi,pi){
+  // 現在の値の符号を反転する
+  const inp = document.getElementById('oi_'+hi+'_'+pi);
+  if(!inp) return;
+  const cur = G.oly[hi][pi];
+  if(cur===null||cur===0){ return; }
+  G.oly[hi][pi] = -cur;
+  inp.value = G.oly[hi][pi];
+  inp.className='oi '+(G.oly[hi][pi]<0?'neg':'pos');
+  const pts=calcOly(G.oly[hi]);
+  G.players.forEach((_,p)=>{const el=document.getElementById(`op_${hi}_${p}`);if(el)el.innerHTML=fp(pts[p]);});
+  refreshOlySubs(); renderOlySummary(); persist();
+}
+
 function onOly(inp,hi,pi){
   const raw=inp.value;
   const key=`${hi}_${pi}`;
@@ -790,7 +809,7 @@ function onOly(inp,hi,pi){
   if(raw.length>=2 || (!isNaN(n)&&Math.abs(n)>=10)){
     applyOly(inp,hi,pi);
   } else {
-    olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),600);
+    olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),2000);
   }
 }
 
