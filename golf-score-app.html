@@ -145,7 +145,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .vtbl td{padding:5px 8px;text-align:center;border:1px solid #ddd;background:#fff;}
 .vtbl tbody tr:nth-child(even) td{background:#f8f9fa;}
 .vtbl tfoot td{background:#e8f5ed;color:#1a1a1a;font-weight:700;color:var(--gold);font-family:'Oswald',sans-serif;}
-.cpi{width:50px;height:32px;background:#f8f9fa;border:1px solid #ccc;color:#1a1a1a;border-radius:4px;text-align:center;font-size:14px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.cpi{width:50px;height:32px;background:#f8f9fa;border:1px solid #ccc;color:#1a1a1a;border-radius:4px;text-align:center;font-size:14px;font-weight:700;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
 .cpi::-webkit-inner-spin-button{display:none;}
 .cpi:focus{outline:none;border-color:var(--gold);}
 .gcc{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.1);border-radius:10px;margin-bottom:8px;overflow:hidden;}
@@ -554,16 +554,17 @@ function renderStbl() {
     // スコア小計
     html += `<tr class="sub"><td class="hcell">${label}</td><td>${G.pars.slice(start,end).reduce((a,b)=>a+b,0)}</td>`;
     for (let pi=0; pi<n; pi++) {
-      const en = G.scores.slice(start,end).filter(r=>r[pi]!==null);
+      const en = G.scores.slice(start,end).filter((r,i)=>r[pi]!==null);
       const sub = en.length ? en.reduce((a,r)=>a+r[pi],0) : null;
-      const parS = G.pars.slice(start,end).reduce((a,b)=>a+b,0);
+      // 入力済みホールのPAR合計でオーバー数を計算
+      const parS = G.pars.slice(start,end).reduce((a,b,i)=>
+        G.scores[start+i][pi]!==null ? a+b : a, 0);
       const ov = sub!==null ? sub-parS : null;
       const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
-      // sub行は緑背景なので白系で表示
-      const ovCol = ov===null?'rgba(255,255,255,0.6)':ov<0?'#aaffcc':ov===0?'#fff':'#ffddaa';
-      // 合計行：スコア合計(小)とオーバー数(大)を1セルに
-      html += `<td id="sub_${label}_${pi}" style="color:rgba(255,255,255,0.7);font-size:11px;">${sub!==null?sub:'-'}</td>`;
-      html += `<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:${ovCol};">${ovStr}</td>`;
+      // sub行は緑背景: スコア合計(小)・オーバー数(大)とも白で表示
+      const ovCol = ov===null?'#fff':ov<0?'#7dffb3':ov===0?'#fff':'#ffd580';
+      html += `<td id="sub_${label}_${pi}" style="color:#fff;font-size:12px;">${sub!==null?sub:'-'}</td>`;
+      html += `<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:${ovCol};">${ovStr}</td>`;
     }
     html += '</tr>';
     // パット小計（showPuttのみ）
@@ -586,13 +587,15 @@ function renderStbl() {
   for (let pi=0; pi<n; pi++) {
     const any = G.scores.some(r=>r[pi]!==null);
     const tot = G.scores.reduce((a,r)=>a+(r[pi]||0),0);
-    const parT = G.pars.slice(0,h).reduce((a,b)=>a+b,0);
+    // 入力済みホールのPAR合計でオーバー数を計算
+    const parT = G.pars.slice(0,h).reduce((a,b,i)=>
+      G.scores[i][pi]!==null ? a+b : a, 0);
     const ov = any ? tot-parT : null;
     const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
-    // tot行は暗緑背景なので白系で表示
-    const ovCol = ov===null?'rgba(255,255,255,0.5)':ov<0?'#aaffcc':ov===0?'#fff':'#ffddaa';
-    html += `<td id="tot_${pi}" style="color:rgba(255,255,255,0.7);font-size:11px;">${any?tot:'-'}</td>`;
-    html += `<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:${ovCol};">${ovStr}</td>`;
+    // tot行は暗緑背景: 白で表示
+    const ovCol = ov===null?'#fff':ov<0?'#7dffb3':ov===0?'#fff':'#ffd580';
+    html += `<td id="tot_${pi}" style="color:#fff;font-size:13px;">${any?tot:'-'}</td>`;
+    html += `<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:17px;font-weight:700;color:${ovCol};">${ovStr}</td>`;
   }
   html += '</tr>';
   // TOTAL パット（showPuttのみ）
@@ -651,19 +654,21 @@ function refreshTot() {
     const upd=(lbl,s,e)=>{
       const en=G.scores.slice(s,e).filter(r=>r[pi]!==null);
       const sub=en.length?en.reduce((a,r)=>a+r[pi],0):null;
-      const parS=G.pars.slice(s,e).reduce((a,b)=>a+b,0);
+      const parS=G.pars.slice(s,e).reduce((a,b,i)=>
+        G.scores[s+i][pi]!==null?a+b:a,0);
       const ov=sub!==null?sub-parS:null;
       const ovStr=ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
       const ovCol=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
       const el=document.getElementById(`sub_${lbl}_${pi}`); if(el){el.textContent=sub!==null?sub:'-';el.style.color='#fff';}
-      const subOvCol=ov===null?'rgba(255,255,255,0.6)':ov<0?'#aaffcc':ov===0?'#fff':'#ffddaa';
+      const subOvCol=ov===null?'#fff':ov<0?'#7dffb3':ov===0?'#fff':'#ffd580';
       const oel=document.getElementById(`subov_${lbl}_${pi}`); if(oel){oel.textContent=ovStr;oel.style.color=subOvCol;}
     };
     upd('OUT',0,out);
     if (h>9) upd('IN',9,h);
     const any=G.scores.some(r=>r[pi]!==null);
     const tot=G.scores.reduce((a,r)=>a+(r[pi]||0),0);
-    const parT=G.pars.slice(0,h).reduce((a,b)=>a+b,0);
+    const parT=G.pars.slice(0,h).reduce((a,b,i)=>
+      G.scores[i][pi]!==null?a+b:a,0);
     const ov=any?tot-parT:null;
     const ovStr=ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
     const ovCol=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
@@ -753,7 +758,7 @@ function renderOlyTbl() {
       return any?t:null;
     });
     html+=`<tr class="osub"><td class="hcell">${lbl}</td>`
-      +scSub.map(v=>`<td style="font-weight:700;color:#fff;">${v!==null?v:'-'}</td>`).join('')
+      +scSub.map(v=>`<td style="font-weight:700;color:#fff;font-size:14px;">${v!==null?v:'-'}</td>`).join('')
       +G.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fp(subPts(s,e,pi))}</td>`).join('')
       +'</tr>';
   }
@@ -766,7 +771,7 @@ function renderOlyTbl() {
     return any?t:null;
   });
   html+='<tr class="otot"><td class="hcell">TOT</td>'
-    +scTot.map(v=>`<td style="font-weight:700;color:#fff;">${v!==null?v:'-'}</td>`).join('')
+    +scTot.map(v=>`<td style="font-weight:700;color:#fff;font-size:15px;">${v!==null?v:'-'}</td>`).join('')
     +G.players.map((_,pi)=>`<td id="ot_${pi}">${fp(subPts(0,h,pi))}</td>`).join('')
     +'</tr></tbody>';
   document.getElementById('otbl').innerHTML=html;
