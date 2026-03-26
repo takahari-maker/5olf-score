@@ -562,8 +562,8 @@ function renderStbl() {
       const ov = sub!==null ? sub-parS : null;
       const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
       // sub行は緑背景: スコア合計(小)・オーバー数(大)とも白で表示
-      const ovCol = ov===null?'#888':ov<0?'#27ae60':ov===0?'#555':'#e67e22';
-      html += `<td id="sub_${label}_${pi}" style="font-size:14px;font-weight:700;color:${ovCol};">${sub!==null?sub:'-'}</td>`;
+      const ovCol = ov===null?'#999':ov<0?'#27ae60':ov===0?'#7f8c8d':'#e67e22';
+      html += `<td id="sub_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:#fff;background:${ovCol};border-radius:4px;">${sub!==null?sub:'-'}</td>`;
       html += `<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#1a1a1a;">${ovStr}</td>`;
     }
     html += '</tr>';
@@ -593,8 +593,8 @@ function renderStbl() {
     const ov = any ? tot-parT : null;
     const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
     // tot行は暗緑背景: 白で表示
-    const ovCol = ov===null?'#888':ov<0?'#27ae60':ov===0?'#555':'#e67e22';
-    html += `<td id="tot_${pi}" style="font-size:15px;font-weight:700;color:${ovCol};">${any?tot:'-'}</td>`;
+    const ovCol = ov===null?'#999':ov<0?'#27ae60':ov===0?'#7f8c8d':'#e67e22';
+    html += `<td id="tot_${pi}" style="font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:#fff;background:${ovCol};border-radius:4px;">${any?tot:'-'}</td>`;
     html += `<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:#1a1a1a;">${ovStr}</td>`;
   }
   html += '</tr>';
@@ -659,8 +659,8 @@ function refreshTot() {
       const ov=sub!==null?sub-parS:null;
       const ovStr=ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
       const ovCol=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
-      const subOvCol=ov===null?'#888':ov<0?'#27ae60':ov===0?'#555':'#e67e22';
-      const el=document.getElementById(`sub_${lbl}_${pi}`); if(el){el.textContent=sub!==null?sub:'-';el.style.color=subOvCol;}
+      const subOvCol=ov===null?'#999':ov<0?'#27ae60':ov===0?'#7f8c8d':'#e67e22';
+      const el=document.getElementById(`sub_${lbl}_${pi}`); if(el){el.textContent=sub!==null?sub:'-';el.style.color='#fff';el.style.background=subOvCol;el.style.borderRadius='4px';el.style.fontSize='20px';el.style.fontFamily="'Oswald',sans-serif";}
       const oel=document.getElementById(`subov_${lbl}_${pi}`); if(oel){oel.textContent=ovStr;oel.style.color='#1a1a1a';}
     };
     upd('OUT',0,out);
