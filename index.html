@@ -189,6 +189,15 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 /* トースト */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--green);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:300;transition:transform .3s;pointer-events:none;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
+
+/* カスタムキーパッド */
+.oi-btn{width:100%;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:15px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;cursor:pointer;}
+.oi-btn.pos{border-color:#2ecc71;background:#e8f8f0;color:#27ae60;}
+.oi-btn.neg{border-color:#e74c3c;background:#fde8e8;color:#e74c3c;}
+.kpad-btn{padding:14px;border:1px solid #ddd;border-radius:8px;font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:#1a1a1a;background:#fff;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+.kpad-btn:active{background:#f0f0f0;}
+.kpad-sign{background:#e8f5ed;color:#27ae60;border-color:#27ae60;}
+.kpad-del{background:#fde8e8;color:#e74c3c;border-color:#e74c3c;}
 </style>
 </head>
 <body>
@@ -361,6 +370,32 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   </div>
 </div>
 
+
+<!-- カスタムキーパッド -->
+<div class="mov" id="kpad-modal">
+  <div style="background:#fff;border-radius:14px;padding:16px;width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <div style="text-align:center;font-family:'Oswald',sans-serif;font-size:13px;color:#888;margin-bottom:6px;" id="kpad-label">スコア入力</div>
+    <div id="kpad-display" style="text-align:center;font-family:'Oswald',sans-serif;font-size:36px;font-weight:700;color:#1a1a1a;background:#f0f0f0;border-radius:8px;padding:8px;margin-bottom:10px;min-height:56px;letter-spacing:2px;">−</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      <button class="kpad-btn" onclick="kpadPress(7)">7</button>
+      <button class="kpad-btn" onclick="kpadPress(8)">8</button>
+      <button class="kpad-btn" onclick="kpadPress(9)">9</button>
+      <button class="kpad-btn" onclick="kpadPress(4)">4</button>
+      <button class="kpad-btn" onclick="kpadPress(5)">5</button>
+      <button class="kpad-btn" onclick="kpadPress(6)">6</button>
+      <button class="kpad-btn" onclick="kpadPress(1)">1</button>
+      <button class="kpad-btn" onclick="kpadPress(2)">2</button>
+      <button class="kpad-btn" onclick="kpadPress(3)">3</button>
+      <button class="kpad-btn kpad-sign" onclick="kpadSign()">±</button>
+      <button class="kpad-btn" onclick="kpadPress(0)">0</button>
+      <button class="kpad-btn kpad-del" onclick="kpadDel()">⌫</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn btn-o" onclick="kpadClear()" style="flex:1;">クリア</button>
+      <button class="btn btn-g" onclick="kpadOk()" style="flex:1;">確定</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -760,7 +795,7 @@ function renderOlyTbl() {
       html+=`<tr><td class="hcell" style="min-width:24px;font-size:12px;">${hi+1}</td>`;
       for(let pi=0;pi<n;pi++){
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td><input class="oi ${cls}" type="text" inputmode="numeric" id="oi_${hi}_${pi}" value="${v!==null?v:''}" placeholder="0" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;
+        html+=`<td><button class="oi-btn ${cls}" id="oi_${hi}_${pi}" onclick="openKpad(${hi},${pi})">${v!==null?v:'−'}</button></td>`;
       }
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
@@ -1108,6 +1143,67 @@ function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+
+// ===== カスタムキーパッド =====
+let kpadHi=-1, kpadPi=-1, kpadVal='';
+
+function openKpad(hi,pi){
+  kpadHi=hi; kpadPi=pi;
+  const cur=G.oly[hi][pi];
+  kpadVal=cur!==null?String(cur):'';
+  const p=G.players[pi]||('P'+(pi+1));
+  document.getElementById('kpad-label').textContent=`H${hi+1} ${p}`;
+  kpadRefresh();
+  document.getElementById('kpad-modal').classList.add('open');
+}
+
+function kpadRefresh(){
+  const d=document.getElementById('kpad-display');
+  d.textContent=kpadVal===''?'−':kpadVal;
+  d.style.color=kpadVal.startsWith('-')?'#e74c3c':'#1a1a1a';
+}
+
+function kpadPress(n){
+  if(kpadVal===''||kpadVal==='-'){
+    kpadVal=(kpadVal==='-'?'-':'')+String(n);
+  } else {
+    if(Math.abs(parseInt(kpadVal+n))<1000) kpadVal+=String(n);
+  }
+  kpadRefresh();
+}
+
+function kpadSign(){
+  if(kpadVal===''){ kpadVal='-'; }
+  else if(kpadVal==='-'){ kpadVal=''; }
+  else { kpadVal=kpadVal.startsWith('-')?kpadVal.slice(1):'-'+kpadVal; }
+  kpadRefresh();
+}
+
+function kpadDel(){
+  kpadVal=kpadVal.slice(0,-1);
+  kpadRefresh();
+}
+
+function kpadClear(){
+  kpadVal='';
+  kpadRefresh();
+}
+
+function kpadOk(){
+  const hi=kpadHi, pi=kpadPi;
+  const n=kpadVal===''||kpadVal==='-'?null:parseInt(kpadVal);
+  G.oly[hi][pi]=isNaN(n)?null:n;
+  const btn=document.getElementById('oi_'+hi+'_'+pi);
+  if(btn){
+    btn.textContent=G.oly[hi][pi]!==null?G.oly[hi][pi]:'−';
+    btn.className='oi-btn '+(G.oly[hi][pi]===null?'':G.oly[hi][pi]<0?'neg':'pos');
+  }
+  document.getElementById('kpad-modal').classList.remove('open');
+  const pts=calcOly(G.oly[hi]);
+  G.players.forEach((_,p)=>{const el=document.getElementById('op_'+hi+'_'+p);if(el)el.innerHTML=fp(pts[p]);});
+  refreshOlySubs(); renderOlySummary(); persist();
 }
 
 // ===== INIT =====
