@@ -760,7 +760,18 @@ function renderOlyTbl() {
       html+=`<tr><td class="hcell" style="min-width:24px;font-size:12px;">${hi+1}</td>`;
       for(let pi=0;pi<n;pi++){
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td><input class="oi ${cls}" type="number" id="oi_${hi}_${pi}" value="${v!==null?v:''}" placeholder="0" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;
+        const absV = v!==null ? Math.abs(v) : '';
+        const isMinus = v!==null && v<0;
+        const signBg = isMinus ? '#e74c3c' : '#e8e8e8';
+        const signCol = isMinus ? '#fff' : '#555';
+        const signTxt = isMinus ? '−' : '+';
+        html+=`<td style="padding:1px 2px;">
+          <div style="display:flex;align-items:center;gap:2px;">
+            <button onclick="toggleMinus(${hi},${pi})" id="mb_${hi}_${pi}" data-minus="${isMinus?'1':'0'}"
+              style="width:26px;height:36px;border:1px solid #ccc;border-radius:4px;font-size:16px;font-weight:700;cursor:pointer;background:${signBg};color:${signCol};flex-shrink:0;padding:0;line-height:1;">${signTxt}</button>
+            <input class="oi" type="number" id="oi_${hi}_${pi}" value="${absV}" placeholder="0" min="0" oninput="onOly(this,${hi},${pi})" onfocus="this.select()" style="width:40px;">
+          </div>
+        </td>`;
       }
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
@@ -795,26 +806,50 @@ function onOly(inp,hi,pi){
   const raw=inp.value;
   const key=`${hi}_${pi}`;
   clearTimeout(olyTimers[key]);
-  // 空欄
   if(raw===''){ G.oly[hi][pi]=null; applyOly(inp,hi,pi); return; }
   const n=parseInt(raw);
-  // まだ数値として確定できない（例："-"のみ）はタイマー待機
-  if(isNaN(n)){
-    olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),1500);
-    return;
-  }
+  if(isNaN(n)) return;
   // 2桁以上はすぐ確定、1桁は1.5秒待機
-  if(String(Math.abs(n)).length>=2){
+  if(String(n).length>=2){
     applyOly(inp,hi,pi);
   } else {
     olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),1500);
   }
 }
 
+function toggleMinus(hi,pi){
+  const mb=document.getElementById('mb_'+hi+'_'+pi);
+  if(!mb) return;
+  const isMinus=mb.dataset.minus==='1';
+  const next=!isMinus;
+  mb.dataset.minus=next?'1':'0';
+  mb.textContent=next?'−':'+';
+  mb.style.background=next?'#e74c3c':'#e8e8e8';
+  mb.style.color=next?'#fff':'#555';
+  // 値の符号を反転
+  const inp=document.getElementById('oi_'+hi+'_'+pi);
+  const absVal=inp?parseInt(inp.value)||0:0;
+  if(absVal===0){ G.oly[hi][pi]=null; }
+  else { G.oly[hi][pi]=next?-absVal:absVal; }
+  if(inp) inp.className='oi '+(G.oly[hi][pi]!==null&&G.oly[hi][pi]<0?'neg':G.oly[hi][pi]>0?'pos':'');
+  const pts=calcOly(G.oly[hi]);
+  G.players.forEach((_,p)=>{const el=document.getElementById('op_'+hi+'_'+p);if(el)el.innerHTML=fp(pts[p]);});
+  refreshOlySubs(); renderOlySummary(); persist();
+}
+
 function applyOly(inp,hi,pi){
   const raw=inp.value;
   if(raw===''){ G.oly[hi][pi]=null; }
-  else { const n=parseInt(raw); G.oly[hi][pi]=isNaN(n)?null:n; }
+  else {
+    const absVal=parseInt(raw);
+    if(isNaN(absVal)){ G.oly[hi][pi]=null; }
+    else {
+      // 符号はマイナスボタンの状態で決まる
+      const mb=document.getElementById('mb_'+hi+'_'+pi);
+      const isMinus=mb&&mb.dataset.minus==='1';
+      G.oly[hi][pi]=isMinus?-Math.abs(absVal):Math.abs(absVal);
+    }
+  }
   const s=G.oly[hi][pi];
   inp.className='oi '+(s===null?'':(s<0?'neg':'pos'));
   const pts=calcOly(G.oly[hi]);
