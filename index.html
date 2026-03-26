@@ -90,17 +90,18 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 /* ── オリンピック ── */
 .otbl-wrap{overflow-x:auto;margin-bottom:12px;}
 .otbl{width:100%;border-collapse:collapse;font-size:12px;}
-.otbl thead th{background:var(--green);color:#fff;padding:6px 3px;text-align:center;font-size:11px;border:1px solid rgba(255,255,255,0.15);}
+.otbl thead th{background:var(--green);color:#fff;padding:4px 2px;text-align:center;font-size:10px;border:1px solid rgba(255,255,255,0.15);}
 .otbl thead th.hcol{background:var(--gold);color:#1a1a1a;position:sticky;left:0;z-index:6;}
-.otbl td{padding:2px;text-align:center;border:1px solid #ddd;background:#fff;vertical-align:middle;color:#1a1a1a;}
+.otbl td{padding:1px;text-align:center;border:1px solid #ddd;background:#fff;vertical-align:middle;color:#1a1a1a;font-size:11px;}
 .otbl tbody tr:nth-child(even) td{background:#f0f7f3;}
 .otbl td.hcell{background:#f0f7f3;font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:var(--green);position:sticky;left:0;z-index:4;border-right:2px solid #ccc;}
 .otbl tr.osub td{background:#e8f5ed;color:#1a1a1a;font-weight:700;border:1px solid #b2dfdb;}
 .otbl tr.osub td.hcell{background:var(--green);color:#fff;}
 .otbl tr.otot td{background:#c8e6c9;color:#1a1a1a;font-weight:700;font-size:14px;border:1px solid #a5d6a7;}
 .otbl tr.otot td.hcell{background:var(--green);color:#fff;}
-.oi{width:100%;min-width:54px;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:15px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;}
+.oi{width:44px;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:14px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
 
+.oi::-webkit-inner-spin-button{display:none;}
 .oi:focus{outline:none;border-color:var(--gold);}
 .oi.pos{border-color:#2ecc71;background:#1a3a22;color:#2ecc71;}
 .oi.neg{border-color:var(--red);background:#3a1a1a;color:var(--red);}
@@ -738,8 +739,8 @@ function renderOlyTbl() {
   const n=G.players.length, h=G.holes;
   // ヘッダー：H列 + プレイヤースコア列 + プレイヤーpt列
   let html='<thead><tr><th class="hcol">H</th>'
-    +G.players.map(p=>`<th style="font-size:10px;min-width:46px;">${p}</th>`).join('')
-    +G.players.map(p=>`<th style="font-size:10px;background:#d5e8d4;color:#1a1a1a;min-width:46px;">${p}<br>¥</th>`).join('')
+    +G.players.map(p=>`<th style="font-size:10px;min-width:44px;">${p}</th>`).join('')
+    +G.players.map(p=>`<th style="font-size:10px;background:#d5e8d4;color:#1a1a1a;min-width:44px;">${p}<br>¥</th>`).join('')
     +'</tr></thead><tbody>';
   function half(s,e,lbl){
     for(let hi=s;hi<e;hi++){
@@ -747,12 +748,7 @@ function renderOlyTbl() {
       html+=`<tr><td class="hcell" style="min-width:28px;">${hi+1}</td>`;
       for(let pi=0;pi<n;pi++){
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td style="padding:2px;">
-          <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
-            <button onclick="toggleOlySign(${hi},${pi})" style="width:22px;height:36px;border:1px solid #ccc;border-radius:4px;background:#f0f0f0;color:#333;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;padding:0;">±</button>
-            <input class="oi ${cls}" type="text" inputmode="decimal" id="oi_${hi}_${pi}" value="${v!==null?v:''}" placeholder="0" oninput="onOly(this,${hi},${pi})" onfocus="this.select()" style="width:46px;min-width:46px;">
-          </div>
-        </td>`;
+        html+=`<td><input class="oi ${cls}" type="number" id="oi_${hi}_${pi}" value="${v!==null?v:''}" placeholder="0" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;
       }
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
@@ -783,33 +779,18 @@ function renderOlyTbl() {
   document.getElementById('otbl').innerHTML=html;
 }
 
-function toggleOlySign(hi,pi){
-  // 現在の値の符号を反転する
-  const inp = document.getElementById('oi_'+hi+'_'+pi);
-  if(!inp) return;
-  const cur = G.oly[hi][pi];
-  if(cur===null||cur===0){ return; }
-  G.oly[hi][pi] = -cur;
-  inp.value = G.oly[hi][pi];
-  inp.className='oi '+(G.oly[hi][pi]<0?'neg':'pos');
-  const pts=calcOly(G.oly[hi]);
-  G.players.forEach((_,p)=>{const el=document.getElementById(`op_${hi}_${p}`);if(el)el.innerHTML=fp(pts[p]);});
-  refreshOlySubs(); renderOlySummary(); persist();
-}
-
 function onOly(inp,hi,pi){
   const raw=inp.value;
   const key=`${hi}_${pi}`;
   clearTimeout(olyTimers[key]);
-  // 空・マイナスのみ（入力途中）はスキップ
   if(raw===''){ G.oly[hi][pi]=null; applyOly(inp,hi,pi); return; }
-  if(raw==='-'){ return; }
-  const n=Number(raw);
-  // 2桁以上 or 確定できる値はすぐ適用、それ以外は600ms後
-  if(raw.length>=2 || (!isNaN(n)&&Math.abs(n)>=10)){
+  const n=parseInt(raw);
+  if(isNaN(n)) return;
+  // 2桁以上（絶対値）はすぐ確定、1桁は1.5秒待機
+  if(Math.abs(n)>=10 || String(Math.abs(n)).length>=2){
     applyOly(inp,hi,pi);
   } else {
-    olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),2000);
+    olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),1500);
   }
 }
 
