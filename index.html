@@ -334,8 +334,18 @@
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
+      <label class="m-label">コースを選択（PARが自動入力されます）</label>
+      <select class="m-select" id="course-select" onchange="onCourseSelect()">
+        <option value="">-- コースを選択 --</option>
+        <optgroup label="── 登録済みコース ──" id="saved-courses-group"></optgroup>
+        <optgroup label="── プリセット ──">
+          <option value="preset:高遊原カントリークラブ:4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4">高遊原カントリークラブ</option>
+          <option value="preset:大阪ゴルフクラブ:4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4">大阪ゴルフクラブ</option>
+          <option value="preset:カスタム:4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4">カスタム（手動でPAR設定）</option>
+        </optgroup>
+      </select>
       <label class="m-label">コース名</label>
-      <input class="m-input" type="text" id="new-course" value="大阪ゴルフクラブ">
+      <input class="m-input" type="text" id="new-course" placeholder="例：〇〇ゴルフクラブ">
       <div class="m-row">
         <div class="m-group">
           <label class="m-label">日付</label>
@@ -350,8 +360,14 @@
         </div>
       </div>
       <div style="font-weight:700;color:var(--gold);margin:4px 0 8px;font-size:13px;">プレイヤー（最大4名）</div>
-      <div id="player-setup"></div>
-      <button class="btn btn-outline" onclick="addPlayerInput()" style="width:100%;margin-top:6px;font-size:13px;">＋ プレイヤー追加</button>
+      <div id="player-setup">
+        <input class="m-input" type="text" id="pname-0" placeholder="プレイヤー1">
+        <input class="m-input" type="text" id="pname-1" placeholder="プレイヤー2">
+        <input class="m-input" type="text" id="pname-2" placeholder="プレイヤー3">
+        <input class="m-input" type="text" id="pname-3" placeholder="プレイヤー4">
+      </div>
+      <label class="m-label" style="margin-top:6px;">このコースを登録する</label>
+      <button class="btn btn-outline" onclick="saveCurrentCourse()" style="width:100%;font-size:13px;">💾 コースを登録</button>
     </div>
     <div class="modal-ftr">
       <button class="btn btn-outline" onclick="closeModal()">キャンセル</button>
@@ -560,10 +576,41 @@ function scoreSetPar(input, hi) {
   if(!isNaN(v)&&v>=1){ state.pars[hi]=v; renderScoreTable(); renderSummaryBar(); }
 }
 
+// コース登録済みリストを初期ロード時にも反映
+function initSavedCourses(){
+  populateSavedCourses();
+}
+
+// スコア入力タイマー（2桁入力のため少し待つ）
+const scoreTimers = {};
+
 function scoreInput(input, hi, pi) {
-  const v=parseInt(input.value);
+  // タイマークリア
+  const key = hi + '-' + pi;
+  if(scoreTimers[key]) clearTimeout(scoreTimers[key]);
+
+  const raw = input.value;
+  const v = parseInt(raw);
+
+  // 空欄→クリア即時
+  if(raw === '' || raw === null) {
+    state.scores[hi][pi] = null;
+    input.className = 'sc-input';
+    refreshScoreTotals(); renderSummaryBar();
+    return;
+  }
+  // 2桁以上 or 明らかに完結（7以上は1桁でほぼ確定）→即時
+  if(raw.length >= 2 || (v >= 7 && raw.length === 1)) {
+    applyScore(input, hi, pi, v);
+    return;
+  }
+  // 1桁（1〜6）は少し待って確定
+  scoreTimers[key] = setTimeout(() => applyScore(input, hi, pi, parseInt(input.value)), 600);
+}
+
+function applyScore(input, hi, pi, v) {
   state.scores[hi][pi] = isNaN(v)||v<1 ? null : v;
-  input.className='sc-input '+getScoreClass(state.scores[hi][pi], state.pars[hi]);
+  input.className = 'sc-input ' + getScoreClass(state.scores[hi][pi], state.pars[hi]);
   refreshScoreTotals();
   renderSummaryBar();
 }
@@ -834,42 +881,92 @@ function renderStats(){
 }
 
 // ========== MODAL ==========
-let playerInputCount=0;
+// ========== コースデータ ==========
+// PRESET_COURSES: name -> 18ホールのPAR配列
+const PRESET_COURSES = {
+  '高遊原カントリークラブ': [4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4],
+  '大阪ゴルフクラブ':       [4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4],
+};
+
+function getSavedCourses() {
+  try { return JSON.parse(localStorage.getItem('golfCourses_v1')||'{}'); } catch(e){return{};}
+}
+function saveCourses(obj) {
+  localStorage.setItem('golfCourses_v1', JSON.stringify(obj));
+}
+
+function saveCurrentCourse() {
+  const name = document.getElementById('new-course').value.trim();
+  if(!name){ showToast('コース名を入力してください'); return; }
+  const pars = state.pars || DEFAULT_PARS.slice(0,18);
+  const courses = getSavedCourses();
+  courses[name] = pars;
+  saveCourses(courses);
+  populateSavedCourses();
+  showToast('💾 コースを登録しました');
+}
+
+function populateSavedCourses() {
+  const group = document.getElementById('saved-courses-group');
+  if(!group) return;
+  const courses = getSavedCourses();
+  group.innerHTML = Object.keys(courses).map(name =>
+    `<option value="saved:${name}">${name}</option>`
+  ).join('');
+}
+
+function onCourseSelect() {
+  const val = document.getElementById('course-select').value;
+  if(!val) return;
+  if(val.startsWith('preset:')) {
+    const parts = val.split(':');
+    const name  = parts[1];
+    const pars  = parts[2].split(',').map(Number);
+    document.getElementById('new-course').value = name;
+    state.pars = pars;
+  } else if(val.startsWith('saved:')) {
+    const name = val.slice(6);
+    const courses = getSavedCourses();
+    if(courses[name]) {
+      document.getElementById('new-course').value = name;
+      state.pars = courses[name];
+    }
+  }
+}
+
+// ========== MODAL ==========
 function openModal(){
-  playerInputCount=0;
-  document.getElementById('player-setup').innerHTML='';
-  ['田中 健太','山田 一朗','佐藤 誠','鈴木 浩二'].forEach(n=>addPlayerInput(n));
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('new-course').value='';
+  document.getElementById('course-select').value='';
+  for(let i=0;i<4;i++){
+    const el=document.getElementById('pname-'+i);
+    if(el) el.value='';
+  }
+  populateSavedCourses();
   document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('pname-0').focus(),300);
 }
 function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
 
-function addPlayerInput(name=''){
-  if(playerInputCount>=4){showToast('最大4名です');return;}
-  const i=playerInputCount++;
-  const d=document.createElement('div');
-  d.style.marginBottom='8px';
-  d.innerHTML=`<label class="m-label">プレイヤー${i+1}</label>
-    <input class="m-input" type="text" id="pname-${i}" value="${name}" placeholder="氏名">`;
-  document.getElementById('player-setup').appendChild(d);
-}
-
 function createRound(){
-  const course=document.getElementById('new-course').value||'不明コース';
+  const course=document.getElementById('new-course').value.trim();
   const dateRaw=document.getElementById('new-date').value;
   const holes=parseInt(document.getElementById('new-holes').value);
   const players=[];
-  for(let i=0;i<playerInputCount;i++){
+  for(let i=0;i<4;i++){
     const n=(document.getElementById('pname-'+i)?.value||'').trim();
     if(n) players.push(n);
   }
   if(!players.length){showToast('プレイヤーを入力してください');return;}
+  // PARはonCourseSelectで設定済み or デフォルト
+  const pars = state.pars && state.pars.length>=holes ? state.pars.slice(0,holes) : DEFAULT_PARS.slice(0,holes);
   state.currentId=null;
-  state.course=course;
+  state.course=course||'（コース未設定）';
   state.date=dateRaw?formatDate(dateRaw):state.date;
   state.holes=holes;
   state.players=players;
-  state.pars=DEFAULT_PARS.slice(0,holes);
+  state.pars=pars;
   initData();
   document.getElementById('hdr-course').textContent=state.course;
   closeModal();
@@ -895,6 +992,7 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 loadFromStorage();
+initSavedCourses();
 document.getElementById('hdr-course').textContent=state.course;
 renderScorePage();
 </script>
