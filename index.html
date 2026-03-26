@@ -1146,9 +1146,10 @@ function toast(msg){
 
 
 // ===== カスタムキーパッド =====
-let kpadHi=-1, kpadPi=-1, kpadVal='';
+let kpadHi=-1, kpadPi=-1, kpadVal='', kpadMode='oly', kpadScHi=-1, kpadScPi=-1;
 
 function openKpad(hi,pi){
+  kpadMode='oly';
   kpadHi=hi; kpadPi=pi;
   const cur=G.oly[hi][pi];
   kpadVal=cur!==null?String(cur):'';
@@ -1242,8 +1243,6 @@ function kpadOk(){
 
 
 // ===== スコア用キーパッド =====
-let kpadMode='oly'; // 'score' | 'putt' | 'oly'
-let kpadScHi=-1, kpadScPi=-1;
 
 function openScKpad(hi,pi){
   kpadMode='score';
