@@ -12,221 +12,202 @@
 <meta name="theme-color" content="#1a1a1a">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@400;600;700&display=swap');
-
-:root {
-  --bg:#1a1a1a; --bg2:#2a2a2a; --bg3:#333; --card:#222;
-  --green:#2d7a4f; --greenl:#3da366;
-  --gold:#c9a84c; --goldl:#f0d98a;
-  --red:#e74c3c; --blue:#3498db;
-  --gray1:#aaa; --gray2:#666; --gray3:#444;
-  --active:#e67e22;
+:root{
+  --bg:#1a1a1a;--bg2:#2a2a2a;--bg3:#333;--card:#222;
+  --green:#2d7a4f;--gold:#c9a84c;
+  --red:#e74c3c;--blue:#3498db;--purple:#9b59b6;
+  --g1:#aaa;--g2:#666;--g3:#444;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;}
-body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;display:flex;flex-direction:column;font-size:14px;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;display:flex;flex-direction:column;}
 
-/* Header */
-.hdr{background:var(--bg2);border-bottom:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;padding:10px 14px;flex-shrink:0;}
-.hdr-logo{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:var(--gold);letter-spacing:2px;}
-.hdr-course{font-size:12px;color:var(--gray1);margin-top:1px;}
-.hdr-btns{display:flex;gap:6px;}
-.hdr-btn{border:1px solid var(--gold);color:var(--gold);background:transparent;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;}
-.hdr-btn.solid{background:var(--gold);color:#1a1a1a;}
+/* ── ヘッダー ── */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;padding:8px 12px;flex-shrink:0;}
+.hdr-logo{font-family:'Oswald',sans-serif;font-size:17px;font-weight:700;color:var(--gold);letter-spacing:2px;}
+.hdr-sub{font-size:11px;color:var(--g1);margin-top:1px;}
+.hdr-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+.hbtn{border:1px solid var(--gold);color:var(--gold);background:transparent;padding:5px 9px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;}
+.hbtn.solid{background:var(--gold);color:#1a1a1a;}
+.hbtn.on{border-color:var(--blue);color:var(--blue);}
 
-/* Nav */
+/* ── ナビ ── */
 .nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--bg3);flex-shrink:0;}
-.nav-tab{flex:1;padding:9px 2px;text-align:center;font-size:11px;color:var(--gray2);cursor:pointer;border-bottom:2px solid transparent;}
-.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab{flex:1;padding:9px 2px;text-align:center;font-size:11px;color:var(--g2);cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
 
-/* Pages */
+/* ── ページ ── */
 .pages{flex:1;overflow:hidden;position:relative;}
 .page{display:none;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .page.active{display:block;}
-
-/* Common */
 .inner{padding:10px;}
-.sec-ttl{font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);padding:8px 0 6px;border-bottom:1px solid var(--bg3);margin-bottom:8px;}
+.sec{font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);padding:8px 0 6px;border-bottom:1px solid var(--bg3);margin-bottom:8px;}
 .card{background:var(--card);border-radius:10px;padding:14px;margin-bottom:10px;}
-.empty{text-align:center;padding:40px 20px;color:var(--gray2);}
-.empty-icon{font-size:40px;margin-bottom:8px;}
+.empty{text-align:center;padding:40px 20px;color:var(--g2);}
 
-/* Score page */
+/* ── スコアページ ── */
 .score-page{display:flex;flex-direction:column;height:100%;}
-.score-tbl-wrap{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;}
-.score-tbl{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
-.score-tbl thead th{background:var(--green);color:#fff;padding:7px 4px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,0.15);position:sticky;top:0;z-index:5;}
-.score-tbl thead th.h-col{background:var(--gold);color:#1a1a1a;min-width:32px;left:0;z-index:6;}
-.score-tbl td{padding:3px;text-align:center;border:1px solid var(--bg3);vertical-align:middle;}
-.score-tbl tbody tr:nth-child(even) td{background:#1e1e1e;}
-.score-tbl td.hcell{background:var(--bg2);font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:var(--gold);position:sticky;left:0;z-index:4;}
-.score-tbl tr.sub td{background:var(--green);color:#fff;font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,0.2);}
-.score-tbl tr.sub td.hcell{background:var(--green);}
-.score-tbl tr.tot td{background:#0d2b1a;color:#fff;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,0.2);}
-.score-tbl tr.tot td.hcell{background:#0d2b1a;}
+.stbl-wrap{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;}
+.stbl{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
+.stbl thead th{background:var(--green);color:#fff;padding:6px 3px;text-align:center;font-size:11px;border:1px solid rgba(255,255,255,0.15);position:sticky;top:0;z-index:5;}
+.stbl thead th.hcol{background:var(--gold);color:#1a1a1a;left:0;z-index:6;min-width:30px;}
+.stbl td{padding:2px;text-align:center;border:1px solid var(--bg3);vertical-align:middle;}
+.stbl tbody tr:nth-child(even) td{background:#1e1e1e;}
+.stbl td.hcell{background:var(--bg2);font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:var(--gold);position:sticky;left:0;z-index:4;}
+.stbl tr.sub td{background:var(--green);color:#fff;font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,0.2);}
+.stbl tr.sub td.hcell{background:var(--green);}
+.stbl tr.tot td{background:#0d2b1a;color:#fff;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,0.2);}
+.stbl tr.tot td.hcell{background:#0d2b1a;}
+.stbl tr.putt-row td{background:#12122a;}
+.stbl tr.putt-row td.hcell{background:#12122a;}
 
-/* PAR input in score table */
-.par-inp{width:36px;height:30px;background:transparent;border:none;text-align:center;font-size:13px;font-weight:700;color:var(--gray1);font-family:'Noto Sans JP',sans-serif;-moz-appearance:textfield;}
+/* スコア入力 */
+.par-inp{width:34px;height:28px;background:transparent;border:none;text-align:center;font-size:13px;font-weight:700;color:var(--g1);font-family:'Noto Sans JP',sans-serif;-moz-appearance:textfield;}
 .par-inp::-webkit-inner-spin-button{display:none;}
 .par-inp:focus{outline:1px solid var(--gold);border-radius:3px;}
-
-/* Score input */
-.sc-inp{width:46px;height:38px;background:var(--bg3);border:1.5px solid var(--gray3);border-radius:5px;text-align:center;font-size:17px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.sc-inp{width:44px;height:38px;background:var(--bg3);border:1.5px solid var(--g3);border-radius:5px;text-align:center;font-size:17px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
 .sc-inp::-webkit-inner-spin-button{display:none;}
 .sc-inp:focus{outline:none;border-color:var(--gold);}
-.sc-inp.eagle {background:#3a2800;border-color:#f39c12;color:#f39c12;}
+.sc-inp.eagle{background:#3a2800;border-color:#f39c12;color:#f39c12;}
 .sc-inp.birdie{background:#3a1a1a;border-color:#e74c3c;color:#e74c3c;}
-.sc-inp.par   {background:#1a3a22;border-color:#2ecc71;color:#2ecc71;}
-.sc-inp.bogey {background:#1a2a3a;border-color:#3498db;color:#3498db;}
+.sc-inp.par{background:#1a3a22;border-color:#2ecc71;color:#2ecc71;}
+.sc-inp.bogey{background:#1a2a3a;border-color:#3498db;color:#3498db;}
 .sc-inp.double{background:#2a1a3a;border-color:#9b59b6;color:#9b59b6;}
 .sc-inp.triple{background:#3a1a1a;border-color:#c0392b;color:#c0392b;}
+.pt-inp{width:34px;height:26px;background:#12122a;border:1px solid #2a2a5a;border-radius:4px;text-align:center;font-size:13px;font-weight:600;color:var(--blue);font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.pt-inp::-webkit-inner-spin-button{display:none;}
+.pt-inp:focus{outline:none;border-color:var(--blue);}
+.over-cell{font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;min-width:28px;}
 
-/* Summary bar */
-.score-summary{background:var(--bg2);border-top:1px solid var(--bg3);display:flex;flex-shrink:0;}
-.ss-item{flex:1;text-align:center;padding:5px 4px;border-right:1px solid var(--bg3);}
-.ss-item:last-child{border-right:none;}
-.ss-name{font-size:10px;color:var(--gray1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ss-gross{font-family:'Oswald',sans-serif;font-size:19px;font-weight:700;line-height:1.1;}
-.ss-diff{font-size:11px;color:var(--gray1);font-weight:600;}
+/* サマリー */
+.summary{background:var(--bg2);border-top:1px solid var(--bg3);display:flex;flex-shrink:0;}
+.ss{flex:1;text-align:center;padding:4px 3px;border-right:1px solid var(--bg3);}
+.ss:last-child{border-right:none;}
+.ss-name{font-size:9px;color:var(--g1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ss-g{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;line-height:1.1;}
+.ss-d{font-size:10px;color:var(--g1);font-weight:600;}
 
-/* Olympic */
-.oly-wrap{overflow-x:auto;margin-bottom:12px;}
-.oly-tbl{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
-.oly-tbl thead th{background:var(--green);color:#fff;padding:7px 4px;text-align:center;font-size:11px;border:1px solid rgba(255,255,255,0.15);}
-.oly-tbl thead th.h-col{background:var(--gold);color:#1a1a1a;}
-.oly-tbl td{padding:3px;text-align:center;border:1px solid var(--bg3);vertical-align:middle;}
-.oly-tbl tbody tr:nth-child(even) td{background:#1e1e1e;}
-.oly-tbl tr.oly-sub td{background:var(--green);color:#fff;font-weight:700;border:1px solid rgba(255,255,255,0.2);}
-.oly-tbl tr.oly-tot td{background:#0d2b1a;color:#fff;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,0.2);}
-.oly-inp{width:48px;height:38px;background:var(--bg3);border:1.5px solid var(--gray3);border-radius:5px;text-align:center;font-size:16px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
-.oly-inp::-webkit-inner-spin-button{display:none;}
-.oly-inp:focus{outline:none;border-color:var(--gold);}
-.oly-inp.pos{border-color:#2ecc71;background:#1a3a22;color:#2ecc71;}
-.oly-inp.neg{border-color:#e74c3c;background:#3a1a1a;color:#e74c3c;}
-.pt-p{color:#2ecc71;font-weight:700;} .pt-m{color:#e74c3c;font-weight:700;} .pt-z{color:var(--gray2);} .pt-n{color:var(--bg3);}
-.rank-tbl{width:100%;border-collapse:collapse;font-size:13px;}
-.rank-tbl thead th{background:var(--green);color:#fff;padding:8px 6px;text-align:center;font-size:11px;}
-.rank-tbl td{padding:9px 6px;text-align:center;border-bottom:1px solid var(--bg3);}
-.rank-tbl tbody tr:last-child td{border-bottom:none;}
-.pname{text-align:left !important;padding-left:12px !important;font-weight:600;}
+/* ── オリンピック ── */
+.otbl-wrap{overflow-x:auto;margin-bottom:12px;}
+.otbl{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
+.otbl thead th{background:var(--green);color:#fff;padding:6px 3px;text-align:center;font-size:11px;border:1px solid rgba(255,255,255,0.15);}
+.otbl thead th.hcol{background:var(--gold);color:#1a1a1a;}
+.otbl td{padding:2px;text-align:center;border:1px solid var(--bg3);vertical-align:middle;}
+.otbl tbody tr:nth-child(even) td{background:#1e1e1e;}
+.otbl tr.osub td{background:var(--green);color:#fff;font-weight:700;border:1px solid rgba(255,255,255,0.2);}
+.otbl tr.otot td{background:#0d2b1a;color:#fff;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,0.2);}
+.oi{width:46px;height:36px;background:var(--bg3);border:1.5px solid var(--g3);border-radius:5px;text-align:center;font-size:16px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.oi::-webkit-inner-spin-button{display:none;}
+.oi:focus{outline:none;border-color:var(--gold);}
+.oi.pos{border-color:#2ecc71;background:#1a3a22;color:#2ecc71;}
+.oi.neg{border-color:var(--red);background:#3a1a1a;color:var(--red);}
+.pp{color:#2ecc71;font-weight:700;}.pm{color:var(--red);font-weight:700;}.pz{color:var(--g2);}.pn{color:var(--bg3);}
+.rtbl{width:100%;border-collapse:collapse;font-size:13px;}
+.rtbl thead th{background:var(--green);color:#fff;padding:7px 5px;text-align:center;font-size:11px;}
+.rtbl td{padding:8px 5px;text-align:center;border-bottom:1px solid var(--bg3);}
+.rtbl tbody tr:last-child td{border-bottom:none;}
+.pnm{text-align:left !important;padding-left:10px !important;font-weight:600;}
 .rb{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-weight:700;font-size:11px;}
-.r1{background:var(--gold);color:#1a1a1a;} .r2{background:#888;color:#fff;} .r3{background:#cd7f32;color:#fff;}
+.r1{background:var(--gold);color:#1a1a1a;}.r2{background:#888;color:#fff;}.r3{background:#cd7f32;color:#fff;}
 
-/* History */
+/* ── 履歴 ── */
 .rc{background:var(--card);border-radius:10px;margin-bottom:8px;overflow:hidden;}
-.rc-hdr{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;}
-.rc-title{font-weight:700;font-size:14px;}
-.rc-date{font-size:11px;opacity:.8;}
-.rc-body{padding:10px 12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.rc-stat{text-align:center;}
-.rc-val{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--gold);}
-.rc-lbl{font-size:10px;color:var(--gray1);}
-.rc-actions{margin-left:auto;display:flex;gap:6px;}
-.rc-saved{font-size:10px;color:var(--gray2);padding:2px 12px 8px;}
+.rch{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;}
+.rct{font-weight:700;font-size:14px;}
+.rcd{font-size:11px;opacity:.8;}
+.rcb{padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.rst{text-align:center;}
+.rsv{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--gold);}
+.rsl{font-size:10px;color:var(--g1);}
+.rca{margin-left:auto;display:flex;gap:6px;}
+.rcs{font-size:10px;color:var(--g2);padding:2px 12px 8px;}
 
-/* Stats */
-.p-chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 10px;}
-.p-chip{padding:5px 14px;border-radius:20px;font-size:12px;border:1px solid var(--bg3);background:var(--bg2);cursor:pointer;color:var(--gray1);}
-.p-chip.active{background:var(--green);border-color:var(--green);color:#fff;}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
-.stat-box{text-align:center;padding:9px;background:var(--bg2);border-radius:8px;}
-.stat-val{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--gold);}
-.stat-lbl{font-size:10px;color:var(--gray1);margin-top:2px;}
-.bar-chart{display:flex;align-items:flex-end;gap:4px;height:60px;margin:8px 0;}
-.bar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
-.bar-fill{width:100%;border-radius:3px 3px 0 0;}
-.bar-lbl{font-size:9px;color:var(--gray1);text-align:center;line-height:1.2;}
-.bar-val{font-size:9px;font-weight:700;}
+/* ── 統計 ── */
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 10px;}
+.chip{padding:5px 14px;border-radius:20px;font-size:12px;border:1px solid var(--bg3);background:var(--bg2);cursor:pointer;color:var(--g1);}
+.chip.active{background:var(--green);border-color:var(--green);color:#fff;}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.sbox{text-align:center;padding:9px;background:var(--bg2);border-radius:8px;}
+.sv{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--gold);}
+.sl{font-size:10px;color:var(--g1);margin-top:2px;}
+.bar{display:flex;align-items:flex-end;gap:4px;height:60px;margin:8px 0;}
+.bi{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.bf{width:100%;border-radius:3px 3px 0 0;}
+.bl{font-size:9px;color:var(--g1);text-align:center;line-height:1.2;}
+.bv{font-size:9px;font-weight:700;}
 
-/* ===== ゴルフ場登録テーブル ===== */
-.cf-tbl-wrap{overflow-x:auto;margin-bottom:10px;}
-.cf-tbl{border-collapse:collapse;font-size:12px;min-width:560px;width:100%;}
-.cf-tbl th{background:var(--green);color:#fff;padding:6px 3px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,0.2);}
-.cf-tbl th.lbl-col{background:var(--gold);color:#1a1a1a;min-width:72px;}
-.cf-tbl th.sum-col{background:#0d2b1a;min-width:32px;}
-.cf-tbl td{padding:3px 2px;text-align:center;border:1px solid var(--bg3);background:var(--bg2);vertical-align:middle;}
-.cf-name-inp{width:68px;height:32px;background:var(--bg3);border:1px solid var(--gray3);border-radius:4px;text-align:center;font-size:12px;color:#fff;font-family:'Noto Sans JP',sans-serif;}
-.cf-name-inp:focus{outline:none;border-color:var(--gold);}
-.cf-par-inp{width:32px;height:32px;background:var(--bg3);border:1px solid var(--gray3);border-radius:4px;text-align:center;font-size:14px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
-.cf-par-inp::-webkit-inner-spin-button{display:none;}
-.cf-par-inp:focus{outline:none;border-color:var(--gold);}
-.cf-sum{font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:var(--gold);background:#0d2b1a !important;}
+/* ── ゴルフ場登録 ── */
+.vtbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px;}
+.vtbl th{background:var(--green);color:#fff;padding:6px 10px;text-align:center;font-size:11px;border:1px solid rgba(255,255,255,0.2);}
+.vtbl td{padding:5px 8px;text-align:center;border:1px solid var(--bg3);background:var(--bg2);}
+.vtbl tbody tr:nth-child(even) td{background:#1e1e1e;}
+.vtbl tfoot td{background:#0d2b1a;font-weight:700;color:var(--gold);font-family:'Oswald',sans-serif;}
+.cpi{width:50px;height:32px;background:var(--bg3);border:1px solid var(--g3);border-radius:4px;text-align:center;font-size:14px;font-weight:700;color:#fff;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.cpi::-webkit-inner-spin-button{display:none;}
+.cpi:focus{outline:none;border-color:var(--gold);}
+.gcc{background:var(--card);border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.gcch{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:9px 12px;display:flex;justify-content:space-between;align-items:center;}
+.gccn{font-weight:700;font-size:14px;}
+.gccr{background:var(--bg2);border-radius:6px;margin:6px;padding:8px 10px;}
+.gpr{display:flex;gap:3px;overflow-x:auto;padding-bottom:2px;}
+.gpc{text-align:center;flex-shrink:0;min-width:26px;}
+.gpnl{font-size:9px;color:var(--g2);}
+.gpv{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:#fff;}
+.gsub{font-size:11px;color:var(--g1);margin-top:3px;}
 
-/* 登録済みゴルフ場一覧 */
-.gc{background:var(--card);border-radius:10px;margin-bottom:8px;overflow:hidden;}
-.gc-hdr{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:9px 12px;display:flex;justify-content:space-between;align-items:center;}
-.gc-name{font-weight:700;font-size:14px;}
-.gc-course{background:var(--bg2);border-radius:6px;margin:6px;padding:8px 10px;}
-.gc-course-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-.gc-course-name{font-weight:600;font-size:13px;color:var(--gold);}
-.gc-par-row{display:flex;gap:3px;overflow-x:auto;padding-bottom:2px;}
-.gc-par-cell{text-align:center;flex-shrink:0;min-width:26px;}
-.gc-par-lbl{font-size:9px;color:var(--gray2);}
-.gc-par-val{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:#fff;}
-.gc-sub{font-size:11px;color:var(--gray1);margin-top:3px;}
+/* ── モーダル ── */
+.mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:14px;}
+.mov.open{display:flex;}
+.modal{background:var(--bg2);border-radius:14px;width:100%;max-width:420px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);border:1px solid var(--bg3);}
+.mhdr{background:var(--green);color:#fff;padding:12px 16px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;}
+.mttl{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;}
+.mx{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:1;padding:0 4px;}
+.mbody{padding:14px 16px;}
+.mftr{padding:10px 16px;border-top:1px solid var(--bg3);display:flex;gap:8px;justify-content:flex-end;}
 
-/* Modal */
-.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:16px;}
-.modal-ov.open{display:flex;}
-.modal{background:var(--bg2);border-radius:14px;width:100%;max-width:420px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid var(--bg3);}
-.modal-hdr{background:var(--green);color:#fff;padding:13px 16px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;}
-.modal-ttl{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;}
-.modal-x{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;}
-.modal-body{padding:14px 16px;}
-.modal-ftr{padding:10px 16px;border-top:1px solid var(--bg3);display:flex;gap:8px;justify-content:flex-end;}
-
-/* Form parts */
-.flbl{font-size:12px;color:var(--gray1);margin-bottom:4px;display:block;}
-.finp{width:100%;padding:8px 10px;border:1.5px solid var(--bg3);border-radius:6px;font-size:14px;color:#fff;font-family:'Noto Sans JP',sans-serif;background:var(--bg3);margin-bottom:10px;}
-.finp:focus{outline:none;border-color:var(--green);}
+/* フォーム */
+.flbl{font-size:12px;color:var(--g1);margin-bottom:4px;display:block;}
+.fi{width:100%;padding:8px 10px;border:1.5px solid var(--bg3);border-radius:6px;font-size:14px;color:#fff;font-family:'Noto Sans JP',sans-serif;background:var(--bg3);margin-bottom:10px;}
+.fi:focus{outline:none;border-color:var(--green);}
 .fsel{width:100%;padding:8px 10px;border:1.5px solid var(--bg3);border-radius:6px;font-size:14px;color:#fff;font-family:'Noto Sans JP',sans-serif;background:var(--bg3);margin-bottom:10px;}
 .fsel:focus{outline:none;border-color:var(--green);}
-.frow{display:flex;gap:8px;}
-.frow>div{flex:1;}
+.frow{display:flex;gap:8px;}.frow>div{flex:1;}
 
-/* Buttons */
+/* ボタン */
 .btn{padding:9px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans JP',sans-serif;}
-.btn-gold{background:var(--gold);color:#1a1a1a;}
-.btn-out{background:transparent;border:1.5px solid var(--bg3);color:var(--gray1);}
-.btn-green{background:var(--green);color:#fff;}
-.btn-sm{padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans JP',sans-serif;}
-.btn-sm-g{background:var(--green);color:#fff;}
-.btn-sm-r{background:#3a1a1a;color:var(--red);border:1px solid #5a2a2a;}
+.btn-g{background:var(--gold);color:#1a1a1a;}
+.btn-o{background:transparent;border:1.5px solid var(--bg3);color:var(--g1);}
+.btn-gr{background:var(--green);color:#fff;}
+.bsm{padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans JP',sans-serif;}
+.bsm-g{background:var(--green);color:#fff;}
+.bsm-r{background:#3a1a1a;color:var(--red);border:1px solid #5a2a2a;}
 
-/* Toast */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:300;transition:transform .3s;pointer-events:none;white-space:nowrap;}
+/* トースト */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:300;transition:transform .3s;pointer-events:none;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
-
-/* パット入力 */
-.putt-inp{width:34px;height:28px;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:4px;text-align:center;font-size:13px;font-weight:600;color:#3498db;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
-.putt-inp::-webkit-inner-spin-button{display:none;}
-.putt-inp:focus{outline:none;border-color:#3498db;}
-
-/* ゴルフ場登録 縦テーブル */
-.cf-vert-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px;}
-.cf-vert-tbl th{background:var(--green);color:#fff;padding:6px 12px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,0.2);}
-.cf-vert-tbl td{padding:5px 8px;text-align:center;border:1px solid var(--bg3);background:var(--bg2);vertical-align:middle;}
-.cf-vert-tbl tbody tr:nth-child(even) td{background:#1e1e1e;}
 </style>
 </head>
 <body>
 
+<!-- ヘッダー -->
 <div class="hdr">
   <div>
     <div class="hdr-logo">⛳ Golynpic</div>
-    <div class="hdr-course" id="hdr-course">-</div>
+    <div class="hdr-sub" id="hdr-course">-</div>
   </div>
   <div class="hdr-btns">
-    <button class="hdr-btn" id="putt-toggle-btn" onclick="togglePutt()">P 非表示</button>
-    <button class="hdr-btn solid" onclick="openNewRound()">＋ 新規</button>
-    <button class="hdr-btn" onclick="showPage('course')">⛳ ゴルフ場登録</button>
+    <button class="hbtn" id="putt-btn" onclick="togglePutt()">P 非表示</button>
+    <button class="hbtn solid" onclick="openNewRound()">＋ 新規</button>
+    <button class="hbtn" onclick="showPage('course')">⛳ 登録</button>
   </div>
 </div>
 
+<!-- ナビ -->
 <div class="nav">
-  <div class="nav-tab active" onclick="showPage('score')">🏌️ スコア</div>
-  <div class="nav-tab" onclick="showPage('olympic')">🏅 オリンピック</div>
-  <div class="nav-tab" onclick="showPage('history')">📋 履歴</div>
-  <div class="nav-tab" onclick="showPage('stats')">📊 統計</div>
+  <div class="tab active" onclick="showPage('score')">🏌️ スコア</div>
+  <div class="tab" onclick="showPage('olympic')">🏅 オリンピック</div>
+  <div class="tab" onclick="showPage('history')">📋 履歴</div>
+  <div class="tab" onclick="showPage('stats')">📊 統計</div>
 </div>
 
 <div class="pages">
@@ -234,52 +215,52 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
   <!-- スコア -->
   <div id="page-score" class="page active">
     <div class="score-page">
-      <div class="score-tbl-wrap">
-        <table class="score-tbl" id="score-tbl"></table>
+      <div class="stbl-wrap">
+        <table class="stbl" id="stbl"></table>
       </div>
-      <div class="score-summary" id="score-summary"></div>
+      <div class="summary" id="summary"></div>
     </div>
   </div>
 
   <!-- オリンピック -->
   <div id="page-olympic" class="page">
     <div class="inner">
-      <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;">
+      <div class="card" style="display:flex;align-items:center;gap:12px;padding:10px 14px;">
         <div>
           <label class="flbl" style="margin-bottom:2px;">単価（円/pt）</label>
           <input type="number" id="unit-price" value="100" min="1"
-            style="width:90px;padding:6px 8px;border:1.5px solid var(--bg3);border-radius:6px;font-size:14px;color:#fff;background:var(--bg3);"
+            style="width:88px;padding:6px 8px;border:1.5px solid var(--bg3);border-radius:6px;font-size:14px;color:#fff;background:var(--bg3);"
             oninput="renderOlySummary()">
         </div>
-        <div style="font-size:11px;color:var(--gray1);">スコアタブと独立して入力できます。マイナス可。</div>
+        <div style="font-size:11px;color:var(--g1);">スコアタブと独立。マイナス入力可。</div>
       </div>
-      <div class="sec-ttl">✏️ スコア入力 &amp; ポイント</div>
-      <div class="oly-wrap"><table class="oly-tbl" id="oly-tbl"></table></div>
-      <div class="sec-ttl">🏆 順位・収支</div>
-      <div style="overflow-x:auto;"><table class="rank-tbl" id="rank-tbl"></table></div>
+      <div class="sec">✏️ スコア &amp; ポイント</div>
+      <div class="otbl-wrap"><table class="otbl" id="otbl"></table></div>
+      <div class="sec">🏆 順位・収支</div>
+      <div style="overflow-x:auto;"><table class="rtbl" id="rtbl"></table></div>
     </div>
   </div>
 
   <!-- 履歴 -->
   <div id="page-history" class="page">
     <div class="inner">
-      <div class="sec-ttl">📋 ラウンド履歴</div>
-      <div id="history-list"></div>
+      <div class="sec">📋 ラウンド履歴</div>
+      <div id="hist-list"></div>
     </div>
   </div>
 
   <!-- 統計 -->
   <div id="page-stats" class="page">
     <div class="inner">
-      <div class="p-chips" id="stats-chips"></div>
+      <div class="chips" id="stat-chips"></div>
       <div class="card">
         <div style="font-weight:700;color:var(--gold);font-size:13px;">スコア分布</div>
-        <div class="bar-chart" id="stats-bar"></div>
-        <div class="stat-grid" id="stats-grid"></div>
+        <div class="bar" id="stat-bar"></div>
+        <div class="sgrid" id="stat-grid"></div>
       </div>
       <div class="card">
-        <div style="font-weight:700;color:var(--gold);font-size:13px;margin-bottom:8px;">ホール別スコア</div>
-        <div id="stats-detail"></div>
+        <div style="font-weight:700;color:var(--gold);font-size:13px;margin-bottom:8px;">ホール別</div>
+        <div id="stat-detail"></div>
       </div>
     </div>
   </div>
@@ -287,79 +268,68 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
   <!-- ゴルフ場登録 -->
   <div id="page-course" class="page">
     <div class="inner">
-      <div class="sec-ttl">⛳ ゴルフ場登録</div>
+      <div class="sec">⛳ ゴルフ場登録</div>
       <div class="card">
-        <div style="font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);margin-bottom:10px;" id="cf-ttl">新規ゴルフ場登録</div>
-
+        <div style="font-family:'Oswald',sans-serif;font-size:15px;color:var(--gold);margin-bottom:10px;" id="cf-ttl">新規登録</div>
         <label class="flbl">ゴルフ場名</label>
-        <input class="finp" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
+        <input class="fi" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
 
-        <!-- 前半 縦配置 -->
         <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:6px;">前半（H1〜H9）</div>
-        <label class="flbl" style="margin-bottom:4px;">コース名</label>
-        <input class="finp" type="text" id="cf-out-name" placeholder="例：OUT" style="margin-bottom:8px;">
-        <table class="cf-vert-tbl">
-          <thead><tr><th>H</th><th>PAR</th></tr></thead>
-          <tbody id="cf-out-body"></tbody>
-          <tfoot><tr><td style="font-weight:700;color:var(--gold);text-align:right;padding-right:8px;">計</td><td class="cf-sum" id="cf-out-sum">36</td></tr></tfoot>
+        <label class="flbl">コース名</label>
+        <input class="fi" type="text" id="cf-out-name" placeholder="例：OUT">
+        <table class="vtbl">
+          <thead><tr><th>ホール</th><th>PAR</th></tr></thead>
+          <tbody id="vtbl-out"></tbody>
+          <tfoot><tr><td style="text-align:right;padding-right:8px;">計</td><td id="cf-out-sum">36</td></tr></tfoot>
         </table>
 
-        <!-- 後半 縦配置 -->
-        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:6px;margin-top:14px;">後半（H10〜H18）</div>
-        <label class="flbl" style="margin-bottom:4px;">コース名</label>
-        <input class="finp" type="text" id="cf-in-name" placeholder="例：IN" style="margin-bottom:8px;">
-        <table class="cf-vert-tbl">
-          <thead><tr><th>H</th><th>PAR</th></tr></thead>
-          <tbody id="cf-in-body"></tbody>
-          <tfoot><tr><td style="font-weight:700;color:var(--gold);text-align:right;padding-right:8px;">計</td><td class="cf-sum" id="cf-in-sum">36</td></tr></tfoot>
+        <div style="font-size:12px;color:var(--gold);font-weight:600;margin:12px 0 6px;">後半（H10〜H18）</div>
+        <label class="flbl">コース名</label>
+        <input class="fi" type="text" id="cf-in-name" placeholder="例：IN">
+        <table class="vtbl">
+          <thead><tr><th>ホール</th><th>PAR</th></tr></thead>
+          <tbody id="vtbl-in"></tbody>
+          <tfoot><tr><td style="text-align:right;padding-right:8px;">計</td><td id="cf-in-sum">36</td></tr></tfoot>
         </table>
 
         <div style="display:flex;gap:8px;margin-top:10px;">
-          <button class="btn btn-gold" onclick="saveCourse()" style="flex:1;">💾 ゴルフ場を保存</button>
-          <button class="btn btn-out" onclick="resetCf()" style="flex:1;">リセット</button>
+          <button class="btn btn-g" onclick="saveCourse()" style="flex:1;">💾 保存</button>
+          <button class="btn btn-o" onclick="resetCf()" style="flex:1;">リセット</button>
         </div>
       </div>
-
-      <div class="sec-ttl">📋 登録済みゴルフ場</div>
-      <div id="course-list"></div>
+      <div class="sec">📋 登録済み</div>
+      <div id="gc-list"></div>
     </div>
   </div>
 
 </div>
 
 <!-- 新規ラウンドモーダル -->
-<div class="modal-ov" id="modal-new">
+<div class="mov" id="modal-new">
   <div class="modal">
-    <div class="modal-hdr">
-      <div class="modal-ttl">⛳ 新規ラウンド</div>
-      <button class="modal-x" onclick="closeModal()">×</button>
+    <div class="mhdr">
+      <div class="mttl">⛳ 新規ラウンド</div>
+      <button class="mx" onclick="document.getElementById('modal-new').classList.remove('open')">×</button>
     </div>
-    <div class="modal-body">
-
+    <div class="mbody">
       <label class="flbl">ゴルフ場を選択</label>
       <select class="fsel" id="sel-club" onchange="onClubChange()">
         <option value="">-- ゴルフ場を選択 --</option>
       </select>
-
-      <div id="course-sel-area">
-        <label class="flbl">前半コースを選択</label>
-        <select class="fsel" id="sel-out" onchange="onCourseChange()">
-          <option value="">-- 前半コース --</option>
-        </select>
-        <label class="flbl">後半コースを選択</label>
-        <select class="fsel" id="sel-in" onchange="onCourseChange()">
-          <option value="">-- 後半コース --</option>
-        </select>
-      </div>
-
+      <label class="flbl">前半コース</label>
+      <select class="fsel" id="sel-out" onchange="onCourseChange()">
+        <option value="">-- 前半コース --</option>
+      </select>
+      <label class="flbl">後半コース</label>
+      <select class="fsel" id="sel-in" onchange="onCourseChange()">
+        <option value="">-- 後半コース --</option>
+      </select>
       <label class="flbl">コース名（自動入力・変更可）</label>
-      <input class="finp" type="text" id="new-course" placeholder="例：よみうりゴルフ倶楽部 OUT/IN">
-      <div id="par-preview" style="font-size:12px;color:var(--gold);margin-bottom:10px;min-height:18px;"></div>
-
+      <input class="fi" type="text" id="new-course" placeholder="例：よみうりゴルフ倶楽部 OUT/IN">
       <div class="frow">
         <div>
           <label class="flbl">日付</label>
-          <input class="finp" type="date" id="new-date">
+          <input class="fi" type="date" id="new-date">
         </div>
         <div>
           <label class="flbl">ホール数</label>
@@ -369,16 +339,15 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
           </select>
         </div>
       </div>
-
       <div style="font-weight:700;color:var(--gold);margin-bottom:8px;">プレイヤー（最大4名）</div>
-      <input class="finp" type="text" id="p0" placeholder="プレイヤー1">
-      <input class="finp" type="text" id="p1" placeholder="プレイヤー2">
-      <input class="finp" type="text" id="p2" placeholder="プレイヤー3">
-      <input class="finp" type="text" id="p3" placeholder="プレイヤー4">
+      <input class="fi" type="text" id="p0" placeholder="プレイヤー1">
+      <input class="fi" type="text" id="p1" placeholder="プレイヤー2">
+      <input class="fi" type="text" id="p2" placeholder="プレイヤー3">
+      <input class="fi" type="text" id="p3" placeholder="プレイヤー4">
     </div>
-    <div class="modal-ftr">
-      <button class="btn btn-out" onclick="closeModal()">キャンセル</button>
-      <button class="btn btn-gold" onclick="createRound()">開始 ▶</button>
+    <div class="mftr">
+      <button class="btn btn-o" onclick="document.getElementById('modal-new').classList.remove('open')">キャンセル</button>
+      <button class="btn btn-g" onclick="createRound()">開始 ▶</button>
     </div>
   </div>
 </div>
@@ -386,652 +355,587 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== CONSTANTS ====================
-const SKEY   = 'golf_v5';
-const CKEY   = 'golf_courses_v2';
-const DPARS  = [4,3,4,5,4,3,5,4,4, 4,4,3,5,4,4,3,5,4];
+// ===== CONSTANTS =====
+const SKEY  = 'golynpic_v1';
+const CKEY  = 'golynpic_courses_v1';
+const DPARS = [4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4];
 
-// ==================== STATE ====================
-let S = {
+// ===== STATE =====
+let G = {
   id:null, course:'', date:'', holes:18,
   players:[], pars:[...DPARS],
   scores:null, putts:null, oly:null,
   showPutt:false, history:[], statsP:0
 };
 let scoreTimers = {};
-let cfEditing = null; // 編集中のゴルフ場名
 
-function initData(){
-  const h=S.holes, n=S.players.length;
-  S.scores = Array.from({length:h},()=>Array(n).fill(null));
-  S.putts  = Array.from({length:h},()=>Array(n).fill(null));
-  S.oly    = Array.from({length:h},()=>Array(n).fill(null));
+function initData() {
+  const h=G.holes, n=G.players.length;
+  G.scores = Array.from({length:h},()=>Array(n).fill(null));
+  G.putts  = Array.from({length:h},()=>Array(n).fill(null));
+  G.oly    = Array.from({length:h},()=>Array(n).fill(null));
 }
 
-// ==================== 永続化 ====================
-function persist(){
+// ===== 永続化 =====
+function persist() {
   try {
     localStorage.setItem(SKEY, JSON.stringify({
-      history:S.history,
-      cur:{id:S.id,course:S.course,date:S.date,holes:S.holes,
-           players:S.players,pars:S.pars,
-           scores:S.scores,putts:S.putts,oly:S.oly,statsP:S.statsP,showPutt:S.showPutt}
+      history: G.history,
+      cur: {
+        id:G.id, course:G.course, date:G.date, holes:G.holes,
+        players:G.players, pars:G.pars,
+        scores:G.scores, putts:G.putts, oly:G.oly,
+        showPutt:G.showPutt, statsP:G.statsP
+      }
     }));
-  }catch(e){}
+  } catch(e) {}
 }
 
-function loadState(){
-  try{
-    const d=JSON.parse(localStorage.getItem(SKEY)||'null');
-    if(!d) return;
-    if(d.history) S.history=d.history;
-    if(d.cur){
-      const c=d.cur;
-      S.id=c.id||null; S.course=c.course||''; S.date=c.date||'';
-      S.holes=c.holes||18; S.players=c.players||[]; S.pars=c.pars||[...DPARS];
-      S.scores=c.scores||null; S.putts=c.putts||null; S.oly=c.oly||null;
-      S.statsP=c.statsP||0; S.showPutt=c.showPutt||false;
-      if(!S.scores) initData();
+function loadSaved() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SKEY) || 'null');
+    if (!d) return;
+    if (d.history) G.history = d.history;
+    if (d.cur) {
+      const c = d.cur;
+      G.id=c.id||null; G.course=c.course||''; G.date=c.date||'';
+      G.holes=c.holes||18; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
+      G.scores=c.scores||null; G.putts=c.putts||null; G.oly=c.oly||null;
+      G.showPutt=c.showPutt||false; G.statsP=c.statsP||0;
+      if (!G.scores) initData();
     }
-  }catch(e){}
+  } catch(e) {}
 }
 
-function saveRound(){
-  const e={
-    id:S.id||Date.now(), course:S.course, date:S.date, holes:S.holes,
-    players:[...S.players], pars:[...S.pars],
-    scores:S.scores.map(r=>[...r]), putts:S.putts.map(r=>[...r]),
-    oly:S.oly.map(r=>[...r]), savedAt:new Date().toISOString()
+function saveToHistory() {
+  const e = {
+    id:G.id||Date.now(), course:G.course, date:G.date, holes:G.holes,
+    players:[...G.players], pars:[...G.pars],
+    scores:G.scores.map(r=>[...r]), putts:G.putts.map(r=>[...r]),
+    oly:G.oly.map(r=>[...r]), savedAt:new Date().toISOString()
   };
-  S.id=e.id;
-  const i=S.history.findIndex(h=>h.id===e.id);
-  if(i>=0) S.history[i]=e; else S.history.unshift(e);
-  persist(); toast('💾 保存しました');
+  G.id = e.id;
+  const i = G.history.findIndex(h=>h.id===e.id);
+  if (i>=0) G.history[i]=e; else G.history.unshift(e);
+  persist();
+  toast('💾 保存しました');
 }
 
-function loadEntry(id){
-  const e=S.history.find(h=>h.id===id);
-  if(!e) return;
-  S.id=e.id; S.course=e.course; S.date=e.date; S.holes=e.holes;
-  S.players=[...e.players]; S.pars=[...e.pars];
-  S.scores=e.scores.map(r=>[...r]);
-  S.putts=e.putts?e.putts.map(r=>[...r]):Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
-  S.oly=e.oly?e.oly.map(r=>[...r]):Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
-  S.statsP=0;
-  document.getElementById('hdr-course').textContent=S.course||'-';
+function loadEntry(id) {
+  const e = G.history.find(h=>h.id===id);
+  if (!e) return;
+  G.id=e.id; G.course=e.course; G.date=e.date; G.holes=e.holes;
+  G.players=[...e.players]; G.pars=[...e.pars];
+  G.scores=e.scores.map(r=>[...r]);
+  G.putts=e.putts ? e.putts.map(r=>[...r]) : Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
+  G.oly=e.oly ? e.oly.map(r=>[...r]) : Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
+  G.statsP=0;
+  document.getElementById('hdr-course').textContent = G.course||'-';
   renderScore(); showPage('score');
   toast('📂 読み込みました');
 }
 
-function deleteEntry(id){
-  if(!confirm('削除しますか？')) return;
-  S.history=S.history.filter(h=>h.id!==id);
-  persist(); renderHistory(); toast('🗑️ 削除しました');
+function delEntry(id) {
+  if (!confirm('削除しますか？')) return;
+  G.history = G.history.filter(h=>h.id!==id);
+  persist(); renderHist(); toast('🗑️ 削除しました');
 }
 
-// ==================== コースデータ ====================
-// 構造: { "よみうりゴルフ倶楽部": { "OUT": [p1..p9], "IN": [p10..p18] } }
-function getCourses(){
-  try{ return JSON.parse(localStorage.getItem(CKEY)||'{}'); }catch(e){ return {}; }
-}
-function setCourses(obj){ localStorage.setItem(CKEY, JSON.stringify(obj)); }
-
-// ==================== ナビ ====================
-const PAGE_IDX={score:0,olympic:1,history:2,stats:3,course:99};
-function showPage(p){
+// ===== ナビ =====
+const PG = {score:0, olympic:1, history:2, stats:3, course:99};
+function showPage(p) {
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
-  if(PAGE_IDX[p]<4) document.querySelectorAll('.nav-tab')[PAGE_IDX[p]].classList.add('active');
-  if(p==='score')   renderScore();
-  if(p==='olympic') { renderOlyTable(); renderOlySummary(); }
-  if(p==='history') renderHistory();
-  if(p==='stats')   { renderStatsChips(); renderStats(); }
-  if(p==='course')  { buildCfTables(); renderCourseList(); }
+  if (PG[p] < 4) document.querySelectorAll('.tab')[PG[p]].classList.add('active');
+  if (p==='score')   renderScore();
+  if (p==='olympic') { renderOlyTbl(); renderOlySummary(); }
+  if (p==='history') renderHist();
+  if (p==='stats')   { renderStatChips(); renderStats(); }
+  if (p==='course')  { buildVtbl(); renderGcList(); }
 }
 
-// ==================== スコアページ ====================
-function scoreClass(s,par){
-  if(s===null) return '';
+// ===== パット表示切替 =====
+function togglePutt() {
+  G.showPutt = !G.showPutt;
+  const btn = document.getElementById('putt-btn');
+  btn.textContent = G.showPutt ? 'P 表示中' : 'P 非表示';
+  btn.classList.toggle('on', G.showPutt);
+  persist();
+  renderScore();
+}
+
+// ===== スコア =====
+function sClass(s, par) {
+  if (s===null) return '';
   const d=s-par;
-  if(d<=-2) return 'eagle';
-  if(d===-1) return 'birdie';
-  if(d===0)  return 'par';
-  if(d===1)  return 'bogey';
-  if(d===2)  return 'double';
+  if (d<=-2) return 'eagle';
+  if (d===-1) return 'birdie';
+  if (d===0)  return 'par';
+  if (d===1)  return 'bogey';
+  if (d===2)  return 'double';
   return 'triple';
 }
 
-function renderScore(){
-  renderScoreTable();
-  renderSummary();
+function renderScore() { renderStbl(); renderSummary(); }
+
+function renderStbl() {
+  if (!G.players.length) { document.getElementById('stbl').innerHTML=''; return; }
+  const n=G.players.length, h=G.holes;
+
+  // ヘッダー：プレイヤー名（スコア+オーバー の2列）
+  let html = '<thead>'
+    + '<tr><th class="hcol">H</th>'
+    + '<th style="background:#1a3a2e;color:var(--g1);min-width:34px;">PAR</th>'
+    + G.players.map(p=>`<th colspan="2" style="min-width:72px;font-size:11px;">${p}</th>`).join('')
+    + '</tr>'
+    + '<tr><th class="hcol"></th><th style="background:#1a3a2e;"></th>'
+    + G.players.map(()=>'<th style="font-size:10px;min-width:44px;">Score</th><th style="font-size:10px;min-width:28px;color:#9b59b6;">±</th>').join('')
+    + '</tr></thead><tbody>';
+
+  function half(start, end, label) {
+    for (let hi=start; hi<end; hi++) {
+      const par = G.pars[hi];
+      // スコア行
+      html += `<tr><td class="hcell">${hi+1}</td>`
+        + `<td style="background:#1a3a2e;"><input class="par-inp" type="number" min="3" max="6" value="${par}" oninput="setPar(this,${hi})" onfocus="this.select()"></td>`;
+      for (let pi=0; pi<n; pi++) {
+        const s = G.scores[hi][pi];
+        const ov = s!==null ? s-par : null;
+        const ovStr = ov===null?'':ov===0?'E':ov>0?'+'+ov:''+ov;
+        const ovCol = ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+        html += `<td><input class="sc-inp ${sClass(s,par)}" type="number" min="1" max="20" value="${s!==null?s:''}" placeholder="-" oninput="onSc(this,${hi},${pi})" onfocus="this.select()"></td>`;
+        html += `<td class="over-cell" id="ov_${hi}_${pi}" style="color:${ovCol};">${ovStr}</td>`;
+      }
+      html += '</tr>';
+      // パット行（showPuttのみ）
+      if (G.showPutt) {
+        html += `<tr class="putt-row"><td class="hcell" style="font-size:9px;color:var(--blue);">P</td><td style="font-size:9px;color:var(--g2);">putt</td>`;
+        for (let pi=0; pi<n; pi++) {
+          const pt = G.putts[hi][pi];
+          html += `<td colspan="2"><input class="pt-inp" type="number" min="0" max="10" value="${pt!==null?pt:''}" placeholder="-" oninput="onPt(this,${hi},${pi})" onfocus="this.select()"></td>`;
+        }
+        html += '</tr>';
+      }
+    }
+    // スコア小計
+    html += `<tr class="sub"><td class="hcell">${label}</td><td>${G.pars.slice(start,end).reduce((a,b)=>a+b,0)}</td>`;
+    for (let pi=0; pi<n; pi++) {
+      const en = G.scores.slice(start,end).filter(r=>r[pi]!==null);
+      const sub = en.length ? en.reduce((a,r)=>a+r[pi],0) : null;
+      const parS = G.pars.slice(start,end).reduce((a,b)=>a+b,0);
+      const ov = sub!==null ? sub-parS : null;
+      const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
+      const ovCol = ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+      html += `<td id="sub_${label}_${pi}">${sub!==null?sub:'-'}</td>`;
+      html += `<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:${ovCol};">${ovStr}</td>`;
+    }
+    html += '</tr>';
+    // パット小計（showPuttのみ）
+    if (G.showPutt) {
+      html += `<tr class="sub" style="background:#1a1a4a;"><td class="hcell" style="font-size:10px;color:var(--blue);">P</td><td style="font-size:10px;color:var(--g2);">putt</td>`;
+      for (let pi=0; pi<n; pi++) {
+        const en = G.putts.slice(start,end).filter(r=>r[pi]!==null);
+        const sub = en.length ? en.reduce((a,r)=>a+r[pi],0) : null;
+        html += `<td colspan="2" id="psub_${label}_${pi}" style="font-size:13px;color:var(--blue);">${sub!==null?sub:'-'}</td>`;
+      }
+      html += '</tr>';
+    }
+  }
+
+  half(0, Math.min(9,h), 'OUT');
+  if (h>9) half(9, h, 'IN');
+
+  // TOTAL スコア
+  html += '<tr class="tot"><td class="hcell">TOT</td><td>'+G.pars.slice(0,h).reduce((a,b)=>a+b,0)+'</td>';
+  for (let pi=0; pi<n; pi++) {
+    const any = G.scores.some(r=>r[pi]!==null);
+    const tot = G.scores.reduce((a,r)=>a+(r[pi]||0),0);
+    const parT = G.pars.slice(0,h).reduce((a,b)=>a+b,0);
+    const ov = any ? tot-parT : null;
+    const ovStr = ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
+    const ovCol = ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+    html += `<td id="tot_${pi}">${any?tot:'-'}</td>`;
+    html += `<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:${ovCol};">${ovStr}</td>`;
+  }
+  html += '</tr>';
+  // TOTAL パット（showPuttのみ）
+  if (G.showPutt) {
+    html += '<tr class="tot" style="background:#12122a;"><td class="hcell" style="font-size:10px;color:var(--blue);">P</td><td style="font-size:10px;color:var(--g2);">合計</td>';
+    for (let pi=0; pi<n; pi++) {
+      const any = G.putts.some(r=>r[pi]!==null);
+      const tot = G.putts.reduce((a,r)=>a+(r[pi]||0),0);
+      html += `<td colspan="2" id="ptot_${pi}" style="font-size:14px;color:var(--blue);">${any?tot:'-'}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody>';
+  document.getElementById('stbl').innerHTML = html;
 }
 
-function renderScoreTable(){
-  if(!S.players.length){ document.getElementById('score-tbl').innerHTML=''; return; }
-  const n=S.players.length, h=S.holes;
-  let html='<thead><tr>'
-    +'<th class="h-col">H</th>'
-    +'<th style="background:#1a3a2e;color:var(--gray1);min-width:36px;">PAR</th>'
-    +S.players.map(p=>`<th style="min-width:50px;font-size:11px;" colspan="2">${p}</th>`).join('')
-    +'</tr>'
-    +'<tr>'
-    +'<th class="h-col"></th>'
-    +'<th style="background:#1a3a2e;"></th>'
-    +S.players.map(()=>'<th style="font-size:10px;background:#1a2a3a;min-width:46px;">Score</th><th style="font-size:10px;background:#2a1a3a;min-width:34px;color:#9b59b6;">±</th>').join('')
-    +'</tr>'
-    +'</thead><tbody>';
-
-  function half(start,end,label){
-    for(let hi=start;hi<end;hi++){
-      const par=S.pars[hi];
-      html+='<tr>'
-        +`<td class="hcell">${hi+1}</td>`
-        +`<td style="background:#1a3a2e;"><input class="par-inp" type="number" min="3" max="6" value="${par}" oninput="setPar(this,${hi})" onfocus="this.select()"></td>`;
-      for(let pi=0;pi<n;pi++){
-        const s=S.scores[hi][pi];
-        const over=s!==null?s-par:null;
-        const overStr=over===null?'-':(over===0?'E':over>0?'+'+over:''+over);
-        const overColor=over===null?'var(--gray2)':over<0?'#e74c3c':over===0?'#2ecc71':'#3498db';
-        html+=`<td><input class="sc-inp ${scoreClass(s,par)}" type="number" min="1" max="20" value="${s!==null?s:''}" placeholder="-" oninput="onScoreInput(this,${hi},${pi})" onfocus="this.select()"></td>`;
-        html+=`<td id="over_${hi}_${pi}" style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:${overColor};">${overStr}</td>`;
-      }
-      html+='</tr>';
-      // パット行（表示時のみ）
-      if(S.showPutt){
-      html+='<tr style="background:#1a1a2e;">'
-        +`<td style="font-size:9px;color:#3498db;padding:1px 3px;">P</td>`
-        +`<td style="font-size:9px;color:var(--gray2);">putt</td>`;
-      for(let pi=0;pi<n;pi++){
-        const pt=S.putts[hi][pi];
-        html+=`<td colspan="2"><input class="putt-inp" type="number" min="0" max="10" value="${pt!==null?pt:''}" placeholder="-" oninput="onPuttInput(this,${hi},${pi})" onfocus="this.select()"></td>`;
-      }
-      html+='</tr>';
-      } // end showPutt
-    }
-    // スコア小計行
-    html+='<tr class="sub"><td class="hcell">'+label+'</td><td>'+S.pars.slice(start,end).reduce((a,b)=>a+b,0)+'</td>';
-    for(let pi=0;pi<n;pi++){
-      const en=S.scores.slice(start,end).filter(r=>r[pi]!==null);
-      const sub=en.length?en.reduce((a,r)=>a+r[pi],0):null;
-      const parSub=S.pars.slice(start,end).reduce((a,b)=>a+b,0);
-      const ov=sub!==null?sub-parSub:null;
-      const ovStr=ov===null?'-':(ov===0?'E':ov>0?'+'+ov:''+ov);
-      html+=`<td id="sub_${label}_${pi}">${sub!==null?sub:'-'}</td>`;
-      html+=`<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:${ov===null?'var(--gray2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db'};">${ovStr}</td>`;
-    }
-    html+='</tr>';
-    // パット小計行
-    if(S.showPutt){
-    html+='<tr style="background:#1a1a2e;"><td style="font-size:9px;color:#3498db;" class="hcell">P</td><td style="font-size:9px;color:var(--gray2);">合計</td>';
-    for(let pi=0;pi<n;pi++){
-      const en=S.putts.slice(start,end).filter(r=>r[pi]!==null);
-      const sub=en.length?en.reduce((a,r)=>a+r[pi],0):null;
-      html+=`<td colspan="2" id="psub_${label}_${pi}" style="font-size:12px;color:#3498db;">${sub!==null?sub:'-'}</td>`;
-    }
-    html+='</tr>';
-  }
-
-  half(0,Math.min(9,h),'OUT');
-  if(h>9) half(9,h,'IN');
-
-  // TOTALスコア行
-  html+='<tr class="tot"><td class="hcell">TOT</td><td>'+S.pars.slice(0,h).reduce((a,b)=>a+b,0)+'</td>';
-  for(let pi=0;pi<n;pi++){
-    const any=S.scores.some(r=>r[pi]!==null);
-    const tot=S.scores.reduce((a,r)=>a+(r[pi]||0),0);
-    const parTot=S.pars.slice(0,h).reduce((a,b)=>a+b,0);
-    const ov=any?tot-parTot:null;
-    const ovStr=ov===null?'-':(ov===0?'E':ov>0?'+'+ov:''+ov);
-    html+=`<td id="tot_${pi}">${any?tot:'-'}</td>`;
-    html+=`<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:${ov===null?'var(--gray2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db'};">${ovStr}</td>`;
-  }
-  html+='</tr>';
-  // TOTALパット行
-  if(S.showPutt){
-  html+='<tr style="background:#1a1a2e;"><td style="font-size:9px;color:#3498db;" class="hcell">P</td><td style="font-size:9px;color:var(--gray2);">合計</td>';
-  for(let pi=0;pi<n;pi++){
-    const any=S.putts.some(r=>r[pi]!==null);
-    const tot=S.putts.reduce((a,r)=>a+(r[pi]||0),0);
-    html+=`<td colspan="2" id="ptot_${pi}" style="font-size:13px;color:#3498db;">${any?tot:'-'}</td>`;
-  }
-  } // end showPutt
-  html+='</tbody>';
-  document.getElementById('score-tbl').innerHTML=html;
-}
-
-function setPar(inp,hi){
+function setPar(inp, hi) {
   const v=parseInt(inp.value);
-  if(!isNaN(v)&&v>=1){ S.pars[hi]=v; renderScoreTable(); renderSummary(); }
+  if (!isNaN(v)&&v>=1) { G.pars[hi]=v; renderStbl(); renderSummary(); persist(); }
 }
 
-function onScoreInput(inp,hi,pi){
+function onSc(inp, hi, pi) {
   const key=`${hi}_${pi}`;
   clearTimeout(scoreTimers[key]);
   const raw=inp.value;
-  if(raw===''){S.scores[hi][pi]=null;inp.className='sc-inp';refreshTots();renderSummary();return;}
+  if (raw==='') { G.scores[hi][pi]=null; inp.className='sc-inp'; refreshTot(); renderSummary(); persist(); return; }
   const v=parseInt(raw);
-  if(isNaN(v)) return;
-  if(raw.length>=2||v>=7){ applyScore(inp,hi,pi,v); }
-  else { scoreTimers[key]=setTimeout(()=>applyScore(inp,hi,pi,parseInt(inp.value)),600); }
+  if (isNaN(v)) return;
+  if (raw.length>=2||v>=7) { applySc(inp,hi,pi,v); }
+  else { scoreTimers[key]=setTimeout(()=>applySc(inp,hi,pi,parseInt(inp.value)),600); }
 }
 
-function applyScore(inp,hi,pi,v){
-  S.scores[hi][pi]=(!v||v<1)?null:v;
-  inp.className='sc-inp '+scoreClass(S.scores[hi][pi],S.pars[hi]);
-  // オーバー数セルを更新
-  const over=S.scores[hi][pi]!==null?S.scores[hi][pi]-S.pars[hi]:null;
-  const overStr=over===null?'-':(over===0?'E':over>0?'+'+over:''+over);
-  const overColor=over===null?'var(--gray2)':over<0?'#e74c3c':over===0?'#2ecc71':'#3498db';
-  const oel=document.getElementById('over_'+hi+'_'+pi);
-  if(oel){oel.textContent=overStr;oel.style.color=overColor;}
-  refreshTots(); renderSummary();
-  persist(); // 自動保存
+function applySc(inp, hi, pi, v) {
+  G.scores[hi][pi] = (!v||v<1) ? null : v;
+  inp.className = 'sc-inp '+sClass(G.scores[hi][pi], G.pars[hi]);
+  // オーバー数セル更新
+  const s=G.scores[hi][pi], par=G.pars[hi];
+  const ov=s!==null?s-par:null;
+  const el=document.getElementById('ov_'+hi+'_'+pi);
+  if (el) {
+    el.textContent=ov===null?'':ov===0?'E':ov>0?'+'+ov:''+ov;
+    el.style.color=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+  }
+  refreshTot(); renderSummary(); persist();
 }
 
-function onPuttInput(inp,hi,pi){
+function onPt(inp, hi, pi) {
   const v=parseInt(inp.value);
-  S.putts[hi][pi]=isNaN(v)||v<0?null:v;
-  refreshPuttTots();
-  persist(); // 自動保存
+  G.putts[hi][pi] = isNaN(v)||v<0 ? null : v;
+  refreshPuttTot(); persist();
 }
 
-function refreshPuttTots(){
-  const n=S.players.length,h=S.holes,out=Math.min(9,h);
-  for(let pi=0;pi<n;pi++){
-    const calc=(s,e)=>{const en=S.putts.slice(s,e).filter(r=>r[pi]!==null);return en.length?en.reduce((a,r)=>a+r[pi],0):null;};
-    const o=document.getElementById('psub_OUT_'+pi);if(o){const v=calc(0,out);o.textContent=v!==null?v:'-';}
+function refreshTot() {
+  const n=G.players.length, h=G.holes, out=Math.min(9,h);
+  for (let pi=0; pi<n; pi++) {
+    const upd=(lbl,s,e)=>{
+      const en=G.scores.slice(s,e).filter(r=>r[pi]!==null);
+      const sub=en.length?en.reduce((a,r)=>a+r[pi],0):null;
+      const parS=G.pars.slice(s,e).reduce((a,b)=>a+b,0);
+      const ov=sub!==null?sub-parS:null;
+      const ovStr=ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
+      const ovCol=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+      const el=document.getElementById(`sub_${lbl}_${pi}`); if(el) el.textContent=sub!==null?sub:'-';
+      const oel=document.getElementById(`subov_${lbl}_${pi}`); if(oel){oel.textContent=ovStr;oel.style.color=ovCol;}
+    };
+    upd('OUT',0,out);
+    if (h>9) upd('IN',9,h);
+    const any=G.scores.some(r=>r[pi]!==null);
+    const tot=G.scores.reduce((a,r)=>a+(r[pi]||0),0);
+    const parT=G.pars.slice(0,h).reduce((a,b)=>a+b,0);
+    const ov=any?tot-parT:null;
+    const ovStr=ov===null?'-':ov===0?'E':ov>0?'+'+ov:''+ov;
+    const ovCol=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+    const t=document.getElementById('tot_'+pi); if(t) t.textContent=any?tot:'-';
+    const ot=document.getElementById('totov_'+pi); if(ot){ot.textContent=ovStr;ot.style.color=ovCol;}
+  }
+}
+
+function refreshPuttTot() {
+  const n=G.players.length, h=G.holes, out=Math.min(9,h);
+  for (let pi=0; pi<n; pi++) {
+    const calc=(s,e)=>{const en=G.putts.slice(s,e).filter(r=>r[pi]!==null);return en.length?en.reduce((a,r)=>a+r[pi],0):null;};
+    const o=document.getElementById('psub_OUT_'+pi); if(o){const v=calc(0,out);o.textContent=v!==null?v:'-';}
     if(h>9){const i=document.getElementById('psub_IN_'+pi);if(i){const v=calc(9,h);i.textContent=v!==null?v:'-';}}
     const t=document.getElementById('ptot_'+pi);
-    if(t){const any=S.putts.some(r=>r[pi]!==null);const tot=S.putts.reduce((a,r)=>a+(r[pi]||0),0);t.textContent=any?tot:'-';}
+    if(t){const any=G.putts.some(r=>r[pi]!==null);const tot=G.putts.reduce((a,r)=>a+(r[pi]||0),0);t.textContent=any?tot:'-';}
   }
 }
 
-function refreshTots(){
-  const n=S.players.length,h=S.holes,out=Math.min(9,h);
-  for(let pi=0;pi<n;pi++){
-    const updateSub=(lbl,s,e)=>{
-      const en=S.scores.slice(s,e).filter(r=>r[pi]!==null);
-      const sub=en.length?en.reduce((a,r)=>a+r[pi],0):null;
-      const parSub=S.pars.slice(s,e).reduce((a,b)=>a+b,0);
-      const ov=sub!==null?sub-parSub:null;
-      const ovStr=ov===null?'-':(ov===0?'E':ov>0?'+'+ov:''+ov);
-      const ovColor=ov===null?'var(--gray2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
-      const el=document.getElementById('sub_'+lbl+'_'+pi);if(el)el.textContent=sub!==null?sub:'-';
-      const oel=document.getElementById('subov_'+lbl+'_'+pi);if(oel){oel.textContent=ovStr;oel.style.color=ovColor;}
-    };
-    updateSub('OUT',0,out);
-    if(h>9) updateSub('IN',9,h);
-    const t=document.getElementById('tot_'+pi);
-    const ot=document.getElementById('totov_'+pi);
-    const any=S.scores.some(r=>r[pi]!==null);
-    const tot=S.scores.reduce((a,r)=>a+(r[pi]||0),0);
-    const parTot=S.pars.slice(0,h).reduce((a,b)=>a+b,0);
-    const ov=any?tot-parTot:null;
-    const ovStr=ov===null?'-':(ov===0?'E':ov>0?'+'+ov:''+ov);
-    const ovColor=ov===null?'var(--gray2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
-    if(t) t.textContent=any?tot:'-';
-    if(ot){ot.textContent=ovStr;ot.style.color=ovColor;}
-  }
-}
-
-function renderSummary(){
+function renderSummary() {
   let html='';
-  S.players.forEach((name,pi)=>{
-    const ent=S.scores.map((r,hi)=>({s:r[pi],par:S.pars[hi]})).filter(x=>x.s!==null);
+  G.players.forEach((name,pi)=>{
+    const ent=G.scores.map((r,hi)=>({s:r[pi],par:G.pars[hi]})).filter(x=>x.s!==null);
     const g=ent.reduce((a,x)=>a+x.s,0), p=ent.reduce((a,x)=>a+x.par,0);
     const d=g-p, any=ent.length>0;
     const ds=any?(d===0?'E':d>0?'+'+d:''+d):'-';
-    html+=`<div class="ss-item"><div class="ss-name">${name}</div><div class="ss-gross">${any?g:'-'}</div><div class="ss-diff">${ds}</div></div>`;
+    html+=`<div class="ss"><div class="ss-name">${name}</div><div class="ss-g">${any?g:'-'}</div><div class="ss-d">${ds}</div></div>`;
   });
-  document.getElementById('score-summary').innerHTML=html;
+  document.getElementById('summary').innerHTML=html;
 }
 
-// ==================== オリンピック ====================
-function calcOly(row){
+// ===== オリンピック =====
+function calcOly(row) {
   const n=row.length, valid=row.map((s,i)=>({s,i})).filter(x=>x.s!==null);
   const pts=Array(n).fill(null);
-  if(valid.length<2) return pts;
+  if (valid.length<2) return pts;
   valid.forEach(({s:my,i:pi})=>{
     const oth=valid.filter(x=>x.i!==pi);
     pts[pi]=my*oth.length-oth.reduce((a,x)=>a+x.s,0);
   });
   return pts;
 }
-function subPts(s,e,pi){let t=0,any=false;for(let hi=s;hi<e;hi++){const p=calcOly(S.oly[hi]);if(p[pi]!==null){t+=p[pi];any=true;}}return any?t:null;}
-function fmtPt(v){
-  if(v===null) return '<span class="pt-n">-</span>';
-  if(v===0)    return '<span class="pt-z">0</span>';
-  return v>0?`<span class="pt-p">+${v}</span>`:`<span class="pt-m">${v}</span>`;
-}
+function subPts(s,e,pi){let t=0,any=false;for(let hi=s;hi<e;hi++){const p=calcOly(G.oly[hi]);if(p[pi]!==null){t+=p[pi];any=true;}}return any?t:null;}
+function fp(v){if(v===null)return '<span class="pn">-</span>';if(v===0)return '<span class="pz">0</span>';return v>0?`<span class="pp">+${v}</span>`:`<span class="pm">${v}</span>`;}
 
-function renderOlyTable(){
-  if(!S.players.length){document.getElementById('oly-tbl').innerHTML='';return;}
-  const n=S.players.length, h=S.holes;
-  let html='<thead><tr><th class="h-col">H</th><th style="background:#1a3a2e;color:var(--gray1);">PAR</th>'
-    +S.players.map(p=>`<th style="font-size:10px;">${p}</th>`).join('')
-    +S.players.map(p=>`<th style="font-size:10px;background:#0d2b1a;">${p}<br>pt</th>`).join('')
+function renderOlyTbl() {
+  if (!G.players.length){document.getElementById('otbl').innerHTML='';return;}
+  const n=G.players.length, h=G.holes;
+  let html='<thead><tr><th class="hcol">H</th><th style="background:#1a3a2e;color:var(--g1);">PAR</th>'
+    +G.players.map(p=>`<th style="font-size:10px;">${p}</th>`).join('')
+    +G.players.map(p=>`<th style="font-size:10px;background:#0d2b1a;">${p}<br>pt</th>`).join('')
     +'</tr></thead><tbody>';
   function half(s,e,lbl){
     for(let hi=s;hi<e;hi++){
-      const row=S.oly[hi],pts=calcOly(row),par=S.pars[hi];
-      html+='<tr><td class="hcell">'+(hi+1)+'</td><td style="background:#1a3a2e;color:var(--gray1);">'+par+'</td>';
-      for(let pi=0;pi<n;pi++){const v=row[pi],cls=v!==null?(v<0?'neg':'pos'):'';html+=`<td><input class="oly-inp ${cls}" type="number" value="${v!==null?v:''}" placeholder="-" oninput="onOlyInput(this,${hi},${pi})" onfocus="this.select()"></td>`;}
-      for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fmtPt(pts[pi])}</td>`;
+      const row=G.oly[hi],pts=calcOly(row),par=G.pars[hi];
+      html+=`<tr><td class="hcell">${hi+1}</td><td style="background:#1a3a2e;color:var(--g1);">${par}</td>`;
+      for(let pi=0;pi<n;pi++){const v=row[pi],cls=v!==null?(v<0?'neg':'pos'):'';html+=`<td><input class="oi ${cls}" type="number" value="${v!==null?v:''}" placeholder="-" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;}
+      for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
     }
-    html+='<tr class="oly-sub"><td colspan="2">'+lbl+'</td>'+S.players.map(()=>'<td>-</td>').join('')+S.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fmtPt(subPts(s,e,pi))}</td>`).join('')+'</tr>';
+    html+=`<tr class="osub"><td colspan="2">${lbl}</td>`+G.players.map(()=>'<td>-</td>').join('')+G.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fp(subPts(s,e,pi))}</td>`).join('')+'</tr>';
   }
   half(0,Math.min(9,h),'OUT');
   if(h>9) half(9,h,'IN');
-  html+='<tr class="oly-tot"><td colspan="2">TOTAL</td>'+S.players.map(()=>'<td>-</td>').join('')+S.players.map((_,pi)=>`<td id="ot_${pi}">${fmtPt(subPts(0,h,pi))}</td>`).join('')+'</tr></tbody>';
-  document.getElementById('oly-tbl').innerHTML=html;
+  html+='<tr class="otot"><td colspan="2">TOTAL</td>'+G.players.map(()=>'<td>-</td>').join('')+G.players.map((_,pi)=>`<td id="ot_${pi}">${fp(subPts(0,h,pi))}</td>`).join('')+'</tr></tbody>';
+  document.getElementById('otbl').innerHTML=html;
 }
 
-function onOlyInput(inp,hi,pi){
+function onOly(inp,hi,pi){
   const v=inp.value.trim();
-  S.oly[hi][pi]=(v===''||v==='-')?null:(isNaN(Number(v))?null:Number(v));
-  const s=S.oly[hi][pi];
-  inp.className='oly-inp '+(s===null?'':(s<0?'neg':'pos'));
-  const pts=calcOly(S.oly[hi]);
-  S.players.forEach((_,p)=>{const el=document.getElementById(`op_${hi}_${p}`);if(el)el.innerHTML=fmtPt(pts[p]);});
-  refreshOlySubs(); renderOlySummary();
+  G.oly[hi][pi]=(v===''||v==='-')?null:(isNaN(Number(v))?null:Number(v));
+  const s=G.oly[hi][pi];
+  inp.className='oi '+(s===null?'':(s<0?'neg':'pos'));
+  const pts=calcOly(G.oly[hi]);
+  G.players.forEach((_,p)=>{const el=document.getElementById(`op_${hi}_${p}`);if(el)el.innerHTML=fp(pts[p]);});
+  refreshOlySubs(); renderOlySummary(); persist();
 }
+
 function refreshOlySubs(){
-  const n=S.players.length,h=S.holes,out=Math.min(9,h);
+  const n=G.players.length,h=G.holes,out=Math.min(9,h);
   for(let pi=0;pi<n;pi++){
-    const o=document.getElementById('os_OUT_'+pi);if(o)o.innerHTML=fmtPt(subPts(0,out,pi));
-    if(h>9){const i=document.getElementById('os_IN_'+pi);if(i)i.innerHTML=fmtPt(subPts(9,h,pi));}
-    const t=document.getElementById('ot_'+pi);if(t)t.innerHTML=fmtPt(subPts(0,h,pi));
+    const o=document.getElementById('os_OUT_'+pi);if(o)o.innerHTML=fp(subPts(0,out,pi));
+    if(h>9){const i=document.getElementById('os_IN_'+pi);if(i)i.innerHTML=fp(subPts(9,h,pi));}
+    const t=document.getElementById('ot_'+pi);if(t)t.innerHTML=fp(subPts(0,h,pi));
   }
 }
+
 function renderOlySummary(){
   const unit=parseInt(document.getElementById('unit-price').value)||100;
-  const n=S.players.length,h=S.holes,out=Math.min(9,h);
-  const tots=S.players.map((_,pi)=>subPts(0,h,pi));
+  const n=G.players.length,h=G.holes,out=Math.min(9,h);
+  const tots=G.players.map((_,pi)=>subPts(0,h,pi));
   const ranked=tots.map((p,i)=>({i,p})).sort((a,b)=>{if(a.p===null&&b.p===null)return 0;if(a.p===null)return 1;if(b.p===null)return -1;return a.p-b.p;});
-  const fp=v=>{if(v===null)return '<span style="color:var(--gray2)">-</span>';if(v===0)return '<span style="color:var(--gray2)">0pt</span>';return v>0?`<span class="pt-p">+${v}pt</span>`:`<span class="pt-m">${v}pt</span>`;};
-  let html='<thead><tr><th>順位</th><th class="pname">プレイヤー</th><th>OUT</th>'+(h>9?'<th>IN</th>':'')+'<th>合計</th><th>収支</th></tr></thead><tbody>';
+  const fpp=v=>{if(v===null)return '<span style="color:var(--g2)">-</span>';if(v===0)return '<span style="color:var(--g2)">0pt</span>';return v>0?`<span class="pp">+${v}pt</span>`:`<span class="pm">${v}pt</span>`;};
+  let html='<thead><tr><th>順位</th><th class="pnm">プレイヤー</th><th>OUT</th>'+(h>9?'<th>IN</th>':'')+'<th>合計</th><th>収支</th></tr></thead><tbody>';
   ranked.forEach(({i:pi},rank)=>{
     const badge=rank<3?`<span class="rb r${rank+1}">${rank+1}</span>`:rank+1;
     const tot=tots[pi],m=tot!==null?(-tot)*unit:null;
-    const ms=m===null?'-':m>=0?`<span class="pt-p">+¥${m.toLocaleString()}</span>`:`<span class="pt-m">¥${m.toLocaleString()}</span>`;
-    html+=`<tr><td>${badge}</td><td class="pname">${S.players[pi]}</td><td>${fp(subPts(0,out,pi))}</td>${h>9?`<td>${fp(subPts(9,h,pi))}</td>`:''}<td style="font-weight:700;">${fp(tot)}</td><td style="font-weight:700;">${ms}</td></tr>`;
+    const ms=m===null?'-':m>=0?`<span class="pp">+¥${m.toLocaleString()}</span>`:`<span class="pm">¥${m.toLocaleString()}</span>`;
+    html+=`<tr><td>${badge}</td><td class="pnm">${G.players[pi]}</td><td>${fpp(subPts(0,out,pi))}</td>${h>9?`<td>${fpp(subPts(9,h,pi))}</td>`:''}<td style="font-weight:700;">${fpp(tot)}</td><td style="font-weight:700;">${ms}</td></tr>`;
   });
-  document.getElementById('rank-tbl').innerHTML=html+'</tbody>';
+  document.getElementById('rtbl').innerHTML=html+'</tbody>';
 }
 
-// ==================== 履歴 ====================
-function renderHistory(){
-  const el=document.getElementById('history-list');
-  if(!S.history.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>保存されたラウンドがありません</div></div>';return;}
-  el.innerHTML=S.history.map(r=>{
+// ===== 履歴 =====
+function renderHist(){
+  const el=document.getElementById('hist-list');
+  if(!G.history.length){el.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:8px;">📋</div><div>履歴がありません</div></div>';return;}
+  el.innerHTML=G.history.map(r=>{
     const p0=r.scores.map(row=>row[0]);
     const g=p0.reduce((a,s)=>a+(s||0),0),any=p0.some(s=>s!==null);
     const pt=r.pars.reduce((a,b)=>a+b,0),d=g-pt;
     const saved=r.savedAt?new Date(r.savedAt).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
     return `<div class="rc">
-      <div class="rc-hdr"><div class="rc-title">⛳ ${r.course||'（未設定）'}</div><div class="rc-date">${r.date}</div></div>
-      <div class="rc-body">
-        <div class="rc-stat"><div class="rc-val">${any?g:'-'}</div><div class="rc-lbl">${r.players[0]||'P1'} グロス</div></div>
-        <div class="rc-stat"><div class="rc-val">${any?(d===0?'E':d>0?'+'+d:d):'-'}</div><div class="rc-lbl">±パー</div></div>
-        <div class="rc-stat"><div class="rc-val">${r.holes}H</div><div class="rc-lbl">${r.players.length}名</div></div>
-        <div class="rc-actions">
-          <button class="btn-sm btn-sm-g" onclick="loadEntry(${r.id})">📂 読込</button>
-          <button class="btn-sm btn-sm-r" onclick="deleteEntry(${r.id})">🗑️</button>
+      <div class="rch"><div class="rct">⛳ ${r.course||'（未設定）'}</div><div class="rcd">${r.date}</div></div>
+      <div class="rcb">
+        <div class="rst"><div class="rsv">${any?g:'-'}</div><div class="rsl">${r.players[0]||'P1'} グロス</div></div>
+        <div class="rst"><div class="rsv">${any?(d===0?'E':d>0?'+'+d:d):'-'}</div><div class="rsl">±PAR</div></div>
+        <div class="rst"><div class="rsv">${r.holes}H</div><div class="rsl">${r.players.length}名</div></div>
+        <div class="rca">
+          <button class="bsm bsm-g" onclick="loadEntry(${r.id})">📂</button>
+          <button class="bsm bsm-r" onclick="delEntry(${r.id})">🗑️</button>
         </div>
       </div>
-      ${saved?`<div class="rc-saved">保存：${saved}</div>`:''}
+      ${saved?`<div class="rcs">保存：${saved}</div>`:''}
     </div>`;
   }).join('');
 }
 
-// ==================== 統計 ====================
-function renderStatsChips(){
-  document.getElementById('stats-chips').innerHTML=S.players.map((p,i)=>
-    `<div class="p-chip ${i===S.statsP?'active':''}" onclick="selSP(${i})">${p}</div>`).join('');
+// ===== 統計 =====
+function renderStatChips(){
+  document.getElementById('stat-chips').innerHTML=G.players.map((p,i)=>
+    `<div class="chip ${i===G.statsP?'active':''}" onclick="selSP(${i})">${p}</div>`).join('');
 }
-function selSP(i){S.statsP=i;renderStatsChips();renderStats();}
+function selSP(i){G.statsP=i;renderStatChips();renderStats();}
 function renderStats(){
-  const pi=S.statsP;
+  const pi=G.statsP;
   let eagle=0,birdie=0,par=0,bogey=0,dbl=0,triple=0;
-  S.scores.forEach((row,hi)=>{
+  G.scores.forEach((row,hi)=>{
     const s=row[pi];if(s===null)return;
-    const d=s-S.pars[hi];
+    const d=s-G.pars[hi];
     if(d<=-2)eagle++;else if(d===-1)birdie++;else if(d===0)par++;else if(d===1)bogey++;else if(d===2)dbl++;else triple++;
   });
   const max=Math.max(eagle,birdie,par,bogey,dbl,triple,1);
-  document.getElementById('stats-bar').innerHTML=[
+  document.getElementById('stat-bar').innerHTML=[
     {l:'Eagle\n以下',v:eagle,c:'#f39c12'},{l:'Birdie',v:birdie,c:'#e74c3c'},
     {l:'Par',v:par,c:'#2ecc71'},{l:'Bogey',v:bogey,c:'#3498db'},
     {l:'Dbl',v:dbl,c:'#9b59b6'},{l:'Triple+',v:triple,c:'#c0392b'},
-  ].map(b=>`<div class="bar-item"><div class="bar-val" style="color:${b.c}">${b.v||''}</div><div class="bar-fill" style="height:${b.v/max*50}px;background:${b.c}"></div><div class="bar-lbl">${b.l}</div></div>`).join('');
-  const g=S.scores.reduce((a,r)=>a+(r[pi]||0),0),any=S.scores.some(r=>r[pi]!==null);
-  const putt=S.putts.reduce((a,r)=>a+(r[pi]||0),0),pany=S.putts.some(r=>r[pi]!==null);
+  ].map(b=>`<div class="bi"><div class="bv" style="color:${b.c}">${b.v||''}</div><div class="bf" style="height:${b.v/max*50}px;background:${b.c}"></div><div class="bl">${b.l}</div></div>`).join('');
+  const g=G.scores.reduce((a,r)=>a+(r[pi]||0),0),any=G.scores.some(r=>r[pi]!==null);
+  const putt=G.putts.reduce((a,r)=>a+(r[pi]||0),0),pany=G.putts.some(r=>r[pi]!==null);
   const played=eagle+birdie+par+bogey+dbl+triple;
-  document.getElementById('stats-grid').innerHTML=`
-    <div class="stat-box"><div class="stat-val">${any?g:'-'}</div><div class="stat-lbl">グロス</div></div>
-    <div class="stat-box"><div class="stat-val">${played?Math.round(g/played*10)/10:'-'}</div><div class="stat-lbl">平均</div></div>
-    <div class="stat-box"><div class="stat-val">${par+birdie+eagle}</div><div class="stat-lbl">パー以下</div></div>
-    <div class="stat-box"><div class="stat-val">${bogey}</div><div class="stat-lbl">ボギー</div></div>
-    <div class="stat-box"><div class="stat-val">${dbl}</div><div class="stat-lbl">ダブル</div></div>
-    <div class="stat-box"><div class="stat-val">${pany?putt:'-'}</div><div class="stat-lbl">パット数</div></div>`;
+  document.getElementById('stat-grid').innerHTML=`
+    <div class="sbox"><div class="sv">${any?g:'-'}</div><div class="sl">グロス</div></div>
+    <div class="sbox"><div class="sv">${played?Math.round(g/played*10)/10:'-'}</div><div class="sl">平均</div></div>
+    <div class="sbox"><div class="sv">${par+birdie+eagle}</div><div class="sl">パー以下</div></div>
+    <div class="sbox"><div class="sv">${bogey}</div><div class="sl">ボギー</div></div>
+    <div class="sbox"><div class="sv">${dbl}</div><div class="sl">ダブル</div></div>
+    <div class="sbox"><div class="sv">${pany?putt:'-'}</div><div class="sl">パット</div></div>`;
   let det='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;">'
-    +'<tr style="background:var(--green);"><th style="padding:5px 8px;">H</th><th>Par</th><th>Score</th><th>±</th></tr>';
-  S.scores.forEach((row,hi)=>{
+    +'<tr style="background:var(--green);"><th style="padding:5px 8px;">H</th><th>PAR</th><th>Score</th><th>±</th></tr>';
+  G.scores.forEach((row,hi)=>{
     const s=row[pi];if(s===null)return;
-    const d=s-S.pars[hi],ds=d===0?'E':d>0?'+'+d:''+d;
+    const d=s-G.pars[hi],ds=d===0?'E':d>0?'+'+d:''+d;
     const cols={eagle:'#f39c12',birdie:'#e74c3c',par:'#2ecc71',bogey:'#3498db',double:'#9b59b6',triple:'#c0392b'};
     det+=`<tr style="border-bottom:1px solid var(--bg3);">
       <td style="padding:5px 8px;text-align:center;">${hi+1}</td>
-      <td style="text-align:center;">${S.pars[hi]}</td>
-      <td style="text-align:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:${cols[scoreClass(s,S.pars[hi])]||'#fff'}">${s}</td>
+      <td style="text-align:center;">${G.pars[hi]}</td>
+      <td style="text-align:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:${cols[sClass(s,G.pars[hi])]||'#fff'}">${s}</td>
       <td style="text-align:center;font-weight:700;color:${d<0?'#e74c3c':d>0?'#3498db':'#2ecc71'}">${ds}</td>
     </tr>`;
   });
-  document.getElementById('stats-detail').innerHTML=det+'</table></div>';
+  document.getElementById('stat-detail').innerHTML=det+'</table></div>';
 }
 
-// ==================== ゴルフ場登録 ====================
-function buildCfTables(){
-  // 前半 H1-H9
-  const outBody=document.getElementById('cf-out-body');
-  if(outBody){
-    outBody.innerHTML='';
-    for(let i=0;i<9;i++){
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td style="color:var(--gold);font-weight:700;">H${i+1}</td>`
-        +`<td><input class="cf-par-inp" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
-      outBody.appendChild(tr);
-    }
+// ===== ゴルフ場登録 =====
+function getCourses(){try{return JSON.parse(localStorage.getItem(CKEY)||'{}');}catch(e){return {};}}
+function setCourses(obj){localStorage.setItem(CKEY,JSON.stringify(obj));}
+
+function buildVtbl(){
+  const ob=document.getElementById('vtbl-out');
+  const ib=document.getElementById('vtbl-in');
+  if(!ob||!ib) return;
+  ob.innerHTML='';
+  for(let i=0;i<9;i++){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:var(--gold);font-weight:700;text-align:left;padding-left:10px;">H${i+1}</td><td><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
+    ob.appendChild(tr);
   }
-  // 後半 H10-H18
-  const inBody=document.getElementById('cf-in-body');
-  if(inBody){
-    inBody.innerHTML='';
-    for(let i=9;i<18;i++){
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td style="color:var(--gold);font-weight:700;">H${i+1}</td>`
-        +`<td><input class="cf-par-inp" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
-      inBody.appendChild(tr);
-    }
+  ib.innerHTML='';
+  for(let i=9;i<18;i++){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:var(--gold);font-weight:700;text-align:left;padding-left:10px;">H${i+1}</td><td><input class="cpi" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
+    ib.appendChild(tr);
   }
   calcCfSum();
 }
 
 function calcCfSum(){
-  let out=0, inn=0;
-  for(let i=0;i<9;i++)  out += parseInt(document.getElementById('cfp'+i)?.value)||0;
-  for(let i=9;i<18;i++) inn += parseInt(document.getElementById('cfp'+i)?.value)||0;
-  const o=document.getElementById('cf-out-sum'); if(o) o.textContent=out;
-  const i=document.getElementById('cf-in-sum');  if(i) i.textContent=inn;
+  let out=0,inn=0;
+  for(let i=0;i<9;i++)  out+=parseInt(document.getElementById('cfp'+i)?.value)||0;
+  for(let i=9;i<18;i++) inn+=parseInt(document.getElementById('cfp'+i)?.value)||0;
+  const o=document.getElementById('cf-out-sum');if(o)o.textContent=out;
+  const i=document.getElementById('cf-in-sum'); if(i)i.textContent=inn;
 }
 
 function saveCourse(){
-  const clubName = document.getElementById('cf-name').value.trim();
-  if(!clubName){ toast('ゴルフ場名を入力してください'); return; }
-  const outName = document.getElementById('cf-out-name').value.trim() || 'OUT';
-  const inName  = document.getElementById('cf-in-name').value.trim()  || 'IN';
-  const pars = [];
-  for(let i=0;i<18;i++){
-    const v = parseInt(document.getElementById('cfp'+i)?.value);
-    pars.push(isNaN(v)?4:v);
-  }
-  const cs = getCourses();
-  if(!cs[clubName]) cs[clubName] = {};
-  // 前半・後半それぞれを保存
-  cs[clubName][outName] = pars.slice(0,9);
-  cs[clubName][inName]  = pars.slice(9,18);
+  const club=document.getElementById('cf-name').value.trim();
+  if(!club){toast('ゴルフ場名を入力してください');return;}
+  const outName=document.getElementById('cf-out-name').value.trim()||'OUT';
+  const inName =document.getElementById('cf-in-name').value.trim() ||'IN';
+  const pars=[];
+  for(let i=0;i<18;i++){const v=parseInt(document.getElementById('cfp'+i)?.value);pars.push(isNaN(v)?4:v);}
+  const cs=getCourses();
+  if(!cs[club]) cs[club]={};
+  cs[club][outName]=pars.slice(0,9);
+  cs[club][inName] =pars.slice(9,18);
   setCourses(cs);
-  renderCourseList();
-  cfEditing = null;
-  document.getElementById('cf-ttl').textContent = '新規ゴルフ場登録';
-  toast('💾「'+clubName+'」を保存しました');
+  renderGcList();
+  toast('💾「'+club+'」を保存しました');
 }
 
 function resetCf(){
   document.getElementById('cf-name').value='';
   document.getElementById('cf-out-name').value='';
   document.getElementById('cf-in-name').value='';
-  for(let i=0;i<18;i++){const el=document.getElementById('cfp'+i);if(el)el.value=4;}
-  calcCfSum();
-  cfEditing=null;
-  document.getElementById('cf-ttl').textContent='新規ゴルフ場登録';
-  buildCfTables();
+  document.getElementById('cf-ttl').textContent='新規登録';
+  buildVtbl();
 }
 
-function editCourse(clubName, courseName){
-  // courseName = "OUT" or "IN" （前半・後半の片方）
-  // 両方含むゴルフ場全体を編集フォームに読み込む
-  const cs = getCourses();
-  const club = cs[clubName];
-  if(!club) return;
-  document.getElementById('cf-name').value = clubName;
-  document.getElementById('cf-ttl').textContent = '編集：'+clubName;
-  cfEditing = clubName;
-  const courseNames = Object.keys(club);
-  const outKey = courseNames[0]||'OUT';
-  const inKey  = courseNames[1]||'IN';
-  document.getElementById('cf-out-name').value = outKey;
-  document.getElementById('cf-in-name').value  = inKey;
-  const outPars = club[outKey]||Array(9).fill(4);
-  const inPars  = club[inKey] ||Array(9).fill(4);
-  showPage('course'); // buildCfTables()が呼ばれる
+function editGc(club){
+  const cs=getCourses();
+  const c=cs[club];if(!c)return;
+  document.getElementById('cf-name').value=club;
+  document.getElementById('cf-ttl').textContent='編集：'+club;
+  const names=Object.keys(c);
+  const outKey=names[0]||'OUT', inKey=names[1]||'IN';
+  document.getElementById('cf-out-name').value=outKey;
+  document.getElementById('cf-in-name').value=inKey;
+  showPage('course');
   setTimeout(()=>{
-    for(let i=0;i<9;i++){const el=document.getElementById('cfp'+i);if(el)el.value=outPars[i]||4;}
-    for(let i=0;i<9;i++){const el=document.getElementById('cfp'+(i+9));if(el)el.value=inPars[i]||4;}
+    const op=c[outKey]||Array(9).fill(4);
+    const ip=c[inKey] ||Array(9).fill(4);
+    for(let i=0;i<9;i++){const el=document.getElementById('cfp'+i);if(el)el.value=op[i]||4;}
+    for(let i=0;i<9;i++){const el=document.getElementById('cfp'+(i+9));if(el)el.value=ip[i]||4;}
     calcCfSum();
-  },50);
-  document.getElementById('course-form-card')?.scrollIntoView({behavior:'smooth'});
-  toast('編集中：'+clubName);
+  },100);
 }
 
-function deleteClub(clubName){
-  if(!confirm('「'+clubName+'」を削除しますか？')) return;
-  const cs=getCourses();
-  delete cs[clubName];
-  setCourses(cs);
-  renderCourseList();
-  toast('🗑️ 削除しました');
+function delGc(club){
+  if(!confirm('「'+club+'」を削除しますか？'))return;
+  const cs=getCourses();delete cs[club];setCourses(cs);renderGcList();toast('🗑️ 削除しました');
 }
 
-function renderCourseList(){
-  const el=document.getElementById('course-list');
-  const cs=getCourses();
-  const clubs=Object.keys(cs);
-  if(!clubs.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">⛳</div><div>登録済みゴルフ場がありません</div></div>';
-    return;
-  }
-  el.innerHTML=clubs.map(clubName=>{
-    const courses=cs[clubName];
-    const courseCards=Object.keys(courses).map(cname=>{
-      const pars=courses[cname];
-      const sum=pars.reduce((a,b)=>a+b,0);
-      const cells=pars.map((p,i)=>`<div class="gc-par-cell"><div class="gc-par-lbl">${i+1}</div><div class="gc-par-val">${p}</div></div>`).join('');
-      return `<div class="gc-course">
-        <div class="gc-course-hdr">
-          <div class="gc-course-name">🏌️ ${cname}</div>
-        </div>
-        <div class="gc-par-row">${cells}</div>
-        <div class="gc-sub">計：${sum}</div>
-      </div>`;
+function renderGcList(){
+  const el=document.getElementById('gc-list');
+  const cs=getCourses(),clubs=Object.keys(cs);
+  if(!clubs.length){el.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:8px;">⛳</div><div>登録済みゴルフ場がありません</div></div>';return;}
+  el.innerHTML=clubs.map(club=>{
+    const c=cs[club];
+    const cards=Object.keys(c).map(cn=>{
+      const pars=c[cn],sum=pars.reduce((a,b)=>a+b,0);
+      const cells=pars.map((p,i)=>`<div class="gpc"><div class="gpnl">${i+1}</div><div class="gpv">${p}</div></div>`).join('');
+      return `<div class="gccr"><div style="font-weight:600;font-size:13px;color:var(--gold);margin-bottom:4px;">🏌️ ${cn}</div><div class="gpr">${cells}</div><div class="gsub">計：${sum}</div></div>`;
     }).join('');
-    const sc=clubName.replace(/'/g,"\\'");
-    return `<div class="gc">
-      <div class="gc-hdr">
-        <div class="gc-name">⛳ ${clubName}</div>
-        <div style="display:flex;gap:6px;">
-          <button class="btn-sm btn-sm-g" onclick="editCourse('${sc}','')">✏️ 編集</button>
-          <button class="btn-sm btn-sm-r" onclick="deleteClub('${sc}')">🗑️</button>
-        </div>
-      </div>
-      ${courseCards}
-    </div>`;
+    const sc=club.replace(/'/g,"\\'");
+    return `<div class="gcc"><div class="gcch"><div class="gccn">⛳ ${club}</div><div style="display:flex;gap:5px;"><button class="bsm bsm-g" onclick="editGc('${sc}')">✏️</button><button class="bsm bsm-r" onclick="delGc('${sc}')">🗑️</button></div></div>${cards}</div>`;
   }).join('');
 }
 
-// ==================== 新規ラウンド ====================
+// ===== 新規ラウンド =====
 function populateClubSel(){
   const sel=document.getElementById('sel-club');
-  if(!sel) return;
   const cs=getCourses();
   sel.innerHTML='<option value="">-- ゴルフ場を選択 --</option>'
     +Object.keys(cs).map(n=>`<option value="${n}">${n}</option>`).join('');
 }
 
 function onClubChange(){
-  const clubName=document.getElementById('sel-club').value;
-  const selOut=document.getElementById('sel-out');
-  const selIn =document.getElementById('sel-in');
-  document.getElementById('new-course').value=clubName;
-  S.pars=[...DPARS];
-  if(!clubName){
-    selOut.innerHTML='<option value="">-- 前半コース --</option>';
-    selIn.innerHTML ='<option value="">-- 後半コース --</option>';
+  const club=document.getElementById('sel-club').value;
+  const sOut=document.getElementById('sel-out');
+  const sIn =document.getElementById('sel-in');
+  document.getElementById('new-course').value=club;
+  G.pars=[...DPARS];
+  if(!club){
+    sOut.innerHTML='<option value="">-- 前半コース --</option>';
+    sIn.innerHTML ='<option value="">-- 後半コース --</option>';
     return;
   }
-  const cs=getCourses();
-  const club=cs[clubName];
-  if(!club){return;}
-  const courses=Object.keys(club);
-  const opts='<option value="">-- 選択 --</option>'+courses.map(c=>`<option value="${c}">${c}</option>`).join('');
-  selOut.innerHTML=opts;
-  selIn.innerHTML =opts;
-  // デフォルト：1つ目を前半、2つ目を後半に自動選択
-  if(courses.length>=1){ selOut.value=courses[0]; }
-  if(courses.length>=2){ selIn.value=courses[1]; }
+  const cs=getCourses(),c=cs[club];
+  if(!c)return;
+  const names=Object.keys(c);
+  const opts='<option value="">-- 選択 --</option>'+names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  sOut.innerHTML=opts; sIn.innerHTML=opts;
+  if(names.length>=1){sOut.value=names[0];}
+  if(names.length>=2){sIn.value=names[1];}
   onCourseChange();
 }
 
 function onCourseChange(){
-  const clubName=document.getElementById('sel-club').value;
-  const outName =document.getElementById('sel-out').value;
-  const inName  =document.getElementById('sel-in').value;
-  if(!clubName) return;
-  const cs=getCourses();
-  const club=cs[clubName];
-  if(!club) return;
-  // 前半9ホール：選択されたコースのPAR、なければデフォルト4
-  const outPars = (outName && club[outName]) ? club[outName] : Array(9).fill(4);
-  // 後半9ホール：選択されたコースのPAR、なければデフォルト4
-  const inPars  = (inName  && club[inName])  ? club[inName]  : Array(9).fill(4);
-  // 必ず18要素になるよう保証
-  S.pars = [
-    ...outPars.slice(0,9),
-    ...inPars.slice(0,9)
-  ];
-  // コース名を自動生成
-  const courseTxt=[outName,inName].filter(Boolean).join('/');
-  document.getElementById('new-course').value=clubName+(courseTxt?' '+courseTxt:'');
-
-  // モーダル内PARプレビュー表示
-  const prev=document.getElementById('par-preview');
-  if(prev){
-    const outSum=outPars.slice(0,9).reduce((a,b)=>a+b,0);
-    const inSum =inPars.slice(0,9).reduce((a,b)=>a+b,0);
-    prev.textContent=`PAR：前半 ${outSum} ／ 後半 ${inSum} ／ 合計 ${outSum+inSum}`;
-  }
+  const club=document.getElementById('sel-club').value;
+  const outN=document.getElementById('sel-out').value;
+  const inN =document.getElementById('sel-in').value;
+  if(!club)return;
+  const cs=getCourses(),c=cs[club];if(!c)return;
+  const outP=(outN&&c[outN])?c[outN]:Array(9).fill(4);
+  const inP =(inN &&c[inN]) ?c[inN] :Array(9).fill(4);
+  G.pars=[...outP.slice(0,9),...inP.slice(0,9)];
+  const txt=[outN,inN].filter(Boolean).join('/');
+  document.getElementById('new-course').value=club+(txt?' '+txt:'');
 }
 
 function openNewRound(){
@@ -1042,12 +946,8 @@ function openNewRound(){
   document.getElementById('sel-out').innerHTML='<option value="">-- 前半コース --</option>';
   document.getElementById('sel-in').innerHTML ='<option value="">-- 後半コース --</option>';
   for(let i=0;i<4;i++){const el=document.getElementById('p'+i);if(el)el.value='';}
-  S.pars=[...DPARS];
+  G.pars=[...DPARS];
   document.getElementById('modal-new').classList.add('open');
-}
-
-function closeModal(){
-  document.getElementById('modal-new').classList.remove('open');
 }
 
 function createRound(){
@@ -1055,31 +955,22 @@ function createRound(){
   const dateRaw=document.getElementById('new-date').value;
   const holes=parseInt(document.getElementById('new-holes').value);
   const players=[];
-  for(let i=0;i<4;i++){
-    const v=(document.getElementById('p'+i)?.value||'').trim();
-    if(v) players.push(v);
-  }
+  for(let i=0;i<4;i++){const v=(document.getElementById('p'+i)?.value||'').trim();if(v)players.push(v);}
   if(!players.length){toast('プレイヤーを入力してください');return;}
-
-  // S.holesをセットしてからonCourseChangeを再実行してPARを確定
-  S.holes=holes;
+  // PARを確定
   onCourseChange();
-
-  // S.parsが18要素あることを保証
-  const pars=[];
-  for(let i=0;i<18;i++) pars.push(S.pars[i]||4);
-
-  S.id=null; S.course=course; S.date=dateRaw?fmtDate(dateRaw):'-';
-  S.holes=holes; S.players=players; S.statsP=0;
-  S.pars=pars;
+  const pars=G.pars&&G.pars.length>=holes?G.pars.slice(0,holes):[...DPARS].slice(0,holes);
+  G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-';
+  G.holes=holes; G.players=players; G.pars=pars; G.statsP=0;
   initData();
-  document.getElementById('hdr-course').textContent=S.course;
-  closeModal();
+  document.getElementById('hdr-course').textContent=G.course;
+  document.getElementById('modal-new').classList.remove('open');
   renderScore(); showPage('score');
   toast('ラウンドを作成しました ⛳');
+  persist();
 }
 
-// ==================== UTILS ====================
+// ===== UTILS =====
 function fmtDate(s){
   const d=new Date(s+'T00:00:00');
   const days=['日','月','火','水','木','金','土'];
@@ -1087,38 +978,20 @@ function fmtDate(s){
 }
 function toast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-// ==================== パット表示切替 ====================
-function togglePutt(){
-  S.showPutt = !S.showPutt;
-  const btn = document.getElementById('putt-toggle-btn');
-  if(btn) btn.textContent = S.showPutt ? 'P 表示中' : 'P 非表示';
-  if(btn) btn.style.borderColor = S.showPutt ? '#3498db' : '';
-  if(btn) btn.style.color = S.showPutt ? '#3498db' : '';
-  persist();
-  renderScoreTable();
-}
-
-function updatePuttBtn(){
-  const btn = document.getElementById('putt-toggle-btn');
-  if(!btn) return;
-  btn.textContent = S.showPutt ? 'P 表示中' : 'P 非表示';
-  btn.style.borderColor = S.showPutt ? '#3498db' : '';
-  btn.style.color = S.showPutt ? '#3498db' : '';
-}
-
-// ==================== INIT ====================
+// ===== INIT =====
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
-loadState();
-calcCfSum();
-updatePuttBtn();
-document.getElementById('hdr-course').textContent=S.course||'-';
-if(S.players.length) renderScore();
+loadSaved();
+// パットボタンの初期状態
+const _pb=document.getElementById('putt-btn');
+if(_pb){_pb.textContent=G.showPutt?'P 表示中':'P 非表示';_pb.classList.toggle('on',G.showPutt);}
+document.getElementById('hdr-course').textContent=G.course||'-';
+if(G.players.length) renderScore();
 </script>
 </body>
 </html>
