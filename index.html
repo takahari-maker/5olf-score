@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ゴルフスコア管理</title>
+<title>Golynpic</title>
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="GolfScore">
+<meta name="apple-mobile-web-app-title" content="Golynpic">
 <meta name="theme-color" content="#1a1a1a">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@400;600;700&display=swap');
@@ -195,13 +195,24 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
 /* Toast */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:300;transition:transform .3s;pointer-events:none;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
+
+/* パット入力 */
+.putt-inp{width:34px;height:28px;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:4px;text-align:center;font-size:13px;font-weight:600;color:#3498db;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
+.putt-inp::-webkit-inner-spin-button{display:none;}
+.putt-inp:focus{outline:none;border-color:#3498db;}
+
+/* ゴルフ場登録 縦テーブル */
+.cf-vert-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px;}
+.cf-vert-tbl th{background:var(--green);color:#fff;padding:6px 12px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,0.2);}
+.cf-vert-tbl td{padding:5px 8px;text-align:center;border:1px solid var(--bg3);background:var(--bg2);vertical-align:middle;}
+.cf-vert-tbl tbody tr:nth-child(even) td{background:#1e1e1e;}
 </style>
 </head>
 <body>
 
 <div class="hdr">
   <div>
-    <div class="hdr-logo">⛳ GOLF SCORE</div>
+    <div class="hdr-logo">⛳ Golynpic</div>
     <div class="hdr-course" id="hdr-course">-</div>
   </div>
   <div class="hdr-btns">
@@ -213,7 +224,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
 
 <div class="nav">
   <div class="nav-tab active" onclick="showPage('score')">🏌️ スコア</div>
-  <div class="nav-tab" onclick="showPage('olympic')">🏅 五輪</div>
+  <div class="nav-tab" onclick="showPage('olympic')">🏅 オリンピック</div>
   <div class="nav-tab" onclick="showPage('history')">📋 履歴</div>
   <div class="nav-tab" onclick="showPage('stats')">📊 統計</div>
 </div>
@@ -283,65 +294,25 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
         <label class="flbl">ゴルフ場名</label>
         <input class="finp" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
 
-        <!-- 前半テーブル -->
-        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:4px;">前半（H1〜H9）</div>
-        <div class="cf-tbl-wrap">
-          <table class="cf-tbl">
-            <thead>
-              <tr>
-                <th class="lbl-col">コース名</th>
-                <th>H1</th><th>H2</th><th>H3</th><th>H4</th><th>H5</th>
-                <th>H6</th><th>H7</th><th>H8</th><th>H9</th>
-                <th class="sum-col">計</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><input class="cf-name-inp" type="text" id="cf-out-name" placeholder="例：OUT"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp0" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp1" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp2" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp3" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp4" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp5" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp6" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp7" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp8" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td class="cf-sum" id="cf-out-sum">36</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- 前半 縦配置 -->
+        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:6px;">前半（H1〜H9）</div>
+        <label class="flbl" style="margin-bottom:4px;">コース名</label>
+        <input class="finp" type="text" id="cf-out-name" placeholder="例：OUT" style="margin-bottom:8px;">
+        <table class="cf-vert-tbl">
+          <thead><tr><th>H</th><th>PAR</th></tr></thead>
+          <tbody id="cf-out-body"></tbody>
+          <tfoot><tr><td style="font-weight:700;color:var(--gold);text-align:right;padding-right:8px;">計</td><td class="cf-sum" id="cf-out-sum">36</td></tr></tfoot>
+        </table>
 
-        <!-- 後半テーブル -->
-        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:4px;margin-top:8px;">後半（H10〜H18）</div>
-        <div class="cf-tbl-wrap">
-          <table class="cf-tbl">
-            <thead>
-              <tr>
-                <th class="lbl-col">コース名</th>
-                <th>H10</th><th>H11</th><th>H12</th><th>H13</th><th>H14</th>
-                <th>H15</th><th>H16</th><th>H17</th><th>H18</th>
-                <th class="sum-col">計</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><input class="cf-name-inp" type="text" id="cf-in-name" placeholder="例：IN"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp9"  min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp10" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp11" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp12" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp13" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp14" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp15" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp16" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td><input class="cf-par-inp" type="number" id="cfp17" min="3" max="6" value="4" oninput="calcCfSum()"></td>
-                <td class="cf-sum" id="cf-in-sum">36</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- 後半 縦配置 -->
+        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:6px;margin-top:14px;">後半（H10〜H18）</div>
+        <label class="flbl" style="margin-bottom:4px;">コース名</label>
+        <input class="finp" type="text" id="cf-in-name" placeholder="例：IN" style="margin-bottom:8px;">
+        <table class="cf-vert-tbl">
+          <thead><tr><th>H</th><th>PAR</th></tr></thead>
+          <tbody id="cf-in-body"></tbody>
+          <tfoot><tr><td style="font-weight:700;color:var(--gold);text-align:right;padding-right:8px;">計</td><td class="cf-sum" id="cf-in-sum">36</td></tr></tfoot>
+        </table>
 
         <div style="display:flex;gap:8px;margin-top:10px;">
           <button class="btn btn-gold" onclick="saveCourse()" style="flex:1;">💾 ゴルフ場を保存</button>
@@ -516,7 +487,7 @@ function showPage(p){
   if(p==='olympic') { renderOlyTable(); renderOlySummary(); }
   if(p==='history') renderHistory();
   if(p==='stats')   { renderStatsChips(); renderStats(); }
-  if(p==='course')  { calcCfSum(); renderCourseList(); }
+  if(p==='course')  { buildCfTables(); renderCourseList(); }
 }
 
 // ==================== スコアページ ====================
@@ -541,9 +512,15 @@ function renderScoreTable(){
   const n=S.players.length, h=S.holes;
   let html='<thead><tr>'
     +'<th class="h-col">H</th>'
-    +'<th style="background:#1a3a2e;color:var(--gray1);">PAR</th>'
-    +S.players.map(p=>`<th style="min-width:50px;font-size:11px;">${p}</th>`).join('')
-    +'</tr></thead><tbody>';
+    +'<th style="background:#1a3a2e;color:var(--gray1);min-width:36px;">PAR</th>'
+    +S.players.map(p=>`<th style="min-width:50px;font-size:11px;" colspan="2">${p}</th>`).join('')
+    +'</tr>'
+    +'<tr>'
+    +'<th class="h-col"></th>'
+    +'<th style="background:#1a3a2e;"></th>'
+    +S.players.map(()=>'<th style="font-size:10px;background:#1a2a3a;min-width:46px;">Score</th><th style="font-size:10px;background:#2a1a3a;min-width:34px;color:#9b59b6;">±</th>').join('')
+    +'</tr>'
+    +'</thead><tbody>';
 
   function half(start,end,label){
     for(let hi=start;hi<end;hi++){
@@ -553,14 +530,41 @@ function renderScoreTable(){
         +`<td style="background:#1a3a2e;"><input class="par-inp" type="number" min="3" max="6" value="${par}" oninput="setPar(this,${hi})" onfocus="this.select()"></td>`;
       for(let pi=0;pi<n;pi++){
         const s=S.scores[hi][pi];
+        const over=s!==null?s-par:null;
+        const overStr=over===null?'-':(over===0?'E':over>0?'+'+over:''+over);
+        const overColor=over===null?'var(--gray2)':over<0?'#e74c3c':over===0?'#2ecc71':'#3498db';
         html+=`<td><input class="sc-inp ${scoreClass(s,par)}" type="number" min="1" max="20" value="${s!==null?s:''}" placeholder="-" oninput="onScoreInput(this,${hi},${pi})" onfocus="this.select()"></td>`;
+        html+=`<td id="over_${hi}_${pi}" style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:${overColor};">${overStr}</td>`;
+      }
+      html+='</tr>';
+      // パット行
+      html+='<tr style="background:#1a1a2e;">'
+        +`<td style="font-size:9px;color:#3498db;padding:1px 3px;">P</td>`
+        +`<td style="font-size:9px;color:var(--gray2);">putt</td>`;
+      for(let pi=0;pi<n;pi++){
+        const pt=S.putts[hi][pi];
+        html+=`<td colspan="2"><input class="putt-inp" type="number" min="0" max="10" value="${pt!==null?pt:''}" placeholder="-" oninput="onPuttInput(this,${hi},${pi})" onfocus="this.select()"></td>`;
       }
       html+='</tr>';
     }
+    // スコア小計行
     html+='<tr class="sub"><td class="hcell">'+label+'</td><td>'+S.pars.slice(start,end).reduce((a,b)=>a+b,0)+'</td>';
     for(let pi=0;pi<n;pi++){
       const en=S.scores.slice(start,end).filter(r=>r[pi]!==null);
-      html+=`<td id="sub_${label}_${pi}">${en.length?en.reduce((a,r)=>a+r[pi],0):'-'}</td>`;
+      const sub=en.length?en.reduce((a,r)=>a+r[pi],0):null;
+      const parSub=S.pars.slice(start,end).reduce((a,b)=>a+b,0);
+      const ov=sub!==null?sub-parSub:null;
+      const ovStr=ov===null?'-':(ov===0?'E':ov>0?'+'+ov:''+ov);
+      html+=`<td id="sub_${label}_${pi}">${sub!==null?sub:'-'}</td>`;
+      html+=`<td id="subov_${label}_${pi}" style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:${ov===null?'var(--gray2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db'};">${ovStr}</td>`;
+    }
+    html+='</tr>';
+    // パット小計行
+    html+='<tr style="background:#1a1a2e;"><td style="font-size:9px;color:#3498db;" class="hcell">P</td><td style="font-size:9px;color:var(--gray2);">合計</td>';
+    for(let pi=0;pi<n;pi++){
+      const en=S.putts.slice(start,end).filter(r=>r[pi]!==null);
+      const sub=en.length?en.reduce((a,r)=>a+r[pi],0):null;
+      html+=`<td colspan="2" id="psub_${label}_${pi}" style="font-size:12px;color:#3498db;">${sub!==null?sub:'-'}</td>`;
     }
     html+='</tr>';
   }
@@ -568,11 +572,24 @@ function renderScoreTable(){
   half(0,Math.min(9,h),'OUT');
   if(h>9) half(9,h,'IN');
 
+  // TOTALスコア行
   html+='<tr class="tot"><td class="hcell">TOT</td><td>'+S.pars.slice(0,h).reduce((a,b)=>a+b,0)+'</td>';
   for(let pi=0;pi<n;pi++){
     const any=S.scores.some(r=>r[pi]!==null);
     const tot=S.scores.reduce((a,r)=>a+(r[pi]||0),0);
+    const parTot=S.pars.slice(0,h).reduce((a,b)=>a+b,0);
+    const ov=any?tot-parTot:null;
+    const ovStr=ov===null?'-':(ov===0?'E':ov>0?'+'+ov:''+ov);
     html+=`<td id="tot_${pi}">${any?tot:'-'}</td>`;
+    html+=`<td id="totov_${pi}" style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:${ov===null?'var(--gray2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db'};">${ovStr}</td>`;
+  }
+  html+='</tr>';
+  // TOTALパット行
+  html+='<tr style="background:#1a1a2e;"><td style="font-size:9px;color:#3498db;" class="hcell">P</td><td style="font-size:9px;color:var(--gray2);">合計</td>';
+  for(let pi=0;pi<n;pi++){
+    const any=S.putts.some(r=>r[pi]!==null);
+    const tot=S.putts.reduce((a,r)=>a+(r[pi]||0),0);
+    html+=`<td colspan="2" id="ptot_${pi}" style="font-size:13px;color:#3498db;">${any?tot:'-'}</td>`;
   }
   html+='</tr></tbody>';
   document.getElementById('score-tbl').innerHTML=html;
@@ -597,17 +614,57 @@ function onScoreInput(inp,hi,pi){
 function applyScore(inp,hi,pi,v){
   S.scores[hi][pi]=(!v||v<1)?null:v;
   inp.className='sc-inp '+scoreClass(S.scores[hi][pi],S.pars[hi]);
+  // オーバー数セルを更新
+  const over=S.scores[hi][pi]!==null?S.scores[hi][pi]-S.pars[hi]:null;
+  const overStr=over===null?'-':(over===0?'E':over>0?'+'+over:''+over);
+  const overColor=over===null?'var(--gray2)':over<0?'#e74c3c':over===0?'#2ecc71':'#3498db';
+  const oel=document.getElementById('over_'+hi+'_'+pi);
+  if(oel){oel.textContent=overStr;oel.style.color=overColor;}
   refreshTots(); renderSummary();
+}
+
+function onPuttInput(inp,hi,pi){
+  const v=parseInt(inp.value);
+  S.putts[hi][pi]=isNaN(v)||v<0?null:v;
+  refreshPuttTots();
+}
+
+function refreshPuttTots(){
+  const n=S.players.length,h=S.holes,out=Math.min(9,h);
+  for(let pi=0;pi<n;pi++){
+    const calc=(s,e)=>{const en=S.putts.slice(s,e).filter(r=>r[pi]!==null);return en.length?en.reduce((a,r)=>a+r[pi],0):null;};
+    const o=document.getElementById('psub_OUT_'+pi);if(o){const v=calc(0,out);o.textContent=v!==null?v:'-';}
+    if(h>9){const i=document.getElementById('psub_IN_'+pi);if(i){const v=calc(9,h);i.textContent=v!==null?v:'-';}}
+    const t=document.getElementById('ptot_'+pi);
+    if(t){const any=S.putts.some(r=>r[pi]!==null);const tot=S.putts.reduce((a,r)=>a+(r[pi]||0),0);t.textContent=any?tot:'-';}
+  }
 }
 
 function refreshTots(){
   const n=S.players.length,h=S.holes,out=Math.min(9,h);
   for(let pi=0;pi<n;pi++){
-    const calc=(s,e)=>{const en=S.scores.slice(s,e).filter(r=>r[pi]!==null);return en.length?en.reduce((a,r)=>a+r[pi],0):'-';};
-    const o=document.getElementById('sub_OUT_'+pi); if(o) o.textContent=calc(0,out);
-    if(h>9){const i=document.getElementById('sub_IN_'+pi); if(i) i.textContent=calc(9,h);}
+    const updateSub=(lbl,s,e)=>{
+      const en=S.scores.slice(s,e).filter(r=>r[pi]!==null);
+      const sub=en.length?en.reduce((a,r)=>a+r[pi],0):null;
+      const parSub=S.pars.slice(s,e).reduce((a,b)=>a+b,0);
+      const ov=sub!==null?sub-parSub:null;
+      const ovStr=ov===null?'-':(ov===0?'E':ov>0?'+'+ov:''+ov);
+      const ovColor=ov===null?'var(--gray2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+      const el=document.getElementById('sub_'+lbl+'_'+pi);if(el)el.textContent=sub!==null?sub:'-';
+      const oel=document.getElementById('subov_'+lbl+'_'+pi);if(oel){oel.textContent=ovStr;oel.style.color=ovColor;}
+    };
+    updateSub('OUT',0,out);
+    if(h>9) updateSub('IN',9,h);
     const t=document.getElementById('tot_'+pi);
-    if(t){const any=S.scores.some(r=>r[pi]!==null);t.textContent=any?S.scores.reduce((a,r)=>a+(r[pi]||0),0):'-';}
+    const ot=document.getElementById('totov_'+pi);
+    const any=S.scores.some(r=>r[pi]!==null);
+    const tot=S.scores.reduce((a,r)=>a+(r[pi]||0),0);
+    const parTot=S.pars.slice(0,h).reduce((a,b)=>a+b,0);
+    const ov=any?tot-parTot:null;
+    const ovStr=ov===null?'-':(ov===0?'E':ov>0?'+'+ov:''+ov);
+    const ovColor=ov===null?'var(--gray2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+    if(t) t.textContent=any?tot:'-';
+    if(ot){ot.textContent=ovStr;ot.style.color=ovColor;}
   }
 }
 
@@ -769,6 +826,32 @@ function renderStats(){
 }
 
 // ==================== ゴルフ場登録 ====================
+function buildCfTables(){
+  // 前半 H1-H9
+  const outBody=document.getElementById('cf-out-body');
+  if(outBody){
+    outBody.innerHTML='';
+    for(let i=0;i<9;i++){
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td style="color:var(--gold);font-weight:700;">H${i+1}</td>`
+        +`<td><input class="cf-par-inp" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
+      outBody.appendChild(tr);
+    }
+  }
+  // 後半 H10-H18
+  const inBody=document.getElementById('cf-in-body');
+  if(inBody){
+    inBody.innerHTML='';
+    for(let i=9;i<18;i++){
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td style="color:var(--gold);font-weight:700;">H${i+1}</td>`
+        +`<td><input class="cf-par-inp" type="number" id="cfp${i}" min="3" max="6" value="4" oninput="calcCfSum()"></td>`;
+      inBody.appendChild(tr);
+    }
+  }
+  calcCfSum();
+}
+
 function calcCfSum(){
   let out=0, inn=0;
   for(let i=0;i<9;i++)  out += parseInt(document.getElementById('cfp'+i)?.value)||0;
@@ -807,6 +890,7 @@ function resetCf(){
   calcCfSum();
   cfEditing=null;
   document.getElementById('cf-ttl').textContent='新規ゴルフ場登録';
+  buildCfTables();
 }
 
 function editCourse(clubName, courseName){
@@ -818,7 +902,6 @@ function editCourse(clubName, courseName){
   document.getElementById('cf-name').value = clubName;
   document.getElementById('cf-ttl').textContent = '編集：'+clubName;
   cfEditing = clubName;
-  // コース名とPARを復元
   const courseNames = Object.keys(club);
   const outKey = courseNames[0]||'OUT';
   const inKey  = courseNames[1]||'IN';
@@ -826,10 +909,12 @@ function editCourse(clubName, courseName){
   document.getElementById('cf-in-name').value  = inKey;
   const outPars = club[outKey]||Array(9).fill(4);
   const inPars  = club[inKey] ||Array(9).fill(4);
-  for(let i=0;i<9;i++){const el=document.getElementById('cfp'+i);if(el)el.value=outPars[i]||4;}
-  for(let i=0;i<9;i++){const el=document.getElementById('cfp'+(i+9));if(el)el.value=inPars[i]||4;}
-  calcCfSum();
-  showPage('course');
+  showPage('course'); // buildCfTables()が呼ばれる
+  setTimeout(()=>{
+    for(let i=0;i<9;i++){const el=document.getElementById('cfp'+i);if(el)el.value=outPars[i]||4;}
+    for(let i=0;i<9;i++){const el=document.getElementById('cfp'+(i+9));if(el)el.value=inPars[i]||4;}
+    calcCfSum();
+  },50);
   document.getElementById('course-form-card')?.scrollIntoView({behavior:'smooth'});
   toast('編集中：'+clubName);
 }
