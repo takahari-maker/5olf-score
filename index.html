@@ -245,6 +245,37 @@
   .par-np-btn { background:var(--bg3); border:none; border-radius:8px; color:white; font-family:'Oswald',sans-serif; font-size:20px; font-weight:600; padding:14px; cursor:pointer; }
   .par-np-btn.active { background:var(--green); }
   .par-np-btn.cancel { background:#3a1a1a; color:var(--red); font-family:'Noto Sans JP',sans-serif; font-size:14px; }
+
+  /* ── Course Page ── */
+  .course-inner { padding:10px; }
+  .course-form { background:var(--card); border-radius:10px; padding:14px; margin-bottom:4px; }
+  .course-form-ttl { font-family:'Oswald',sans-serif; font-size:15px; color:var(--gold); margin-bottom:10px; }
+  .par-grid { margin-bottom:8px; }
+  .par-grid-label { font-size:11px; color:var(--gray1); margin-bottom:4px; }
+  .par-grid-holes { display:grid; grid-template-columns:repeat(9,1fr); gap:4px; }
+  .par-hole-box { display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .par-hole-lbl { font-size:9px; color:var(--gray2); }
+  .par-hole-input {
+    width:100%; height:34px; background:var(--bg3); border:1px solid var(--gray3);
+    border-radius:5px; text-align:center; font-size:15px; font-weight:700;
+    color:white; font-family:'Oswald',sans-serif; -moz-appearance:textfield;
+  }
+  .par-hole-input::-webkit-inner-spin-button { display:none; }
+  .par-hole-input:focus { outline:none; border-color:var(--gold); }
+
+  .course-card { background:var(--card); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+  .course-card-hdr {
+    background:linear-gradient(90deg,var(--green),#1a4a2e);
+    padding:10px 14px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .course-card-name { font-weight:700; font-size:14px; }
+  .course-card-actions { display:flex; gap:6px; }
+  .course-card-body { padding:10px 14px; }
+  .course-par-row { display:flex; gap:4px; flex-wrap:nowrap; overflow-x:auto; }
+  .course-par-cell { text-align:center; flex-shrink:0; min-width:28px; }
+  .course-par-cell-lbl { font-size:9px; color:var(--gray2); }
+  .course-par-cell-val { font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; color:var(--gold); }
+  .course-par-sub { font-size:11px; color:var(--gray1); margin-top:4px; }
 </style>
 </head>
 <body>
@@ -264,6 +295,7 @@
   <div class="nav-tab" onclick="showPage('olympic')">🏅 オリンピック</div>
   <div class="nav-tab" onclick="showPage('history')">📋 履歴</div>
   <div class="nav-tab" onclick="showPage('stats')">📊 統計</div>
+  <div class="nav-tab" onclick="showPage('course')">⛳ コース</div>
 </div>
 
 <div class="pages">
@@ -324,6 +356,26 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== COURSE ===== -->
+  <div id="page-course" class="page">
+    <div class="course-inner">
+      <div class="section-ttl" style="margin-bottom:10px;">⛳ コース管理</div>
+      <div class="course-form" id="course-form">
+        <div class="course-form-ttl" id="course-form-ttl">新規コース登録</div>
+        <input class="m-input" type="text" id="cf-name" placeholder="コース名（例：高遊原カントリークラブ）" style="margin-bottom:8px;">
+        <div id="par-grid-out"></div>
+        <div id="par-grid-in"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-gold" onclick="saveCourseForm()" style="flex:1;">💾 保存</button>
+          <button class="btn btn-outline" onclick="resetCourseForm()" style="flex:1;">クリア</button>
+        </div>
+      </div>
+      <div class="section-ttl" style="margin-top:14px;margin-bottom:8px;">📋 登録済みコース</div>
+      <div id="course-list"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- New Round Modal -->
@@ -491,11 +543,12 @@ function showPage(p) {
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(e=>e.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
-  document.querySelectorAll('.nav-tab')[{score:0,olympic:1,history:2,stats:3}[p]].classList.add('active');
+  document.querySelectorAll('.nav-tab')[{score:0,olympic:1,history:2,stats:3,course:4}[p]].classList.add('active');
   if(p==='score')   renderScorePage();
   if(p==='olympic') { renderOlyTable(); renderOlySummary(); }
   if(p==='stats')   { renderStatsChips(); renderStats(); }
   if(p==='history') renderHistory();
+  if(p==='course')  renderCoursePage();
 }
 
 // ========== SCORE PAGE ==========
@@ -880,6 +933,139 @@ function renderStats(){
   document.getElementById('stats-detail').innerHTML=det;
 }
 
+
+// ========== COURSE PAGE ==========
+let editingCourseName = null; // 編集中のコース名（null=新規）
+
+function renderCoursePage() {
+  buildParGrid();
+  renderCourseList();
+}
+
+function buildParGrid() {
+  // 前半グリッド
+  let outHtml = '<div class="par-grid-holes">';
+  for(let i=0;i<9;i++){
+    outHtml += `<div class="par-hole-box">
+      <div class="par-hole-lbl">H${i+1}</div>
+      <input class="par-hole-input" type="number" min="3" max="6" id="cf-par-${i}" value="4">
+    </div>`;
+  }
+  outHtml += '</div>';
+  document.getElementById('par-grid-out').innerHTML =
+    '<div class="par-grid-label">前半（OUT）</div>' + outHtml;
+
+  // 後半グリッド
+  let inHtml = '<div class="par-grid-holes">';
+  for(let i=9;i<18;i++){
+    inHtml += `<div class="par-hole-box">
+      <div class="par-hole-lbl">H${i+1}</div>
+      <input class="par-hole-input" type="number" min="3" max="6" id="cf-par-${i}" value="4">
+    </div>`;
+  }
+  inHtml += '</div>';
+  document.getElementById('par-grid-in').innerHTML =
+    '<div class="par-grid-label">後半（IN）</div>' + inHtml;
+}
+
+function saveCourseForm() {
+  const name = document.getElementById('cf-name').value.trim();
+  if(!name){ showToast('コース名を入力してください'); return; }
+  const pars = [];
+  for(let i=0;i<18;i++){
+    const v = parseInt(document.getElementById('cf-par-'+i)?.value);
+    pars.push(isNaN(v)?4:v);
+  }
+  const courses = getSavedCourses();
+  // 編集中で名前が変わった場合は古いエントリを削除
+  if(editingCourseName && editingCourseName !== name) {
+    delete courses[editingCourseName];
+  }
+  courses[name] = pars;
+  saveCourses(courses);
+  editingCourseName = null;
+  document.getElementById('course-form-ttl').textContent = '新規コース登録';
+  resetCourseForm();
+  renderCourseList();
+  populateSavedCourses();
+  showToast('💾 コースを保存しました');
+}
+
+function resetCourseForm() {
+  document.getElementById('cf-name').value = '';
+  for(let i=0;i<18;i++){
+    const el = document.getElementById('cf-par-'+i);
+    if(el) el.value = 4;
+  }
+  editingCourseName = null;
+  document.getElementById('course-form-ttl').textContent = '新規コース登録';
+}
+
+function editCourse(name) {
+  const courses = getSavedCourses();
+  const pars = courses[name];
+  if(!pars) return;
+  editingCourseName = name;
+  document.getElementById('cf-name').value = name;
+  document.getElementById('course-form-ttl').textContent = '編集：' + name;
+  for(let i=0;i<18;i++){
+    const el = document.getElementById('cf-par-'+i);
+    if(el) el.value = pars[i]||4;
+  }
+  // フォームまでスクロール
+  document.getElementById('course-form').scrollIntoView({behavior:'smooth'});
+}
+
+function deleteCourse(name) {
+  if(!confirm(`「${name}」を削除しますか？`)) return;
+  const courses = getSavedCourses();
+  delete courses[name];
+  saveCourses(courses);
+  renderCourseList();
+  populateSavedCourses();
+  showToast('🗑️ 削除しました');
+}
+
+function renderCourseList() {
+  const el = document.getElementById('course-list');
+  const courses = getSavedCourses();
+  const names = Object.keys(courses);
+
+  if(!names.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">⛳</div><div>登録済みコースがありません</div></div>';
+    return;
+  }
+
+  el.innerHTML = names.map(name => {
+    const pars = courses[name];
+    const outPars = pars.slice(0,9);
+    const inPars  = pars.slice(9,18);
+    const outSum  = outPars.reduce((a,b)=>a+b,0);
+    const inSum   = inPars.reduce((a,b)=>a+b,0);
+
+    const parCells = pars.map((p,i) =>
+      `<div class="course-par-cell">
+        <div class="course-par-cell-lbl">${i+1}</div>
+        <div class="course-par-cell-val">${p}</div>
+      </div>`
+    ).join('');
+
+    return `<div class="course-card">
+      <div class="course-card-hdr">
+        <div class="course-card-name">⛳ ${name}</div>
+        <div class="course-card-actions">
+          <button class="btn-sm btn-load" onclick="editCourse('${name.replace(/'/g,"\'")}')">✏️ 編集</button>
+          <button class="btn-sm btn-del" onclick="deleteCourse('${name.replace(/'/g,"\'")}')">🗑️</button>
+        </div>
+      </div>
+      <div class="course-card-body">
+        <div class="course-par-row">${parCells}</div>
+        <div class="course-par-sub">OUT：${outSum}　IN：${inSum}　TOTAL：${outSum+inSum}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ========== MODAL ==========
 // ========== コースデータ ==========
 // PRESET_COURSES: name -> 18ホールのPAR配列
@@ -932,6 +1118,139 @@ function onCourseSelect() {
       state.pars = courses[name];
     }
   }
+}
+
+
+// ========== COURSE PAGE ==========
+let editingCourseName = null; // 編集中のコース名（null=新規）
+
+function renderCoursePage() {
+  buildParGrid();
+  renderCourseList();
+}
+
+function buildParGrid() {
+  // 前半グリッド
+  let outHtml = '<div class="par-grid-holes">';
+  for(let i=0;i<9;i++){
+    outHtml += `<div class="par-hole-box">
+      <div class="par-hole-lbl">H${i+1}</div>
+      <input class="par-hole-input" type="number" min="3" max="6" id="cf-par-${i}" value="4">
+    </div>`;
+  }
+  outHtml += '</div>';
+  document.getElementById('par-grid-out').innerHTML =
+    '<div class="par-grid-label">前半（OUT）</div>' + outHtml;
+
+  // 後半グリッド
+  let inHtml = '<div class="par-grid-holes">';
+  for(let i=9;i<18;i++){
+    inHtml += `<div class="par-hole-box">
+      <div class="par-hole-lbl">H${i+1}</div>
+      <input class="par-hole-input" type="number" min="3" max="6" id="cf-par-${i}" value="4">
+    </div>`;
+  }
+  inHtml += '</div>';
+  document.getElementById('par-grid-in').innerHTML =
+    '<div class="par-grid-label">後半（IN）</div>' + inHtml;
+}
+
+function saveCourseForm() {
+  const name = document.getElementById('cf-name').value.trim();
+  if(!name){ showToast('コース名を入力してください'); return; }
+  const pars = [];
+  for(let i=0;i<18;i++){
+    const v = parseInt(document.getElementById('cf-par-'+i)?.value);
+    pars.push(isNaN(v)?4:v);
+  }
+  const courses = getSavedCourses();
+  // 編集中で名前が変わった場合は古いエントリを削除
+  if(editingCourseName && editingCourseName !== name) {
+    delete courses[editingCourseName];
+  }
+  courses[name] = pars;
+  saveCourses(courses);
+  editingCourseName = null;
+  document.getElementById('course-form-ttl').textContent = '新規コース登録';
+  resetCourseForm();
+  renderCourseList();
+  populateSavedCourses();
+  showToast('💾 コースを保存しました');
+}
+
+function resetCourseForm() {
+  document.getElementById('cf-name').value = '';
+  for(let i=0;i<18;i++){
+    const el = document.getElementById('cf-par-'+i);
+    if(el) el.value = 4;
+  }
+  editingCourseName = null;
+  document.getElementById('course-form-ttl').textContent = '新規コース登録';
+}
+
+function editCourse(name) {
+  const courses = getSavedCourses();
+  const pars = courses[name];
+  if(!pars) return;
+  editingCourseName = name;
+  document.getElementById('cf-name').value = name;
+  document.getElementById('course-form-ttl').textContent = '編集：' + name;
+  for(let i=0;i<18;i++){
+    const el = document.getElementById('cf-par-'+i);
+    if(el) el.value = pars[i]||4;
+  }
+  // フォームまでスクロール
+  document.getElementById('course-form').scrollIntoView({behavior:'smooth'});
+}
+
+function deleteCourse(name) {
+  if(!confirm(`「${name}」を削除しますか？`)) return;
+  const courses = getSavedCourses();
+  delete courses[name];
+  saveCourses(courses);
+  renderCourseList();
+  populateSavedCourses();
+  showToast('🗑️ 削除しました');
+}
+
+function renderCourseList() {
+  const el = document.getElementById('course-list');
+  const courses = getSavedCourses();
+  const names = Object.keys(courses);
+
+  if(!names.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">⛳</div><div>登録済みコースがありません</div></div>';
+    return;
+  }
+
+  el.innerHTML = names.map(name => {
+    const pars = courses[name];
+    const outPars = pars.slice(0,9);
+    const inPars  = pars.slice(9,18);
+    const outSum  = outPars.reduce((a,b)=>a+b,0);
+    const inSum   = inPars.reduce((a,b)=>a+b,0);
+
+    const parCells = pars.map((p,i) =>
+      `<div class="course-par-cell">
+        <div class="course-par-cell-lbl">${i+1}</div>
+        <div class="course-par-cell-val">${p}</div>
+      </div>`
+    ).join('');
+
+    return `<div class="course-card">
+      <div class="course-card-hdr">
+        <div class="course-card-name">⛳ ${name}</div>
+        <div class="course-card-actions">
+          <button class="btn-sm btn-load" onclick="editCourse('${name.replace(/'/g,"\'")}')">✏️ 編集</button>
+          <button class="btn-sm btn-del" onclick="deleteCourse('${name.replace(/'/g,"\'")}')">🗑️</button>
+        </div>
+      </div>
+      <div class="course-card-body">
+        <div class="course-par-row">${parCells}</div>
+        <div class="course-par-sub">OUT：${outSum}　IN：${inSum}　TOTAL：${outSum+inSum}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ========== MODAL ==========
