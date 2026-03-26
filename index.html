@@ -99,8 +99,8 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .otbl tr.osub td.hcell{background:var(--green);color:#fff;}
 .otbl tr.otot td{background:#c8e6c9;color:#1a1a1a;font-weight:700;font-size:14px;border:1px solid #a5d6a7;}
 .otbl tr.otot td.hcell{background:var(--green);color:#fff;}
-.oi{width:100%;min-width:54px;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:15px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
-.oi::-webkit-inner-spin-button{display:none;}
+.oi{width:100%;min-width:54px;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:15px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;}
+
 .oi:focus{outline:none;border-color:var(--gold);}
 .oi.pos{border-color:#2ecc71;background:#1a3a22;color:#2ecc71;}
 .oi.neg{border-color:var(--red);background:#3a1a1a;color:var(--red);}
@@ -376,6 +376,7 @@ let G = {
   showPutt:false, history:[], statsP:0
 };
 let scoreTimers = {};
+let olyTimers = {};
 
 function initData() {
   const h=G.holes, n=G.players.length;
@@ -746,7 +747,7 @@ function renderOlyTbl() {
       html+=`<tr><td class="hcell" style="min-width:28px;">${hi+1}</td>`;
       for(let pi=0;pi<n;pi++){
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td><input class="oi ${cls}" type="number" inputmode="numeric" value="${v!==null?v:''}" placeholder="-" oninput="onOly(this,${hi},${pi})" onfocus="this.select()" style="min-width:54px;"></td>`;
+        html+=`<td><input class="oi ${cls}" type="text" inputmode="decimal" value="${v!==null?v:''}" placeholder="-" oninput="onOly(this,${hi},${pi})" onfocus="this.select()" style="min-width:54px;"></td>`;
       }
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
@@ -778,11 +779,25 @@ function renderOlyTbl() {
 }
 
 function onOly(inp,hi,pi){
-  const v=inp.value.trim();
-  // "-"だけのとき（入力途中）はnullのまま保持、数値として確定したら保存
-  if(v===''){ G.oly[hi][pi]=null; }
-  else if(v==='-'){ return; } // まだ入力中なのでスキップ
-  else { const n=Number(v); G.oly[hi][pi]=isNaN(n)?null:n; }
+  const raw=inp.value;
+  const key=`${hi}_${pi}`;
+  clearTimeout(olyTimers[key]);
+  // 空・マイナスのみ（入力途中）はスキップ
+  if(raw===''){ G.oly[hi][pi]=null; applyOly(inp,hi,pi); return; }
+  if(raw==='-'){ return; }
+  const n=Number(raw);
+  // 2桁以上 or 確定できる値はすぐ適用、それ以外は600ms後
+  if(raw.length>=2 || (!isNaN(n)&&Math.abs(n)>=10)){
+    applyOly(inp,hi,pi);
+  } else {
+    olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),600);
+  }
+}
+
+function applyOly(inp,hi,pi){
+  const raw=inp.value;
+  if(raw===''||raw==='-'){ G.oly[hi][pi]=null; }
+  else { const n=Number(raw); G.oly[hi][pi]=isNaN(n)?null:n; }
   const s=G.oly[hi][pi];
   inp.className='oi '+(s===null?'':(s<0?'neg':'pos'));
   const pts=calcOly(G.oly[hi]);
