@@ -383,6 +383,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#fff;displ
 
       <label class="flbl">コース名（自動入力・変更可）</label>
       <input class="finp" type="text" id="new-course" placeholder="例：よみうりゴルフ倶楽部 OUT/IN">
+      <div id="par-preview" style="font-size:12px;color:var(--gold);margin-bottom:10px;min-height:18px;"></div>
 
       <div class="frow">
         <div>
@@ -919,14 +920,26 @@ function onCourseChange(){
   const cs=getCourses();
   const club=cs[clubName];
   if(!club) return;
-  // 前半9ホール
-  const outPars = outName&&club[outName] ? club[outName] : Array(9).fill(4);
-  // 後半9ホール
-  const inPars  = inName&&club[inName]   ? club[inName]  : Array(9).fill(4);
-  S.pars = [...outPars, ...inPars];
+  // 前半9ホール：選択されたコースのPAR、なければデフォルト4
+  const outPars = (outName && club[outName]) ? club[outName] : Array(9).fill(4);
+  // 後半9ホール：選択されたコースのPAR、なければデフォルト4
+  const inPars  = (inName  && club[inName])  ? club[inName]  : Array(9).fill(4);
+  // 必ず18要素になるよう保証
+  S.pars = [
+    ...outPars.slice(0,9),
+    ...inPars.slice(0,9)
+  ];
   // コース名を自動生成
   const courseTxt=[outName,inName].filter(Boolean).join('/');
   document.getElementById('new-course').value=clubName+(courseTxt?' '+courseTxt:'');
+
+  // モーダル内PARプレビュー表示
+  const prev=document.getElementById('par-preview');
+  if(prev){
+    const outSum=outPars.slice(0,9).reduce((a,b)=>a+b,0);
+    const inSum =inPars.slice(0,9).reduce((a,b)=>a+b,0);
+    prev.textContent=`PAR：前半 ${outSum} ／ 後半 ${inSum} ／ 合計 ${outSum+inSum}`;
+  }
 }
 
 function openNewRound(){
@@ -955,9 +968,18 @@ function createRound(){
     if(v) players.push(v);
   }
   if(!players.length){toast('プレイヤーを入力してください');return;}
-  const pars=S.pars&&S.pars.length>=holes?S.pars.slice(0,holes):[...DPARS].slice(0,holes);
+
+  // S.holesをセットしてからonCourseChangeを再実行してPARを確定
+  S.holes=holes;
+  onCourseChange();
+
+  // S.parsが18要素あることを保証
+  const pars=[];
+  for(let i=0;i<18;i++) pars.push(S.pars[i]||4);
+
   S.id=null; S.course=course; S.date=dateRaw?fmtDate(dateRaw):'-';
-  S.holes=holes; S.players=players; S.pars=pars; S.statsP=0;
+  S.holes=holes; S.players=players; S.statsP=0;
+  S.pars=pars;
   initData();
   document.getElementById('hdr-course').textContent=S.course;
   closeModal();
