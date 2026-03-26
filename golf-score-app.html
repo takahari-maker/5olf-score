@@ -760,7 +760,7 @@ function renderOlyTbl() {
       html+=`<tr><td class="hcell" style="min-width:24px;font-size:12px;">${hi+1}</td>`;
       for(let pi=0;pi<n;pi++){
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td><input class="oi ${cls}" type="number" id="oi_${hi}_${pi}" value="${v!==null?v:''}" placeholder="0" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;
+        html+=`<td><input class="oi ${cls}" type="text" inputmode="numeric" id="oi_${hi}_${pi}" value="${v!==null?v:''}" placeholder="0" oninput="onOly(this,${hi},${pi})" onfocus="this.select()"></td>`;
       }
       for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
@@ -792,14 +792,17 @@ function renderOlyTbl() {
 }
 
 function onOly(inp,hi,pi){
-  const raw=inp.value;
+  const raw=inp.value.trim();
   const key=`${hi}_${pi}`;
   clearTimeout(olyTimers[key]);
+  // 空欄
   if(raw===''){ G.oly[hi][pi]=null; applyOly(inp,hi,pi); return; }
+  // "-"だけ入力中：タイマー待機してそのまま
+  if(raw==='-'){ olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),2000); return; }
   const n=parseInt(raw);
   if(isNaN(n)) return;
-  // 2桁以上はすぐ確定、1桁は1.5秒待機
-  if(String(n).length>=2){
+  // 絶対値が2桁以上はすぐ確定、1桁は1.5秒待機
+  if(String(Math.abs(n)).length>=2){
     applyOly(inp,hi,pi);
   } else {
     olyTimers[key]=setTimeout(()=>applyOly(inp,hi,pi),1500);
