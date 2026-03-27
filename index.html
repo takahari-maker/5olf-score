@@ -231,6 +231,11 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .snav-tab{flex:1;padding:10px 2px;text-align:center;font-size:11px;color:#888;cursor:pointer;border-top:2px solid transparent;}
 .snav-tab.active{color:var(--green);border-top-color:var(--green);background:rgba(30,132,73,0.06);font-weight:700;}
 .snav-save{color:var(--green);font-weight:700;}
+
+.weather-btn{padding:8px 14px;border:2px solid #ddd;border-radius:10px;background:#f8f9fa;font-size:22px;cursor:pointer;transition:all 0.15s;}
+.weather-btn.selected{border-color:var(--green);background:#e8f5ed;transform:scale(1.1);}
+.weather-btn:first-child{font-size:13px;font-weight:600;color:#888;padding:8px 12px;}
+.weather-btn.selected:first-child{color:var(--green);}
 </style>
 </head>
 <body>
@@ -493,6 +498,17 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       </div>
       <div style="font-weight:700;color:var(--gold);margin-bottom:8px;">プレイヤー（最大4名）</div>
       <div id="player-slots"></div>
+
+      <div style="font-weight:700;color:var(--gold);margin:10px 0 8px;">天気（任意）</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="weather-btns">
+        <button class="weather-btn" data-weather="" onclick="selectWeather(this,'')">なし</button>
+        <button class="weather-btn" data-weather="☀️" onclick="selectWeather(this,'☀️')">☀️</button>
+        <button class="weather-btn" data-weather="⛅" onclick="selectWeather(this,'⛅')">⛅</button>
+        <button class="weather-btn" data-weather="🌧️" onclick="selectWeather(this,'🌧️')">🌧️</button>
+        <button class="weather-btn" data-weather="🌪️" onclick="selectWeather(this,'🌪️')">🌪️</button>
+        <button class="weather-btn" data-weather="🌨️" onclick="selectWeather(this,'🌨️')">🌨️</button>
+      </div>
+      <input type="hidden" id="new-weather" value="">
     </div>
     <div class="mftr">
       <button class="btn btn-o" onclick="document.getElementById('modal-new').classList.remove('open')">キャンセル</button>
@@ -537,7 +553,7 @@ const DPARS = [4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4];
 
 // ===== STATE =====
 let G = {
-  id:null, course:'', date:'', holes:18,
+  id:null, course:'', date:'', holes:18, weather:'',
   players:[], pars:[...DPARS],
   scores:null, putts:null, oly:null,
   showPutt:false, history:[], statsP:0
@@ -558,7 +574,7 @@ function persist() {
     localStorage.setItem(SKEY, JSON.stringify({
       history: G.history,
       cur: {
-        id:G.id, course:G.course, date:G.date, holes:G.holes,
+        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'',
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
         showPutt:G.showPutt, statsP:G.statsP
@@ -575,7 +591,7 @@ function loadSaved() {
     if (d.cur) {
       const c = d.cur;
       G.id=c.id||null; G.course=c.course||''; G.date=c.date||'';
-      G.holes=c.holes||18; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
+      G.holes=c.holes||18; G.weather=c.weather||''; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
       G.scores=c.scores||null; G.putts=c.putts||null; G.oly=c.oly||null;
       G.showPutt=c.showPutt||false; G.statsP=c.statsP||0;
       if (!G.scores) initData();
@@ -585,7 +601,7 @@ function loadSaved() {
 
 function saveToHistory() {
   const e = {
-    id:G.id||Date.now(), course:G.course, date:G.date, holes:G.holes,
+    id:G.id||Date.now(), course:G.course, date:G.date, holes:G.holes, weather:G.weather||'',
     players:[...G.players], pars:[...G.pars],
     scores:G.scores.map(r=>[...r]), putts:G.putts.map(r=>[...r]),
     oly:G.oly.map(r=>[...r]), savedAt:new Date().toISOString()
@@ -1037,7 +1053,7 @@ function renderHist(){
       <div class="rch"><div class="rct">⛳ ${r.course||'（未設定）'}</div><div class="rcd">${r.date}</div></div>
       <div class="rcb">
         <div class="rst"><div class="rsv">${any?g:'-'}</div><div class="rsl">${r.players[0]||'P1'} グロス</div></div>
-        <div class="rst"><div class="rsv">${any?(d===0?'E':d>0?'+'+d:d):'-'}</div><div class="rsl">±PAR</div></div>
+        <div class="rst"><div class="rsv" style="font-size:26px;">${r.weather||'－'}</div><div class="rsl">天気</div></div>
         <div class="rst"><div class="rsv">${r.holes}H</div><div class="rsl">${r.players.length}名</div></div>
         <div class="rca">
           <button class="bsm bsm-g" onclick="loadEntry(${r.id})">📂</button>
@@ -1282,6 +1298,12 @@ function onCourseChange(){
 function openNewRound(){
   selectedPlayers=['','','',''];
   renderPlayerSlots();
+  // 天気リセット
+  document.querySelectorAll('.weather-btn').forEach(b=>b.classList.remove('selected'));
+  const firstWBtn=document.querySelector('.weather-btn');
+  if(firstWBtn){firstWBtn.classList.add('selected');}
+  const nw=document.getElementById('new-weather');
+  if(nw) nw.value='';
   populateClubSel();
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('sel-club').value='';
@@ -1314,7 +1336,8 @@ async function createRound(){
   // PARを確定
   onCourseChange();
   const pars=G.pars&&G.pars.length>=holes?G.pars.slice(0,holes):[...DPARS].slice(0,holes);
-  G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-';
+  const weather=document.getElementById('new-weather')?.value||'';
+  G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-'; G.weather=weather;
   G.holes=holes; G.players=players; G.pars=pars; G.statsP=0;
   initData();
   const hc=document.getElementById('hdr-course-name');
@@ -1624,6 +1647,13 @@ function selectPlayer(name){
     }
   }
   toast('プレイヤーは最大4名です');
+}
+
+
+function selectWeather(btn, val){
+  document.querySelectorAll('.weather-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('new-weather').value=val;
 }
 
 // ===== INIT =====
