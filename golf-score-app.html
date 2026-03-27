@@ -1099,7 +1099,7 @@ function renderOlySummary(){
 function renderHist(){
   const el=document.getElementById('hist-list');
   if(!G.history.length){el.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:8px;">📋</div><div>履歴がありません</div></div>';return;}
-  el.innerHTML=G.history.map(r=>{
+  el.innerHTML=[...G.history].reverse().map(r=>{
     const p0=r.scores.map(row=>row[0]);
     const g=p0.reduce((a,s)=>a+(s||0),0),any=p0.some(s=>s!==null);
     const puttTot=r.putts?r.putts.reduce((a,row)=>a+(row[0]||0),0):0;
@@ -1382,7 +1382,6 @@ function openNewRound(){
   document.getElementById('new-course').style.display='none';
   document.getElementById('sel-out').innerHTML='<option value="">-- 前半コース --</option>';
   document.getElementById('sel-in').innerHTML ='<option value="">-- 後半コース --</option>';
-  for(let i=0;i<4;i++){const el=document.getElementById('p'+i);if(el)el.value='';}
   G.pars=[...DPARS];
   document.getElementById('modal-new').classList.add('open');
 }
