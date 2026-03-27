@@ -207,7 +207,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 #splash.hidden{display:none;}
 .splash-logo{font-family:'Oswald',sans-serif;font-size:48px;font-weight:700;color:var(--gold);letter-spacing:6px;opacity:0;transform:scale(0.6) translateY(20px);animation:splashIn 1.2s cubic-bezier(.22,1,.36,1) 0.3s forwards;}
 .splash-sub{font-size:14px;color:rgba(255,255,255,0.7);letter-spacing:3px;opacity:0;animation:splashIn 1s ease 1s forwards;}
-.splash-ball{width:90px;height:90px;opacity:0;animation:ballDrop 0.8s ease 0.1s forwards;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.3));}
+.splash-ball{width:120px;height:120px;opacity:0;animation:ballDrop 0.8s ease 0.1s forwards;filter:drop-shadow(0 6px 20px rgba(0,0,0,0.4));}
 @keyframes splashIn{to{opacity:1;transform:scale(1) translateY(0);}}
 @keyframes ballDrop{0%{opacity:0;transform:translateY(-40px);}60%{opacity:1;transform:translateY(8px);}80%{transform:translateY(-4px);}100%{opacity:1;transform:translateY(0);}}
 
@@ -237,21 +237,31 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 
 <!-- スプラッシュ画面 -->
 <div id="splash">
-  <svg class="splash-ball" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="46" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
-    <text x="50" y="66" font-size="58" text-anchor="middle" fill="#c9a84c" font-family="Oswald,sans-serif" font-weight="700">G</text>
-    <circle cx="74" cy="26" r="9" fill="#c9a84c"/>
-    <circle cx="74" cy="26" r="5" fill="rgba(255,255,255,0.4)"/>
+  <svg class="splash-ball" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <!-- 外側の丸（ダーク緑） -->
+    <circle cx="60" cy="60" r="58" fill="#2d5a27"/>
+    <!-- 金色のリング -->
+    <circle cx="60" cy="60" r="52" fill="none" stroke="#c9a84c" stroke-width="4"/>
+    <!-- 内側の緑 -->
+    <circle cx="60" cy="60" r="48" fill="#1e6b35"/>
+    <!-- ホールの影（楕円） -->
+    <ellipse cx="60" cy="82" rx="18" ry="6" fill="rgba(0,0,0,0.35)"/>
+    <!-- ホール -->
+    <ellipse cx="60" cy="80" rx="14" ry="5" fill="#111"/>
+    <!-- ピン（旗竿） -->
+    <line x1="60" y1="28" x2="60" y2="80" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- 旗 -->
+    <polygon points="60,28 84,38 60,48" fill="#c9a84c"/>
   </svg>
   <div class="splash-logo">GOLYMPIC</div>
-  <div class="splash-sub">GOLF SCORE MANAGER</div>
+  <div class="splash-sub">produced by parisken</div>
 </div>
 
 <!-- ヘッダー -->
 <div class="hdr">
   <div>
     <div class="hdr-logo" onclick="showPage('home')" style="cursor:pointer;">GOLYMPIC</div>
-    <div class="hdr-sub" id="hdr-course">-</div>
+    <div class="hdr-sub" id="hdr-course" style="display:none;">-</div>
   </div>
   <div class="hdr-btns"></div>
 </div>
@@ -467,12 +477,14 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           </select>
         </div>
       </div>
-      <div style="font-weight:700;color:var(--gold);margin-bottom:8px;">プレイヤー（最大4名）</div>
-      <datalist id="player-datalist"></datalist>
-      <input class="fi" type="text" id="p0" placeholder="プレイヤー1" list="player-datalist">
-      <input class="fi" type="text" id="p1" placeholder="プレイヤー2" list="player-datalist">
-      <input class="fi" type="text" id="p2" placeholder="プレイヤー3" list="player-datalist">
-      <input class="fi" type="text" id="p3" placeholder="プレイヤー4" list="player-datalist">
+      <div style="font-weight:700;color:var(--gold);margin-bottom:6px;">プレイヤー（最大4名）</div>
+      <!-- 登録済みプレイヤーのボタン一覧 -->
+      <div id="registered-players-area" style="margin-bottom:10px;"></div>
+      <div style="font-size:11px;color:#888;margin-bottom:6px;">↓ タップで選択 / 直接入力も可</div>
+      <input class="fi" type="text" id="p0" placeholder="プレイヤー1">
+      <input class="fi" type="text" id="p1" placeholder="プレイヤー2">
+      <input class="fi" type="text" id="p2" placeholder="プレイヤー3">
+      <input class="fi" type="text" id="p3" placeholder="プレイヤー4">
     </div>
     <div class="mftr">
       <button class="btn btn-o" onclick="document.getElementById('modal-new').classList.remove('open')">キャンセル</button>
@@ -615,6 +627,9 @@ function showPage(p) {
   });
 
   if (p==='home')     {}
+  // ヘッダーのゴルフ場名はスコア画面のみ表示
+  const hdrCourse=document.getElementById('hdr-course');
+  if(hdrCourse) hdrCourse.style.display=(p==='score'||p==='olympic'||p==='stats')?'block':'none';
   if (p==='score')    renderScore();
   if (p==='olympic')  { renderOlyTbl(); renderOlySummary(); }
   if (p==='history')  renderHist();
@@ -1254,9 +1269,8 @@ function onCourseChange(){
 }
 
 function openNewRound(){
-  // 登録済みプレイヤーをdatalistに反映
-  const dl=document.getElementById('player-datalist');
-  if(dl) dl.innerHTML=getPlayers().map(p=>`<option value="${p}">`).join('');
+  // 登録済みプレイヤーのボタンを描画
+  renderRegisteredPlayerBtns();
   populateClubSel();
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('sel-club').value='';
@@ -1268,13 +1282,25 @@ function openNewRound(){
   document.getElementById('modal-new').classList.add('open');
 }
 
-function createRound(){
+async function createRound(){
   const course=document.getElementById('new-course').value.trim()||'（未設定）';
   const dateRaw=document.getElementById('new-date').value;
   const holes=parseInt(document.getElementById('new-holes').value);
   const players=[];
   for(let i=0;i<4;i++){const v=(document.getElementById('p'+i)?.value||'').trim();if(v)players.push(v);}
   if(!players.length){toast('プレイヤーを入力してください');return;}
+  // 未登録プレイヤーを確認して登録するか尋ねる
+  const registered=getPlayers();
+  for(const name of players){
+    if(!registered.includes(name)){
+      const yes=confirm('「'+name+'」はプレイヤー登録されていません。\n登録しますか？');
+      if(yes){
+        registered.push(name);
+        setPlayers(registered);
+        toast('👤「'+name+'」を登録しました');
+      }
+    }
+  }
   // PARを確定
   onCourseChange();
   const pars=G.pars&&G.pars.length>=holes?G.pars.slice(0,holes):[...DPARS].slice(0,holes);
@@ -1481,6 +1507,34 @@ function initSplash(){
       }, 600);
     }
   }, 2200);
+}
+
+
+function renderRegisteredPlayerBtns(){
+  const area=document.getElementById('registered-players-area');
+  if(!area) return;
+  const list=getPlayers();
+  if(!list.length){
+    area.innerHTML='<div style="font-size:11px;color:#aaa;margin-bottom:4px;">（設定でプレイヤーを登録すると選択できます）</div>';
+    return;
+  }
+  area.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:6px;">'
+    +list.map(name=>`<button onclick="selectPlayer('${name.replace(/'/g,"\'")}') "
+      style="padding:6px 12px;border:1.5px solid var(--green);border-radius:20px;background:#e8f5ed;color:var(--green);font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;"
+      >${name}</button>`).join('')
+    +'</div>';
+}
+
+function selectPlayer(name){
+  // 空いている入力欄に順番に入れる
+  for(let i=0;i<4;i++){
+    const inp=document.getElementById('p'+i);
+    if(inp&&inp.value===''){
+      inp.value=name;
+      return;
+    }
+  }
+  toast('プレイヤーは最大4名です');
 }
 
 // ===== INIT =====
