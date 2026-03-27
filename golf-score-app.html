@@ -212,12 +212,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 @keyframes ballDrop{0%{opacity:0;transform:translateY(-40px);}60%{opacity:1;transform:translateY(8px);}80%{transform:translateY(-4px);}100%{opacity:1;transform:translateY(0);}}
 
 /* ── HOME画面 ── */
-#page-home{background:var(--bg);}
-.home-inner{padding:24px 16px;}
+#page-home{background:var(--bg);display:flex;flex-direction:column;}
+.home-inner{padding:24px 16px;flex:1;display:flex;flex-direction:column;}
 .home-hero{text-align:center;padding:20px 0 28px;}
 .home-hero-logo{font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;color:var(--gold);letter-spacing:5px;text-shadow:0 2px 8px rgba(0,0,0,0.2);}
 .home-hero-sub{font-size:12px;color:var(--g1);letter-spacing:2px;margin-top:4px;}
-.home-menu{display:flex;flex-direction:column;gap:14px;}
+.home-menu{display:flex;flex-direction:column;gap:14px;flex:1;}
 .home-btn{display:flex;align-items:center;gap:16px;background:#fff;border:none;border-radius:14px;padding:20px 18px;width:100%;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.08);text-align:left;transition:transform 0.1s;}
 .home-btn:active{transform:scale(0.98);}
 .home-btn-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
@@ -329,6 +329,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           <div class="home-btn-arrow">›</div>
         </button>
       </div>
+      <div style="text-align:center;color:#bbb;font-size:11px;margin-top:40px;padding-bottom:24px;letter-spacing:2px;font-family:'Oswald',sans-serif;">produced by parisken</div>
     </div>
   </div>
 
@@ -445,10 +446,22 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   <div id="page-players" class="page">
     <div class="inner">
       <div class="sec">👤 プレイヤー登録</div>
+
+      <!-- 自分の名前 -->
+      <div class="card" style="border:2px solid var(--green);">
+        <div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:8px;">⭐ 自分の名前（新規ラウンドで自動的にP1に入ります）</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="fi" type="text" id="my-name-input" placeholder="例：田中 太郎" style="margin-bottom:0;flex:1;">
+          <button class="btn btn-gr" onclick="saveMyName()" style="white-space:nowrap;">保存</button>
+        </div>
+        <div id="my-name-display" style="margin-top:8px;font-size:13px;color:#555;"></div>
+      </div>
+
+      <!-- 仲間の登録 -->
       <div class="card">
-        <label class="flbl">プレイヤー名を追加</label>
+        <label class="flbl">仲間のプレイヤーを追加</label>
         <div style="display:flex;gap:8px;">
-          <input class="fi" type="text" id="new-player-name" placeholder="例：田中 太郎" style="margin-bottom:0;flex:1;">
+          <input class="fi" type="text" id="new-player-name" placeholder="例：鈴木 次郎" style="margin-bottom:0;flex:1;">
           <button class="btn btn-gr" onclick="addPlayer()" style="white-space:nowrap;">追加</button>
         </div>
       </div>
@@ -469,12 +482,13 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <button class="mx" onclick="document.getElementById('modal-new').classList.remove('open')">×</button>
     </div>
     <div class="mbody">
-      <label class="flbl">ゴルフ場を選択（登録済み）</label>
+      <label class="flbl">ゴルフ場登録</label>
       <select class="fsel" id="sel-club" onchange="onClubChange()">
         <option value="">-- ゴルフ場を選択 --</option>
+        <option value="__manual__">✏️ 直接入力する</option>
       </select>
-      <label class="flbl">ゴルフ場を入力（手入力の場合）</label>
-      <input class="fi" type="text" id="new-course" placeholder="例：よみうりゴルフ倶楽部" oninput="onCourseManualInput()">
+      <input class="fi" type="text" id="new-course" placeholder="ゴルフ場名を入力"
+        style="display:none;margin-top:-4px;" oninput="onCourseManualInput()">
       <label class="flbl">前半コース</label>
       <select class="fsel" id="sel-out" onchange="onCourseChange()">
         <option value="">-- 前半コース --</option>
@@ -663,7 +677,7 @@ function showPage(p) {
   if (p==='stats')    { renderStatChips(); renderStats(); }
   if (p==='course')   { buildVtbl(); renderGcList(); }
   if (p==='settings') {}
-  if (p==='players')  renderPlayerList();
+  if (p==='players')  { renderPlayerList(); showMyNameDisplay(); }
 }
 
 // ===== パット表示切替 =====
@@ -1047,14 +1061,15 @@ function renderHist(){
   el.innerHTML=G.history.map(r=>{
     const p0=r.scores.map(row=>row[0]);
     const g=p0.reduce((a,s)=>a+(s||0),0),any=p0.some(s=>s!==null);
+    const puttTot=r.putts?r.putts.reduce((a,row)=>a+(row[0]||0),0):0;
     const pt=r.pars.reduce((a,b)=>a+b,0),d=g-pt;
     const saved=r.savedAt?new Date(r.savedAt).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
     return `<div class="rc">
       <div class="rch"><div class="rct">⛳ ${r.course||'（未設定）'}</div><div class="rcd">${r.date}</div></div>
       <div class="rcb">
         <div class="rst"><div class="rsv">${any?g:'-'}</div><div class="rsl">${r.players[0]||'P1'} グロス</div></div>
+        <div class="rst"><div class="rsv">${puttTot>0?puttTot:'-'}</div><div class="rsl">パット数</div></div>
         <div class="rst"><div class="rsv" style="font-size:26px;">${r.weather||'－'}</div><div class="rsl">天気</div></div>
-        <div class="rst"><div class="rsv">${r.holes}H</div><div class="rsl">${r.players.length}名</div></div>
         <div class="rca">
           <button class="bsm bsm-g" onclick="loadEntry(${r.id})">📂</button>
           <button class="bsm bsm-r" onclick="delEntry(${r.id})">🗑️</button>
@@ -1250,7 +1265,8 @@ function populateClubSel(){
   const sel=document.getElementById('sel-club');
   const cs=getCourses();
   sel.innerHTML='<option value="">-- ゴルフ場を選択 --</option>'
-    +Object.keys(cs).map(n=>`<option value="${n}">${n}</option>`).join('');
+    +Object.keys(cs).map(n=>`<option value="${n}">${n}</option>`).join('')
+    +'<option value="__manual__">✏️ 直接入力する</option>';
 }
 
 function onCourseManualInput(){
@@ -1265,8 +1281,21 @@ function onClubChange(){
   const club=document.getElementById('sel-club').value;
   const sOut=document.getElementById('sel-out');
   const sIn =document.getElementById('sel-in');
-  document.getElementById('new-course').value=club;
+  const manualInp=document.getElementById('new-course');
   G.pars=[...DPARS];
+
+  // 直接入力モード
+  if(club==='__manual__'){
+    manualInp.style.display='block';
+    manualInp.value='';
+    manualInp.focus();
+    sOut.innerHTML='<option value="">-- 前半コース --</option>';
+    sIn.innerHTML ='<option value="">-- 後半コース --</option>';
+    return;
+  }
+  manualInp.style.display='none';
+  manualInp.value=club;
+
   if(!club){
     sOut.innerHTML='<option value="">-- 前半コース --</option>';
     sIn.innerHTML ='<option value="">-- 後半コース --</option>';
@@ -1292,11 +1321,12 @@ function onCourseChange(){
   const inP =(inN &&c[inN]) ?c[inN] :Array(9).fill(4);
   G.pars=[...outP.slice(0,9),...inP.slice(0,9)];
   const txt=[outN,inN].filter(Boolean).join('/');
-  if(club) document.getElementById('new-course').value=club+(txt?' '+txt:'');
+  if(club) document.getElementById('new-course').value=club; // コース名は表示しない
 }
 
 function openNewRound(){
-  selectedPlayers=['','','',''];
+  const _myName=getMyName();
+  selectedPlayers=[_myName||'','','',''];
   renderPlayerSlots();
   // 天気リセット
   document.querySelectorAll('.weather-btn').forEach(b=>b.classList.remove('selected'));
@@ -1308,6 +1338,7 @@ function openNewRound(){
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('sel-club').value='';
   document.getElementById('new-course').value='';
+  document.getElementById('new-course').style.display='none';
   document.getElementById('sel-out').innerHTML='<option value="">-- 前半コース --</option>';
   document.getElementById('sel-in').innerHTML ='<option value="">-- 後半コース --</option>';
   for(let i=0;i<4;i++){const el=document.getElementById('p'+i);if(el)el.value='';}
@@ -1487,8 +1518,11 @@ function openPtKpad(hi,pi){
 
 // ===== プレイヤー登録 =====
 const PKEY = 'golympic_players_v1';
+const MYKEY = 'golympic_myname_v1';
 function getPlayers(){ try{return JSON.parse(localStorage.getItem(PKEY)||'[]');}catch(e){return [];} }
 function setPlayers(arr){ localStorage.setItem(PKEY, JSON.stringify(arr)); }
+function getMyName(){ return localStorage.getItem(MYKEY)||''; }
+function setMyName(name){ localStorage.setItem(MYKEY, name); }
 function sortPlayers(list){ return [...list].sort((a,b)=>a.localeCompare(b,'ja')); }
 
 function addPlayer(){
@@ -1550,7 +1584,12 @@ let selectedPlayers=['','','',''];
 function renderPlayerSlots(){
   const area=document.getElementById('player-slots');
   if(!area) return;
-  const allPlayers=sortPlayers(getPlayers());
+  const myName=getMyName();
+  // 自分の名前を先頭に、残りは50音順
+  const allPlayers=[
+    ...(myName?[myName]:[]),
+    ...sortPlayers(getPlayers().filter(p=>p!==myName))
+  ];
   let html='';
   for(let i=0;i<4;i++){
     const sel=selectedPlayers[i];
@@ -1654,6 +1693,35 @@ function selectWeather(btn, val){
   document.querySelectorAll('.weather-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   document.getElementById('new-weather').value=val;
+}
+
+
+function saveMyName(){
+  const inp=document.getElementById('my-name-input');
+  const name=inp.value.trim();
+  if(!name){ toast('名前を入力してください'); return; }
+  setMyName(name);
+  // プレイヤー一覧にも追加
+  const list=getPlayers();
+  if(!list.includes(name)){
+    list.push(name);
+    setPlayers(sortPlayers(list));
+    renderPlayerList();
+  }
+  showMyNameDisplay();
+  toast('⭐ 自分の名前を「'+name+'」に設定しました');
+}
+
+function showMyNameDisplay(){
+  const inp=document.getElementById('my-name-input');
+  const disp=document.getElementById('my-name-display');
+  const name=getMyName();
+  if(inp) inp.value=name;
+  if(disp){
+    disp.innerHTML=name
+      ? `現在の設定：<strong style="color:var(--green);">${name}</strong>`
+      : '未設定';
+  }
 }
 
 // ===== INIT =====
