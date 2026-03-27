@@ -21,7 +21,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;}
-body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;display:flex;flex-direction:column;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;display:flex;flex-direction:column;height:100vh;}
 
 /* ── ヘッダー ── */
 .hdr{background:var(--green);border-bottom:1px solid #1a6b3c;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;flex-shrink:0;}
@@ -38,9 +38,9 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .tab.active{color:var(--green);border-bottom-color:var(--green);background:rgba(30,132,73,0.08);}
 
 /* ── ページ ── */
-.pages{flex:1;overflow:hidden;position:relative;}
-.page{display:none;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-.page.active{display:block;}
+.pages{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+.page{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0;}
+.page.active{display:flex;flex-direction:column;}
 .inner{padding:10px;}
 .sec{font-family:'Oswald',sans-serif;font-size:15px;color:var(--green);padding:8px 0 6px;border-bottom:2px solid var(--bg3);margin-bottom:8px;}
 .card{background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
@@ -120,7 +120,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 /* ── 履歴 ── */
 .rc{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.1);border-radius:10px;margin-bottom:8px;overflow:hidden;}
 .rch{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;}
-.rct{font-weight:700;font-size:14px;}
+.rct{font-weight:700;font-size:14px;color:#fff;}
 .rcd{font-size:11px;color:#fff;opacity:1;}
 .rcb{padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .rst{text-align:center;}
@@ -212,12 +212,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 @keyframes ballDrop{0%{opacity:0;transform:translateY(-40px);}60%{opacity:1;transform:translateY(8px);}80%{transform:translateY(-4px);}100%{opacity:1;transform:translateY(0);}}
 
 /* ── HOME画面 ── */
-#page-home{background:var(--bg);display:flex;flex-direction:column;}
-.home-inner{padding:24px 16px;flex:1;display:flex;flex-direction:column;}
+#page-home{background:var(--bg);}
+.home-inner{padding:24px 16px;}
 .home-hero{text-align:center;padding:20px 0 28px;}
 .home-hero-logo{font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;color:var(--gold);letter-spacing:5px;text-shadow:0 2px 8px rgba(0,0,0,0.2);}
 .home-hero-sub{font-size:12px;color:var(--g1);letter-spacing:2px;margin-top:4px;}
-.home-menu{display:flex;flex-direction:column;gap:14px;flex:1;}
+.home-menu{display:flex;flex-direction:column;gap:14px;}
 .home-btn{display:flex;align-items:center;gap:16px;background:#fff;border:none;border-radius:14px;padding:20px 18px;width:100%;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.08);text-align:left;transition:transform 0.1s;}
 .home-btn:active{transform:scale(0.98);}
 .home-btn-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
@@ -282,7 +282,9 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <span id="hdr-course-date" style="margin-left:8px;opacity:0.7;"></span>
     </div>
   </div>
-  <div class="hdr-btns"></div>
+  <div class="hdr-btns">
+    <button class="hbtn" id="edit-round-btn" style="display:none;" onclick="openEditRound()">✏️ 編集</button>
+  </div>
 </div>
 
 <!-- スコア中の下部ナビ（スコアページのみ表示） -->
@@ -472,6 +474,42 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 
 </div>
 
+</div>
+
+
+<!-- ラウンド情報編集モーダル -->
+<div class="mov" id="modal-edit-round">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mttl">✏️ ラウンド情報を編集</div>
+      <button class="mx" onclick="document.getElementById('modal-edit-round').classList.remove('open')">×</button>
+    </div>
+    <div class="mbody">
+      <label class="flbl">ゴルフ場名</label>
+      <input class="fi" type="text" id="edit-course" placeholder="例：よみうりゴルフ倶楽部">
+
+      <label class="flbl">日付</label>
+      <input class="fi" type="date" id="edit-date">
+
+      <div style="font-weight:700;color:var(--gold);margin:8px 0 6px;">天気（任意）</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="edit-weather-btns">
+        <button class="weather-btn" data-weather="" onclick="selectEditWeather(this,'')">なし</button>
+        <button class="weather-btn" data-weather="☀️" onclick="selectEditWeather(this,'☀️')">☀️</button>
+        <button class="weather-btn" data-weather="⛅" onclick="selectEditWeather(this,'⛅')">⛅</button>
+        <button class="weather-btn" data-weather="🌧️" onclick="selectEditWeather(this,'🌧️')">🌧️</button>
+        <button class="weather-btn" data-weather="🌪️" onclick="selectEditWeather(this,'🌪️')">🌪️</button>
+        <button class="weather-btn" data-weather="🌨️" onclick="selectEditWeather(this,'🌨️')">🌨️</button>
+      </div>
+      <input type="hidden" id="edit-weather" value="">
+
+      <div style="font-weight:700;color:var(--gold);margin:10px 0 6px;">プレイヤー</div>
+      <div id="edit-player-slots"></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-o" onclick="document.getElementById('modal-edit-round').classList.remove('open')">キャンセル</button>
+      <button class="btn btn-g" onclick="applyEditRound()">保存</button>
+    </div>
+  </div>
 </div>
 
 <!-- 新規ラウンドモーダル -->
@@ -668,9 +706,12 @@ function showPage(p) {
   });
 
   if (p==='home')     {}
-  // ヘッダーのゴルフ場名はスコア画面のみ表示
+  // ヘッダーのゴルフ場名・編集ボタンはスコア画面のみ表示
   const hdrCourse=document.getElementById('hdr-course');
-  if(hdrCourse) hdrCourse.style.display=(p==='score'||p==='olympic'||p==='stats')?'block':'none';
+  const editBtn=document.getElementById('edit-round-btn');
+  const isScorePage=p==='score'||p==='olympic'||p==='stats';
+  if(hdrCourse) hdrCourse.style.display=isScorePage?'block':'none';
+  if(editBtn) editBtn.style.display=isScorePage&&G.players.length?'block':'none';
   if (p==='score')    renderScore();
   if (p==='olympic')  { renderOlyTbl(); renderOlySummary(); }
   if (p==='history')  renderHist();
@@ -1065,7 +1106,7 @@ function renderHist(){
     const pt=r.pars.reduce((a,b)=>a+b,0),d=g-pt;
     const saved=r.savedAt?new Date(r.savedAt).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
     return `<div class="rc">
-      <div class="rch"><div class="rct">⛳ ${r.course||'（未設定）'}</div><div class="rcd">${r.date}</div></div>
+      <div class="rch"><div class="rct">${r.course||'（未設定）'}</div><div class="rcd">${r.date}</div></div>
       <div class="rcb">
         <div class="rst"><div class="rsv">${any?g:'-'}</div><div class="rsl">${r.players[0]||'P1'} グロス</div></div>
         <div class="rst"><div class="rsv">${puttTot>0?puttTot:'-'}</div><div class="rsl">パット数</div></div>
@@ -1722,6 +1763,142 @@ function showMyNameDisplay(){
       ? `現在の設定：<strong style="color:var(--green);">${name}</strong>`
       : '未設定';
   }
+}
+
+
+// ===== ラウンド情報編集 =====
+let editSelectedPlayers = ['','','',''];
+
+function openEditRound(){
+  // 現在の値をセット
+  const courseInp=document.getElementById('edit-course');
+  const dateInp=document.getElementById('edit-date');
+  if(courseInp) courseInp.value=G.course||'';
+  // G.dateをdate input用に変換（例：2026年3月28日→2026-03-28）
+  if(dateInp){
+    // fmtDateの逆変換
+    const raw=G.date||'';
+    const m=raw.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+    if(m) dateInp.value=`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+    else dateInp.value=raw;
+  }
+  // 天気ボタン
+  const wv=G.weather||'';
+  document.getElementById('edit-weather').value=wv;
+  document.querySelectorAll('#edit-weather-btns .weather-btn').forEach(b=>{
+    b.classList.toggle('selected', b.dataset.weather===wv);
+  });
+  // プレイヤースロット
+  editSelectedPlayers=[...G.players,'','','',''].slice(0,4);
+  renderEditPlayerSlots();
+  document.getElementById('modal-edit-round').classList.add('open');
+}
+
+function selectEditWeather(btn,val){
+  document.querySelectorAll('#edit-weather-btns .weather-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('edit-weather').value=val;
+}
+
+function renderEditPlayerSlots(){
+  const area=document.getElementById('edit-player-slots');
+  if(!area) return;
+  const myName=getMyName();
+  const allPlayers=[
+    ...(myName?[myName]:[]),
+    ...sortPlayers(getPlayers().filter(p=>p!==myName))
+  ];
+  let html='';
+  for(let i=0;i<4;i++){
+    const sel=editSelectedPlayers[i]||'';
+    const usedByOthers=editSelectedPlayers.filter((_,j)=>j!==i&&_&&_!=='');
+    const available=allPlayers.filter(p=>!usedByOthers.includes(p));
+    const isManual=sel.startsWith('__manual__');
+    const manualVal=isManual?sel.replace('__manual__:',''):(!allPlayers.includes(sel)&&sel?sel:'');
+    const isManualMode=isManual||(!allPlayers.includes(sel)&&sel!=='');
+    html+=`<div style="margin-bottom:10px;">
+      <label class="flbl">プレイヤー${i+1}</label>
+      <select class="fsel" id="ep${i}" onchange="onEditPlayerSelect(${i},this.value)" style="margin-bottom:0;">
+        <option value="">-- 選択してください --</option>
+        ${available.map(p=>`<option value="${p}"${(!isManualMode&&sel===p)?' selected':''}>${p}</option>`).join('')}
+        <option value="__manual__"${isManualMode?' selected':''}>✏️ 直接入力する</option>
+      </select>
+      <input class="fi" type="text" id="epm${i}" placeholder="名前を入力"
+        style="display:${isManualMode?'block':'none'};margin-top:4px;margin-bottom:0;"
+        value="${isManualMode?(isManual?manualVal:sel):''}"
+        oninput="onEditPlayerManualInput(${i},this.value)">
+    </div>`;
+  }
+  area.innerHTML=html;
+}
+
+function onEditPlayerSelect(idx,val){
+  if(val==='__manual__'){
+    editSelectedPlayers[idx]='__manual__:';
+  } else {
+    editSelectedPlayers[idx]=val;
+  }
+  renderEditPlayerSlots();
+  if(val==='__manual__'){
+    setTimeout(()=>{ const inp=document.getElementById('epm'+idx); if(inp)inp.focus(); },50);
+  }
+}
+
+function onEditPlayerManualInput(idx,val){
+  editSelectedPlayers[idx]='__manual__:'+val;
+}
+
+function getEditPlayerNames(){
+  const names=[];
+  for(let i=0;i<4;i++){
+    const v=editSelectedPlayers[i];
+    if(!v) continue;
+    if(v.startsWith('__manual__:')){
+      const m=v.slice(11).trim(); if(m) names.push(m);
+    } else if(v && v!=='__manual__'){
+      names.push(v);
+    }
+  }
+  return names;
+}
+
+function applyEditRound(){
+  const course=document.getElementById('edit-course').value.trim();
+  const dateRaw=document.getElementById('edit-date').value;
+  const weather=document.getElementById('edit-weather').value;
+  const players=getEditPlayerNames();
+  if(!course){ toast('ゴルフ場名を入力してください'); return; }
+  if(!players.length){ toast('プレイヤーを選択してください'); return; }
+
+  G.course=course;
+  if(dateRaw) G.date=fmtDate(dateRaw);
+  G.weather=weather;
+
+  // プレイヤー数が変わる場合はスコア配列を調整
+  if(players.length!==G.players.length){
+    const oldN=G.players.length, newN=players.length, h=G.holes;
+    if(newN>oldN){
+      G.scores=G.scores.map(r=>[...r,...Array(newN-oldN).fill(null)]);
+      G.putts =G.putts.map(r=>[...r,...Array(newN-oldN).fill(null)]);
+      G.oly   =G.oly.map(r=>[...r,...Array(newN-oldN).fill(null)]);
+    } else {
+      G.scores=G.scores.map(r=>r.slice(0,newN));
+      G.putts =G.putts.map(r=>r.slice(0,newN));
+      G.oly   =G.oly.map(r=>r.slice(0,newN));
+    }
+  }
+  G.players=players;
+
+  // ヘッダー更新
+  const hc=document.getElementById('hdr-course-name');
+  const hd=document.getElementById('hdr-course-date');
+  if(hc) hc.textContent=G.course;
+  if(hd) hd.textContent=G.date;
+
+  persist();
+  renderScore();
+  document.getElementById('modal-edit-round').classList.remove('open');
+  toast('✏️ ラウンド情報を更新しました');
 }
 
 // ===== INIT =====
