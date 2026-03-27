@@ -477,14 +477,8 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           </select>
         </div>
       </div>
-      <div style="font-weight:700;color:var(--gold);margin-bottom:6px;">プレイヤー（最大4名）</div>
-      <!-- 登録済みプレイヤーのボタン一覧 -->
-      <div id="registered-players-area" style="margin-bottom:10px;"></div>
-      <div style="font-size:11px;color:#888;margin-bottom:6px;">↓ タップで選択 / 直接入力も可</div>
-      <input class="fi" type="text" id="p0" placeholder="プレイヤー1">
-      <input class="fi" type="text" id="p1" placeholder="プレイヤー2">
-      <input class="fi" type="text" id="p2" placeholder="プレイヤー3">
-      <input class="fi" type="text" id="p3" placeholder="プレイヤー4">
+      <div style="font-weight:700;color:var(--gold);margin-bottom:8px;">プレイヤー（最大4名）</div>
+      <div id="player-slots"></div>
     </div>
     <div class="mftr">
       <button class="btn btn-o" onclick="document.getElementById('modal-new').classList.remove('open')">キャンセル</button>
@@ -1269,8 +1263,8 @@ function onCourseChange(){
 }
 
 function openNewRound(){
-  // 登録済みプレイヤーのボタンを描画
-  renderRegisteredPlayerBtns();
+  selectedPlayers=['','','',''];
+  renderPlayerSlots();
   populateClubSel();
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('sel-club').value='';
@@ -1286,8 +1280,7 @@ async function createRound(){
   const course=document.getElementById('new-course').value.trim()||'（未設定）';
   const dateRaw=document.getElementById('new-date').value;
   const holes=parseInt(document.getElementById('new-holes').value);
-  const players=[];
-  for(let i=0;i<4;i++){const v=(document.getElementById('p'+i)?.value||'').trim();if(v)players.push(v);}
+  const players=getPlayerNames();
   if(!players.length){toast('プレイヤーを入力してください');return;}
   // 未登録プレイヤーを確認して登録するか尋ねる
   const registered=getPlayers();
@@ -1453,6 +1446,7 @@ function openPtKpad(hi,pi){
 const PKEY = 'golympic_players_v1';
 function getPlayers(){ try{return JSON.parse(localStorage.getItem(PKEY)||'[]');}catch(e){return [];} }
 function setPlayers(arr){ localStorage.setItem(PKEY, JSON.stringify(arr)); }
+function sortPlayers(list){ return [...list].sort((a,b)=>a.localeCompare(b,'ja')); }
 
 function addPlayer(){
   const inp=document.getElementById('new-player-name');
@@ -1461,7 +1455,7 @@ function addPlayer(){
   const list=getPlayers();
   if(list.includes(name)){ toast('すでに登録されています'); return; }
   list.push(name);
-  setPlayers(list);
+  setPlayers(sortPlayers(list));
   inp.value='';
   renderPlayerList();
   toast('👤「'+name+'」を登録しました');
@@ -1475,6 +1469,19 @@ function deletePlayer(name){
   toast('🗑️ 削除しました');
 }
 
+function editPlayerName(idx){
+  const list=getPlayers();
+  const oldName=list[idx];
+  const newName=prompt('名前を編集してください', oldName);
+  if(!newName||newName.trim()===oldName) return;
+  const trimmed=newName.trim();
+  if(list.includes(trimmed)){ toast('その名前はすでに登録されています'); return; }
+  list[idx]=trimmed;
+  setPlayers(sortPlayers(list));
+  renderPlayerList();
+  toast('✏️ 名前を変更しました');
+}
+
 function renderPlayerList(){
   const el=document.getElementById('player-list');
   if(!el) return;
@@ -1486,12 +1493,74 @@ function renderPlayerList(){
   el.innerHTML=list.map((name,i)=>`
     <div class="rc" style="margin-bottom:8px;">
       <div style="display:flex;align-items:center;padding:12px 14px;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Oswald',sans-serif;font-size:16px;flex-shrink:0;">${i+1}</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Oswald',sans-serif;font-size:14px;flex-shrink:0;">${i+1}</div>
         <div style="flex:1;font-weight:600;font-size:15px;">${name}</div>
+        <button class="bsm" onclick="editPlayerName(${i})" style="background:#e8f5ed;color:var(--green);border:1px solid var(--green);margin-right:4px;">✏️</button>
         <button class="bsm bsm-r" onclick="deletePlayer('${name.replace(/'/g,"\'")}')">🗑️</button>
       </div>
     </div>`).join('');
 }
+
+// ===== 新規ラウンド プレイヤースロット =====
+let selectedPlayers=['','','',''];
+
+function renderPlayerSlots(){
+  const area=document.getElementById('player-slots');
+  if(!area) return;
+  const allPlayers=sortPlayers(getPlayers());
+  let html='';
+  for(let i=0;i<4;i++){
+    const sel=selectedPlayers[i];
+    const usedByOthers=selectedPlayers.filter((_,j)=>j!==i&&_&&_!=='');
+    const available=allPlayers.filter(p=>!usedByOthers.includes(p));
+    const isManual=sel.startsWith('__manual__');
+    const manualVal=isManual?sel.replace('__manual__:',''):'';
+    html+=`<div style="margin-bottom:10px;">
+      <label class="flbl">プレイヤー${i+1}</label>
+      <select class="fsel" id="p${i}" onchange="onPlayerSelect(${i},this.value)" style="margin-bottom:0;">
+        <option value="">-- 選択してください --</option>
+        ${available.map(p=>`<option value="${p}"${(!isManual&&sel===p)?' selected':''}>${p}</option>`).join('')}
+        <option value="__manual__"${isManual?' selected':''}>✏️ 直接入力する</option>
+      </select>
+      <input class="fi" type="text" id="pm${i}" placeholder="名前を入力"
+        style="display:${isManual?'block':'none'};margin-top:4px;margin-bottom:0;"
+        value="${manualVal}" oninput="onPlayerManualInput(${i},this.value)">
+    </div>`;
+  }
+  area.innerHTML=html;
+}
+
+function onPlayerSelect(idx,val){
+  if(val==='__manual__'){
+    selectedPlayers[idx]='__manual__:';
+  } else {
+    selectedPlayers[idx]=val;
+  }
+  renderPlayerSlots();
+  if(val==='__manual__'){
+    setTimeout(()=>{ const inp=document.getElementById('pm'+idx); if(inp)inp.focus(); },50);
+  }
+}
+
+function onPlayerManualInput(idx,val){
+  selectedPlayers[idx]='__manual__:'+val;
+}
+
+function getPlayerNames(){
+  const names=[];
+  for(let i=0;i<4;i++){
+    const v=selectedPlayers[i];
+    if(!v) continue;
+    if(v.startsWith('__manual__:')){
+      const m=v.slice(11).trim(); if(m) names.push(m);
+    } else if(v && v!=='__manual__') {
+      names.push(v);
+    }
+  }
+  return names;
+}
+
+function renderRegisteredPlayerBtns(){ renderPlayerSlots(); }
 
 
 // ===== スプラッシュ画面 =====
