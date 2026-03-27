@@ -121,7 +121,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .rc{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.1);border-radius:10px;margin-bottom:8px;overflow:hidden;}
 .rch{background:linear-gradient(90deg,var(--green),#1a4a2e);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;}
 .rct{font-weight:700;font-size:14px;}
-.rcd{font-size:11px;opacity:.8;}
+.rcd{font-size:11px;color:#fff;opacity:1;}
 .rcb{padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .rst{text-align:center;}
 .rsv{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--gold);}
@@ -260,8 +260,22 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 <!-- ヘッダー -->
 <div class="hdr">
   <div>
-    <div class="hdr-logo" onclick="showPage('home')" style="cursor:pointer;">GOLYMPIC</div>
-    <div class="hdr-sub" id="hdr-course" style="display:none;">-</div>
+    <div class="hdr-logo" onclick="showPage('home')" style="cursor:pointer;display:flex;align-items:center;gap:7px;">
+      <svg width="28" height="28" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+        <circle cx="60" cy="60" r="58" fill="#2d5a27"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#c9a84c" stroke-width="4"/>
+        <circle cx="60" cy="60" r="48" fill="#1e6b35"/>
+        <ellipse cx="60" cy="82" rx="18" ry="6" fill="rgba(0,0,0,0.35)"/>
+        <ellipse cx="60" cy="80" rx="14" ry="5" fill="#111"/>
+        <line x1="60" y1="28" x2="60" y2="80" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+        <polygon points="60,28 84,38 60,48" fill="#c9a84c"/>
+      </svg>
+      GOLYMPIC
+    </div>
+    <div class="hdr-sub" id="hdr-course" style="display:none;">
+      <span id="hdr-course-name">-</span>
+      <span id="hdr-course-date" style="margin-left:8px;opacity:0.7;"></span>
+    </div>
   </div>
   <div class="hdr-btns"></div>
 </div>
@@ -592,7 +606,10 @@ function loadEntry(id) {
   G.putts=e.putts ? e.putts.map(r=>[...r]) : Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
   G.oly=e.oly ? e.oly.map(r=>[...r]) : Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
   G.statsP=0;
-  document.getElementById('hdr-course').textContent = G.course||'-';
+  const _hc=document.getElementById('hdr-course-name');
+  const _hd=document.getElementById('hdr-course-date');
+  if(_hc) _hc.textContent=G.course||'-';
+  if(_hd) _hd.textContent=G.date||'';
   renderScore(); showPage('score');
   toast('📂 読み込みました');
 }
@@ -1300,7 +1317,10 @@ async function createRound(){
   G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-';
   G.holes=holes; G.players=players; G.pars=pars; G.statsP=0;
   initData();
-  document.getElementById('hdr-course').textContent=G.course;
+  const hc=document.getElementById('hdr-course-name');
+  const hd=document.getElementById('hdr-course-date');
+  if(hc) hc.textContent=G.course;
+  if(hd) hd.textContent=G.date;
   document.getElementById('modal-new').classList.remove('open');
   renderScore(); showPage('score');
   toast('ラウンドを作成しました ⛳');
@@ -1613,7 +1633,10 @@ if('serviceWorker' in navigator){
 loadSaved();
 // パットボタンの初期状態
 updatePuttBtn();
-document.getElementById('hdr-course').textContent=G.course||'-';
+const _hc2=document.getElementById('hdr-course-name');
+const _hd2=document.getElementById('hdr-course-date');
+if(_hc2) _hc2.textContent=G.course||'-';
+if(_hd2) _hd2.textContent=G.date||'';
 initSplash();
 if(G.players.length) renderScore();
 </script>
