@@ -207,7 +207,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 #splash.hidden{display:none;}
 .splash-logo{font-family:'Oswald',sans-serif;font-size:48px;font-weight:700;color:var(--gold);letter-spacing:6px;opacity:0;transform:scale(0.6) translateY(20px);animation:splashIn 1.2s cubic-bezier(.22,1,.36,1) 0.3s forwards;}
 .splash-sub{font-size:14px;color:rgba(255,255,255,0.7);letter-spacing:3px;opacity:0;animation:splashIn 1s ease 1s forwards;}
-.splash-ball{width:60px;height:60px;opacity:0;animation:ballDrop 0.8s ease 0.1s forwards;}
+.splash-ball{width:90px;height:90px;opacity:0;animation:ballDrop 0.8s ease 0.1s forwards;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.3));}
 @keyframes splashIn{to{opacity:1;transform:scale(1) translateY(0);}}
 @keyframes ballDrop{0%{opacity:0;transform:translateY(-40px);}60%{opacity:1;transform:translateY(8px);}80%{transform:translateY(-4px);}100%{opacity:1;transform:translateY(0);}}
 
@@ -237,7 +237,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 
 <!-- スプラッシュ画面 -->
 <div id="splash">
-  <div class="splash-ball">⛳</div>
+  <svg class="splash-ball" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="46" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <text x="50" y="66" font-size="58" text-anchor="middle" fill="#c9a84c" font-family="Oswald,sans-serif" font-weight="700">G</text>
+    <circle cx="74" cy="26" r="9" fill="#c9a84c"/>
+    <circle cx="74" cy="26" r="5" fill="rgba(255,255,255,0.4)"/>
+  </svg>
   <div class="splash-logo">GOLYMPIC</div>
   <div class="splash-sub">GOLF SCORE MANAGER</div>
 </div>
@@ -380,7 +385,8 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <div class="sec">📋 登録済み</div>
       <div id="gc-list"></div>
     </div>
-  
+  </div>
+
   <!-- 設定 -->
   <div id="page-settings" class="page">
     <div class="inner">
