@@ -225,6 +225,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .home-btn-title{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:#1a1a1a;letter-spacing:1px;}
 .home-btn-desc{font-size:11px;color:#888;margin-top:2px;}
 .home-btn-arrow{font-size:18px;color:#ccc;}
+
+/* ── スコア中の下部ナビ ── */
+.score-nav{display:flex;background:#fff;border-top:2px solid var(--bg3);flex-shrink:0;position:relative;z-index:10;}
+.snav-tab{flex:1;padding:10px 2px;text-align:center;font-size:11px;color:#888;cursor:pointer;border-top:2px solid transparent;}
+.snav-tab.active{color:var(--green);border-top-color:var(--green);background:rgba(30,132,73,0.06);font-weight:700;}
+.snav-save{color:var(--green);font-weight:700;}
 </style>
 </head>
 <body>
@@ -239,20 +245,18 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 <!-- ヘッダー -->
 <div class="hdr">
   <div>
-    <div class="hdr-logo">GOLYMPIC</div>
+    <div class="hdr-logo" onclick="showPage('home')" style="cursor:pointer;">GOLYMPIC</div>
     <div class="hdr-sub" id="hdr-course">-</div>
   </div>
-  <div class="hdr-btns">
-    <button class="hbtn" onclick="saveToHistory()">💾 保存</button>
-  </div>
+  <div class="hdr-btns"></div>
 </div>
 
-<!-- ナビ -->
-<div class="nav">
-  <div class="tab" id="tab-home" onclick="showPage('home')">🏠 HOME</div>
-  <div class="tab active" id="tab-score" onclick="showPage('score')">🏌️ スコア</div>
-  <div class="tab" id="tab-olympic" onclick="showPage('olympic')">🏅 五輪</div>
-  <div class="tab" id="tab-stats" onclick="showPage('stats')">📊 統計</div>
+<!-- スコア中の下部ナビ（スコアページのみ表示） -->
+<div class="score-nav" id="score-nav" style="display:none;">
+  <div class="snav-tab active" id="snav-score" onclick="showPage('score')">🏌️ スコア</div>
+  <div class="snav-tab" id="snav-olympic" onclick="showPage('olympic')">🏅 オリンピック</div>
+  <div class="snav-tab" id="snav-stats" onclick="showPage('stats')">📊 統計</div>
+  <div class="snav-tab snav-save" onclick="saveToHistory()">💾 保存</div>
 </div>
 
 <div class="pages">
@@ -588,16 +592,22 @@ function delEntry(id) {
 }
 
 // ===== ナビ =====
-const NAV_TABS = {home:'tab-home', score:'tab-score', olympic:'tab-olympic', stats:'tab-stats'};
+const SCORE_PAGES = ['score','olympic','stats'];
 function showPage(p) {
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
   const pg=document.getElementById('page-'+p);
   if(pg) pg.classList.add('active');
-  Object.entries(NAV_TABS).forEach(([key,id])=>{
-    const t=document.getElementById(id);
+
+  // スコア中の下部ナビ制御
+  const scoreNav=document.getElementById('score-nav');
+  if(scoreNav) scoreNav.style.display=SCORE_PAGES.includes(p)?'flex':'none';
+
+  // スコアナビのアクティブ制御
+  ['score','olympic','stats'].forEach(key=>{
+    const t=document.getElementById('snav-'+key);
     if(t) t.classList.toggle('active', key===p);
   });
+
   if (p==='home')     {}
   if (p==='score')    renderScore();
   if (p==='olympic')  { renderOlyTbl(); renderOlySummary(); }
