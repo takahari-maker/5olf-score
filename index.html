@@ -68,12 +68,15 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .par-inp:focus{outline:1px solid var(--gold);border-radius:3px;}
 .sc-btn{width:44px;height:38px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:17px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;cursor:pointer;padding:0;}
 
-.sc-btn.eagle{background:#3a2800;border-color:#f39c12;color:#f39c12;}
-.sc-btn.birdie{background:#3a1a1a;border-color:#e74c3c;color:#e74c3c;}
-.sc-btn.par{background:#1a3a22;border-color:#2ecc71;color:#2ecc71;}
-.sc-btn.bogey{background:#1a2a3a;border-color:#3498db;color:#3498db;}
-.sc-btn.double{background:#2a1a3a;border-color:#9b59b6;color:#9b59b6;}
-.sc-btn.triple{background:#3a1a1a;border-color:#c0392b;color:#c0392b;}
+/* アンダー：青系 */
+.sc-btn.eagle {background:#dbeafe;border-color:#2563eb;color:#1d4ed8;}
+.sc-btn.birdie{background:#dbeafe;border-color:#2563eb;color:#1d4ed8;}
+/* パー：緑系 */
+.sc-btn.par   {background:#dcfce7;border-color:#16a34a;color:#15803d;}
+/* オーバー：赤系 */
+.sc-btn.bogey {background:#fee2e2;border-color:#dc2626;color:#b91c1c;}
+.sc-btn.double{background:#fee2e2;border-color:#dc2626;color:#b91c1c;}
+.sc-btn.triple{background:#fee2e2;border-color:#dc2626;color:#b91c1c;}
 .pt-btn{width:34px;height:26px;background:#e8f4fd;border:1px solid #85c1e9;border-radius:4px;text-align:center;font-size:13px;font-weight:600;color:#1a6b9a;font-family:'Oswald',sans-serif;cursor:pointer;padding:0;}
 
 
@@ -609,8 +612,8 @@ function renderStbl() {
     }
   }
 
-  half(0, Math.min(9,h), 'OUT');
-  if (h>9) half(9, h, 'IN');
+  half(0, Math.min(9,h), '前半');
+  if (h>9) half(9, h, '後半');
 
   // TOTAL スコア
   html += '<tr class="tot"><td class="hcell">TOT</td><td>'+G.pars.slice(0,h).reduce((a,b)=>a+b,0)+'</td>';
@@ -693,8 +696,8 @@ function refreshTot() {
       const el=document.getElementById(`sub_${lbl}_${pi}`); if(el){el.textContent=sub!==null?sub:'-';el.style.color='#fff';el.style.background='var(--green)';el.style.borderRadius='4px';el.style.fontSize='20px';el.style.fontFamily="'Oswald',sans-serif";}
       const oel=document.getElementById(`subov_${lbl}_${pi}`); if(oel){oel.textContent=ovStr;oel.style.color='#1a1a1a';}
     };
-    upd('OUT',0,out);
-    if (h>9) upd('IN',9,h);
+    upd('前半',0,out);
+    if (h>9) upd('後半',9,h);
     const any=G.scores.some(r=>r[pi]!==null);
     const tot=G.scores.reduce((a,r)=>a+(r[pi]||0),0);
     const parT=G.pars.slice(0,h).reduce((a,b,i)=>
@@ -711,8 +714,8 @@ function refreshPuttTot() {
   const n=G.players.length, h=G.holes, out=Math.min(9,h);
   for (let pi=0; pi<n; pi++) {
     const calc=(s,e)=>{const en=G.putts.slice(s,e).filter(r=>r[pi]!==null);return en.length?en.reduce((a,r)=>a+r[pi],0):null;};
-    const o=document.getElementById('psub_OUT_'+pi); if(o){const v=calc(0,out);o.textContent=v!==null?v:'-';}
-    if(h>9){const i=document.getElementById('psub_IN_'+pi);if(i){const v=calc(9,h);i.textContent=v!==null?v:'-';}}
+    const o=document.getElementById('psub_前半_'+pi); if(o){const v=calc(0,out);o.textContent=v!==null?v:'-';}
+    if(h>9){const i=document.getElementById('psub_後半_'+pi);if(i){const v=calc(9,h);i.textContent=v!==null?v:'-';}}
     const t=document.getElementById('ptot_'+pi);
     if(t){const any=G.putts.some(r=>r[pi]!==null);const tot=G.putts.reduce((a,r)=>a+(r[pi]||0),0);t.textContent=any?tot:'-';}
   }
@@ -804,8 +807,8 @@ function renderOlyTbl() {
       +G.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fp(subPts(s,e,pi))}</td>`).join('')
       +'</tr>';
   }
-  half(0,Math.min(9,h),'OUT');
-  if(h>9) half(9,h,'IN');
+  half(0,Math.min(9,h),'前半');
+  if(h>9) half(9,h,'後半');
   // TOTスコア合計
   const scTot=Array(n).fill(0).map((_,pi)=>{
     let t=0,any=false;
@@ -854,8 +857,8 @@ function applyOly(inp,hi,pi){
 function refreshOlySubs(){
   const n=G.players.length,h=G.holes,out=Math.min(9,h);
   for(let pi=0;pi<n;pi++){
-    const o=document.getElementById('os_OUT_'+pi);if(o)o.innerHTML=fp(subPts(0,out,pi));
-    if(h>9){const i=document.getElementById('os_IN_'+pi);if(i)i.innerHTML=fp(subPts(9,h,pi));}
+    const o=document.getElementById('os_前半_'+pi);if(o)o.innerHTML=fp(subPts(0,out,pi));
+    if(h>9){const i=document.getElementById('os_後半_'+pi);if(i)i.innerHTML=fp(subPts(9,h,pi));}
     const t=document.getElementById('ot_'+pi);if(t)t.innerHTML=fp(subPts(0,h,pi));
   }
   // スコア合計セルも更新（osub/otot行の最初の列）
