@@ -201,9 +201,40 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .kpad-btn:active{background:#f0f0f0;}
 .kpad-sign{background:#e8f5ed;color:#27ae60;border-color:#27ae60;}
 .kpad-del{background:#fde8e8;color:#e74c3c;border-color:#e74c3c;}
+
+/* ── スプラッシュ画面 ── */
+#splash{position:fixed;inset:0;background:var(--green);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+#splash.hidden{display:none;}
+.splash-logo{font-family:'Oswald',sans-serif;font-size:48px;font-weight:700;color:var(--gold);letter-spacing:6px;opacity:0;transform:scale(0.6) translateY(20px);animation:splashIn 1.2s cubic-bezier(.22,1,.36,1) 0.3s forwards;}
+.splash-sub{font-size:14px;color:rgba(255,255,255,0.7);letter-spacing:3px;opacity:0;animation:splashIn 1s ease 1s forwards;}
+.splash-ball{width:60px;height:60px;opacity:0;animation:ballDrop 0.8s ease 0.1s forwards;}
+@keyframes splashIn{to{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes ballDrop{0%{opacity:0;transform:translateY(-40px);}60%{opacity:1;transform:translateY(8px);}80%{transform:translateY(-4px);}100%{opacity:1;transform:translateY(0);}}
+
+/* ── HOME画面 ── */
+#page-home{background:var(--bg);}
+.home-inner{padding:24px 16px;}
+.home-hero{text-align:center;padding:20px 0 28px;}
+.home-hero-logo{font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;color:var(--gold);letter-spacing:5px;text-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.home-hero-sub{font-size:12px;color:var(--g1);letter-spacing:2px;margin-top:4px;}
+.home-menu{display:flex;flex-direction:column;gap:14px;}
+.home-btn{display:flex;align-items:center;gap:16px;background:#fff;border:none;border-radius:14px;padding:20px 18px;width:100%;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.08);text-align:left;transition:transform 0.1s;}
+.home-btn:active{transform:scale(0.98);}
+.home-btn-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.home-btn-text{flex:1;}
+.home-btn-title{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:#1a1a1a;letter-spacing:1px;}
+.home-btn-desc{font-size:11px;color:#888;margin-top:2px;}
+.home-btn-arrow{font-size:18px;color:#ccc;}
 </style>
 </head>
 <body>
+
+<!-- スプラッシュ画面 -->
+<div id="splash">
+  <div class="splash-ball">⛳</div>
+  <div class="splash-logo">GOLYMPIC</div>
+  <div class="splash-sub">GOLF SCORE MANAGER</div>
+</div>
 
 <!-- ヘッダー -->
 <div class="hdr">
@@ -212,28 +243,59 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
     <div class="hdr-sub" id="hdr-course">-</div>
   </div>
   <div class="hdr-btns">
-    <div style="display:flex;gap:5px;justify-content:flex-end;">
-      <button class="hbtn solid" onclick="openNewRound()">＋ 新規ラウンド</button>
-      <button class="hbtn" id="reg-btn" onclick="showPage('course')">⛳ ゴルフ場登録</button>
-    </div>
-    <div style="display:flex;gap:5px;justify-content:flex-end;margin-top:4px;">
-      <button class="hbtn" id="hist-btn" onclick="showPage('history')">📋 履歴</button>
-      <button class="hbtn" onclick="saveToHistory()">💾 保存</button>
-    </div>
+    <button class="hbtn" onclick="saveToHistory()">💾 保存</button>
   </div>
 </div>
 
 <!-- ナビ -->
 <div class="nav">
-  <div class="tab active" onclick="showPage('score')">🏌️ スコア</div>
-  <div class="tab" onclick="showPage('olympic')">🏅 オリンピック</div>
-  <div class="tab" onclick="showPage('stats')">📊 統計</div>
+  <div class="tab" id="tab-home" onclick="showPage('home')">🏠 HOME</div>
+  <div class="tab active" id="tab-score" onclick="showPage('score')">🏌️ スコア</div>
+  <div class="tab" id="tab-olympic" onclick="showPage('olympic')">🏅 五輪</div>
+  <div class="tab" id="tab-stats" onclick="showPage('stats')">📊 統計</div>
 </div>
 
 <div class="pages">
 
+
+  <!-- HOME -->
+  <div id="page-home" class="page">
+    <div class="home-inner">
+      <div class="home-hero">
+        <div class="home-hero-logo">GOLYMPIC</div>
+        <div class="home-hero-sub">GOLF SCORE MANAGER</div>
+      </div>
+      <div class="home-menu">
+        <button class="home-btn" onclick="openNewRound()">
+          <div class="home-btn-icon" style="background:#e8f5ed;">🏌️</div>
+          <div class="home-btn-text">
+            <div class="home-btn-title">新規ラウンド</div>
+            <div class="home-btn-desc">ゴルフ場・プレイヤーを選んで開始</div>
+          </div>
+          <div class="home-btn-arrow">›</div>
+        </button>
+        <button class="home-btn" onclick="showPage('history')">
+          <div class="home-btn-icon" style="background:#e8f4fd;">📋</div>
+          <div class="home-btn-text">
+            <div class="home-btn-title">履歴</div>
+            <div class="home-btn-desc">過去のラウンドを確認・読み込み</div>
+          </div>
+          <div class="home-btn-arrow">›</div>
+        </button>
+        <button class="home-btn" onclick="showPage('settings')">
+          <div class="home-btn-icon" style="background:#fef9e7;">⚙️</div>
+          <div class="home-btn-text">
+            <div class="home-btn-title">設定</div>
+            <div class="home-btn-desc">ゴルフ場登録・プレイヤー登録</div>
+          </div>
+          <div class="home-btn-arrow">›</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- スコア -->
-  <div id="page-score" class="page active">
+  <div id="page-score" class="page">
     <div class="score-page">
       <div style="background:var(--bg2);padding:6px 12px;border-bottom:1px solid var(--bg3);display:flex;align-items:center;gap:10px;flex-shrink:0;">
         <button id="putt-btn" onclick="togglePutt()"
@@ -314,7 +376,49 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <div class="sec">📋 登録済み</div>
       <div id="gc-list"></div>
     </div>
+  
+  <!-- 設定 -->
+  <div id="page-settings" class="page">
+    <div class="inner">
+      <div class="sec">⚙️ 設定</div>
+      <div class="home-menu" style="margin-top:8px;">
+        <button class="home-btn" onclick="showPage('course')">
+          <div class="home-btn-icon" style="background:#e8f5ed;">⛳</div>
+          <div class="home-btn-text">
+            <div class="home-btn-title">ゴルフ場登録</div>
+            <div class="home-btn-desc">コース・PARを登録・管理</div>
+          </div>
+          <div class="home-btn-arrow">›</div>
+        </button>
+        <button class="home-btn" onclick="showPage('players')">
+          <div class="home-btn-icon" style="background:#fde8e8;">👤</div>
+          <div class="home-btn-text">
+            <div class="home-btn-title">プレイヤー登録</div>
+            <div class="home-btn-desc">よく一緒にプレーする仲間を登録</div>
+          </div>
+          <div class="home-btn-arrow">›</div>
+        </button>
+      </div>
+    </div>
   </div>
+
+  <!-- プレイヤー登録 -->
+  <div id="page-players" class="page">
+    <div class="inner">
+      <div class="sec">👤 プレイヤー登録</div>
+      <div class="card">
+        <label class="flbl">プレイヤー名を追加</label>
+        <div style="display:flex;gap:8px;">
+          <input class="fi" type="text" id="new-player-name" placeholder="例：田中 太郎" style="margin-bottom:0;flex:1;">
+          <button class="btn btn-gr" onclick="addPlayer()" style="white-space:nowrap;">追加</button>
+        </div>
+      </div>
+      <div class="sec" style="margin-top:4px;">📋 登録済みプレイヤー</div>
+      <div id="player-list"></div>
+    </div>
+  </div>
+
+</div>
 
 </div>
 
@@ -354,10 +458,11 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
         </div>
       </div>
       <div style="font-weight:700;color:var(--gold);margin-bottom:8px;">プレイヤー（最大4名）</div>
-      <input class="fi" type="text" id="p0" placeholder="プレイヤー1">
-      <input class="fi" type="text" id="p1" placeholder="プレイヤー2">
-      <input class="fi" type="text" id="p2" placeholder="プレイヤー3">
-      <input class="fi" type="text" id="p3" placeholder="プレイヤー4">
+      <datalist id="player-datalist"></datalist>
+      <input class="fi" type="text" id="p0" placeholder="プレイヤー1" list="player-datalist">
+      <input class="fi" type="text" id="p1" placeholder="プレイヤー2" list="player-datalist">
+      <input class="fi" type="text" id="p2" placeholder="プレイヤー3" list="player-datalist">
+      <input class="fi" type="text" id="p3" placeholder="プレイヤー4" list="player-datalist">
     </div>
     <div class="mftr">
       <button class="btn btn-o" onclick="document.getElementById('modal-new').classList.remove('open')">キャンセル</button>
@@ -483,28 +588,24 @@ function delEntry(id) {
 }
 
 // ===== ナビ =====
-const PG = {score:0, olympic:1, history:99, stats:2, course:99};
+const NAV_TABS = {home:'tab-home', score:'tab-score', olympic:'tab-olympic', stats:'tab-stats'};
 function showPage(p) {
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  if (PG[p] < 4) document.querySelectorAll('.tab')[PG[p]].classList.add('active');
-  // ヘッダーボタンのハイライト
-  const regBtn = document.getElementById('reg-btn');
-  if (regBtn) {
-    regBtn.style.background = p==='course' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)';
-    regBtn.style.fontWeight = p==='course' ? '900' : '700';
-  }
-  const histBtn = document.getElementById('hist-btn');
-  if (histBtn) {
-    histBtn.style.background = p==='history' ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)';
-    histBtn.style.fontWeight = p==='history' ? '900' : '700';
-  }
-  if (p==='score')   renderScore();
-  if (p==='olympic') { renderOlyTbl(); renderOlySummary(); }
-  if (p==='history') renderHist();
-  if (p==='stats')   { renderStatChips(); renderStats(); }
-  if (p==='course')  { buildVtbl(); renderGcList(); }
+  const pg=document.getElementById('page-'+p);
+  if(pg) pg.classList.add('active');
+  Object.entries(NAV_TABS).forEach(([key,id])=>{
+    const t=document.getElementById(id);
+    if(t) t.classList.toggle('active', key===p);
+  });
+  if (p==='home')     {}
+  if (p==='score')    renderScore();
+  if (p==='olympic')  { renderOlyTbl(); renderOlySummary(); }
+  if (p==='history')  renderHist();
+  if (p==='stats')    { renderStatChips(); renderStats(); }
+  if (p==='course')   { buildVtbl(); renderGcList(); }
+  if (p==='settings') {}
+  if (p==='players')  renderPlayerList();
 }
 
 // ===== パット表示切替 =====
@@ -1137,6 +1238,9 @@ function onCourseChange(){
 }
 
 function openNewRound(){
+  // 登録済みプレイヤーをdatalistに反映
+  const dl=document.getElementById('player-datalist');
+  if(dl) dl.innerHTML=getPlayers().map(p=>`<option value="${p}">`).join('');
   populateClubSel();
   document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('sel-club').value='';
@@ -1302,6 +1406,67 @@ function openPtKpad(hi,pi){
   document.getElementById('kpad-modal').classList.add('open');
 }
 
+
+// ===== プレイヤー登録 =====
+const PKEY = 'golympic_players_v1';
+function getPlayers(){ try{return JSON.parse(localStorage.getItem(PKEY)||'[]');}catch(e){return [];} }
+function setPlayers(arr){ localStorage.setItem(PKEY, JSON.stringify(arr)); }
+
+function addPlayer(){
+  const inp=document.getElementById('new-player-name');
+  const name=inp.value.trim();
+  if(!name){ toast('名前を入力してください'); return; }
+  const list=getPlayers();
+  if(list.includes(name)){ toast('すでに登録されています'); return; }
+  list.push(name);
+  setPlayers(list);
+  inp.value='';
+  renderPlayerList();
+  toast('👤「'+name+'」を登録しました');
+}
+
+function deletePlayer(name){
+  if(!confirm('「'+name+'」を削除しますか？')) return;
+  const list=getPlayers().filter(p=>p!==name);
+  setPlayers(list);
+  renderPlayerList();
+  toast('🗑️ 削除しました');
+}
+
+function renderPlayerList(){
+  const el=document.getElementById('player-list');
+  if(!el) return;
+  const list=getPlayers();
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:8px;">👤</div><div>登録済みプレイヤーがいません</div></div>';
+    return;
+  }
+  el.innerHTML=list.map((name,i)=>`
+    <div class="rc" style="margin-bottom:8px;">
+      <div style="display:flex;align-items:center;padding:12px 14px;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Oswald',sans-serif;font-size:16px;flex-shrink:0;">${i+1}</div>
+        <div style="flex:1;font-weight:600;font-size:15px;">${name}</div>
+        <button class="bsm bsm-r" onclick="deletePlayer('${name.replace(/'/g,"\'")}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+
+// ===== スプラッシュ画面 =====
+function initSplash(){
+  setTimeout(()=>{
+    const splash=document.getElementById('splash');
+    if(splash){
+      splash.style.transition='opacity 0.6s ease';
+      splash.style.opacity='0';
+      setTimeout(()=>{
+        splash.classList.add('hidden');
+        showPage('home');
+      }, 600);
+    }
+  }, 2200);
+}
+
 // ===== INIT =====
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
@@ -1310,6 +1475,7 @@ loadSaved();
 // パットボタンの初期状態
 updatePuttBtn();
 document.getElementById('hdr-course').textContent=G.course||'-';
+initSplash();
 if(G.players.length) renderScore();
 </script>
 </body>
