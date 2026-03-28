@@ -2167,52 +2167,90 @@ function startHoleVoice(hi, mode){
   holeVoiceRecognition.start();
 }
 
-function applyHoleVoice(hi, mode, text){
+function extractScoreNums(text, n, mode){
   // 全角→半角
   text = text.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
-  // 漢数字
-  const kn = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
-  text = text.replace(/[一二三四五六七八九十]/g, c => kn[c] || c);
+  // 漢数字を個別に半角数字へ（連続漢数字も1文字ずつ）
+  const kn = {'一':'1','二':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9','零':'0','〇':'0'};
+  text = text.replace(/[一二三四五六七八九零〇]/g, c => kn[c] || c);
+  // 「十○」→10台の数字
+  text = text.replace(/十([一二三四五六七八九1-9])/g, (_,c)=> '1'+(kn[c]||c));
+  text = text.replace(/十/g, '10');
 
+  const max = mode==='putt' ? 10 : 20;
+  const nums = [];
+
+  // すべての数字トークンを抽出
+  const tokens = text.match(/\d+/g) || [];
+
+  for(const tok of tokens){
+    const v = parseInt(tok);
+    if(tok.length === 1){
+      // 1桁：そのまま
+      if(v >= 1 && v <= max) nums.push(v);
+    } else if(tok.length >= n && tok.length <= n*2){
+      // 「4567」のように複数桁が連結→各桁に分解
+      // まず2桁区切りで試す（10以上のスコア用）
+      let split2 = [];
+      let ok2 = true;
+      for(let j=0; j<tok.length; j+=2){
+        const s = tok.slice(j, j+2);
+        const sv = parseInt(s);
+        if(sv >= 1 && sv <= max) split2.push(sv);
+        else { ok2 = false; break; }
+      }
+      if(ok2 && split2.length === n){ split2.forEach(v=>nums.push(v)); }
+      else {
+        // 1桁区切りで試す
+        for(const ch of tok){
+          const cv = parseInt(ch);
+          if(cv >= 1 && cv <= max) nums.push(cv);
+        }
+      }
+    } else if(v >= 1 && v <= max){
+      nums.push(v);
+    }
+  }
+
+  return nums.slice(0, n);
+}
+
+function applyHoleVoice(hi, mode, text){
+  console.log('音声:', text);
   const n = G.players.length;
 
   // ① プレイヤー名+数字でマッチ
+  let normalized = text.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  const kn2 = {'一':'1','二':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9'};
+  normalized = normalized.replace(/[一二三四五六七八九]/g, c => kn2[c] || c);
+
   const results = [];
-  const usedNums = new Set();
   for(let pi = 0; pi < n; pi++){
     const name = G.players[pi];
     const sei = name.split(/[\s　]/)[0];
-    let found = false;
     for(let len = sei.length; len >= 1; len--){
       const part = sei.slice(0, len);
       const re = new RegExp(part + '[\s　]*(\d+)');
-      const m = text.match(re);
+      const m = normalized.match(re);
       if(m){
         const v = parseInt(m[1]);
         const max = mode==='putt' ? 10 : 20;
-        if(v >= 1 && v <= max){
-          results.push({pi, v});
-          found = true;
-          break;
-        }
+        if(v >= 1 && v <= max){ results.push({pi, v}); break; }
       }
     }
   }
 
-  // ② 名前マッチなし→左から数字を順番割り当て
+  // ② 名前マッチなし→数字を賢く抽出して順番割り当て
   if(results.length === 0){
-    const nums = text.match(/\d+/g);
-    if(nums){
-      for(let pi = 0; pi < Math.min(n, nums.length); pi++){
-        const v = parseInt(nums[pi]);
-        const max = mode==='putt' ? 10 : 20;
-        if(v >= 1 && v <= max) results.push({pi, v});
-      }
+    const nums = extractScoreNums(text, n, mode);
+    console.log('抽出数字:', nums);
+    for(let pi = 0; pi < Math.min(n, nums.length); pi++){
+      results.push({pi, v: nums[pi]});
     }
   }
 
   if(results.length === 0){
-    toast('❌ 聞き取れませんでした\nもう一度H' + (hi+1) + 'をタップしてください');
+    toast('❌ 聞き取れませんでした\nもう一度H' + (hi+1) + 'をタップ');
     return;
   }
 
