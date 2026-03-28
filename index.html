@@ -811,7 +811,7 @@ function renderStbl() {
     for (let hi=start; hi<end; hi++) {
       const par = G.pars[hi];
       // スコア行
-      html += `<tr><td class="hcell">${hi+1}</td>`
+      html += `<tr><td class="hcell" onclick="startHoleVoice(${hi},'score')" style="cursor:pointer;" title="タップで音声入力">${hi+1}<div style="font-size:7px;color:#aaa;line-height:1;">🎤</div></td>`
         + `<td style="background:#1a3a2e;"><input class="par-inp" type="number" min="3" max="6" value="${par}" oninput="setPar(this,${hi})" onfocus="this.select()"></td>`;
       for (let pi=0; pi<n; pi++) {
         const s = G.scores[hi][pi];
@@ -824,7 +824,7 @@ function renderStbl() {
       html += '</tr>';
       // パット行（showPuttのみ）
       if (G.showPutt) {
-        html += `<tr class="putt-row"><td class="hcell" style="font-size:9px;color:var(--blue);">P</td><td style="font-size:9px;color:var(--g2);">putt</td>`;
+        html += `<tr class="putt-row"><td class="hcell" style="font-size:9px;color:var(--blue);cursor:pointer;" onclick="startHoleVoice(${hi},'putt')" title="タップで音声入力">P<div style="font-size:7px;color:#aaa;line-height:1;">🎤</div></td><td style="font-size:9px;color:var(--g2);">putt</td>`;
         for (let pi=0; pi<n; pi++) {
           const pt = G.putts[hi][pi];
           html += `<td colspan="2"><button class="pt-btn" id="pt_${hi}_${pi}" onclick="openPtKpad(${hi},${pi})">${pt!==null?pt:'-'}</button></td>`;
@@ -2123,6 +2123,124 @@ function showVoiceResult(msg, ok){
   el.textContent=msg;
   el.style.color=ok?'#2ecc71':'#e74c3c';
   setTimeout(()=>{ el.style.color='#fff'; },2000);
+}
+
+
+// ===== ホール別音声入力 =====
+let holeVoiceRecognition = null;
+
+function startHoleVoice(hi, mode){
+  // mode: 'score' or 'putt'
+  const n = G.players.length;
+  if(!n){ toast('プレイヤーが設定されていません'); return; }
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
+    toast('音声入力はChromeのみ対応です');
+    return;
+  }
+
+  // 既存認識を停止
+  if(holeVoiceRecognition){ try{holeVoiceRecognition.stop();}catch(e){} }
+
+  const label = mode==='putt' ? 'パット' : 'スコア';
+  const names = G.players.map(p=>p.split(/[\s　]/)[0]).join('、');
+  toast(`🎤 H${hi+1} ${label}入力中...\n「${names}」の順に数字を話してください`);
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  holeVoiceRecognition = new SR();
+  holeVoiceRecognition.lang = 'ja-JP';
+  holeVoiceRecognition.continuous = false;
+  holeVoiceRecognition.interimResults = false;
+  holeVoiceRecognition.maxAlternatives = 3;
+
+  holeVoiceRecognition.onresult = (e) => {
+    let text = '';
+    for(let i = e.resultIndex; i < e.results.length; i++){
+      if(e.results[i].isFinal) text += e.results[i][0].transcript;
+    }
+    if(text) applyHoleVoice(hi, mode, text);
+  };
+
+  holeVoiceRecognition.onerror = (e) => {
+    toast('❌ 音声認識エラー: ' + e.error);
+  };
+
+  holeVoiceRecognition.start();
+}
+
+function applyHoleVoice(hi, mode, text){
+  // 全角→半角
+  text = text.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  // 漢数字
+  const kn = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
+  text = text.replace(/[一二三四五六七八九十]/g, c => kn[c] || c);
+
+  const n = G.players.length;
+
+  // ① プレイヤー名+数字でマッチ
+  const results = [];
+  const usedNums = new Set();
+  for(let pi = 0; pi < n; pi++){
+    const name = G.players[pi];
+    const sei = name.split(/[\s　]/)[0];
+    let found = false;
+    for(let len = sei.length; len >= 1; len--){
+      const part = sei.slice(0, len);
+      const re = new RegExp(part + '[\s　]*(\d+)');
+      const m = text.match(re);
+      if(m){
+        const v = parseInt(m[1]);
+        const max = mode==='putt' ? 10 : 20;
+        if(v >= 1 && v <= max){
+          results.push({pi, v});
+          found = true;
+          break;
+        }
+      }
+    }
+  }
+
+  // ② 名前マッチなし→左から数字を順番割り当て
+  if(results.length === 0){
+    const nums = text.match(/\d+/g);
+    if(nums){
+      for(let pi = 0; pi < Math.min(n, nums.length); pi++){
+        const v = parseInt(nums[pi]);
+        const max = mode==='putt' ? 10 : 20;
+        if(v >= 1 && v <= max) results.push({pi, v});
+      }
+    }
+  }
+
+  if(results.length === 0){
+    toast('❌ 聞き取れませんでした\nもう一度H' + (hi+1) + 'をタップしてください');
+    return;
+  }
+
+  // スコア/パットに反映
+  let msg = '✅ H' + (hi+1) + ' ';
+  results.forEach(({pi, v}) => {
+    if(mode === 'score'){
+      G.scores[hi][pi] = v;
+      const btn = document.getElementById('sc_' + hi + '_' + pi);
+      if(btn){ btn.textContent = v; btn.className = 'sc-btn ' + sClass(v, G.pars[hi]); }
+      const ov = v - G.pars[hi];
+      const ovEl = document.getElementById('ov_' + hi + '_' + pi);
+      if(ovEl){
+        ovEl.textContent = ov===0?'E':ov>0?'+'+ov:''+ov;
+        ovEl.style.color = ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
+      }
+    } else {
+      G.putts[hi][pi] = v;
+      const btn = document.getElementById('pt_' + hi + '_' + pi);
+      if(btn) btn.textContent = v;
+    }
+    msg += G.players[pi] + ':' + v + ' ';
+  });
+
+  if(mode === 'score'){ refreshTot(); renderSummary(); }
+  else { refreshPuttTot(); }
+  persist();
+  toast(msg);
 }
 
 // ===== INIT =====
