@@ -621,7 +621,24 @@ function initData() {
 }
 
 // ===== 永続化 =====
+function autoSaveToHistory(){
+  // ラウンド中は自動的に履歴に保存（プレイヤーがいる場合のみ）
+  if(!G.players.length) return;
+  const e = {
+    id:G.id||Date.now(), course:G.course, date:G.date, holes:G.holes, weather:G.weather||'',
+    players:[...G.players], pars:[...G.pars],
+    scores:G.scores.map(r=>[...r]), putts:G.putts.map(r=>[...r]),
+    oly:G.oly.map(r=>[...r]), savedAt:new Date().toISOString()
+  };
+  if(!G.id) G.id=e.id;
+  else e.id=G.id;
+  const i = G.history.findIndex(h=>h.id===e.id);
+  if (i>=0) G.history[i]=e; else G.history.unshift(e);
+}
+
 function persist() {
+  // スコア入力のたびに自動で履歴にも保存
+  autoSaveToHistory();
   try {
     localStorage.setItem(SKEY, JSON.stringify({
       history: G.history,
@@ -652,15 +669,8 @@ function loadSaved() {
 }
 
 function saveToHistory() {
-  const e = {
-    id:G.id||Date.now(), course:G.course, date:G.date, holes:G.holes, weather:G.weather||'',
-    players:[...G.players], pars:[...G.pars],
-    scores:G.scores.map(r=>[...r]), putts:G.putts.map(r=>[...r]),
-    oly:G.oly.map(r=>[...r]), savedAt:new Date().toISOString()
-  };
-  G.id = e.id;
-  const i = G.history.findIndex(h=>h.id===e.id);
-  if (i>=0) G.history[i]=e; else G.history.unshift(e);
+  // 手動保存：即時保存してトーストを表示
+  autoSaveToHistory();
   persist();
   toast('💾 保存しました');
 }
