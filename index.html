@@ -241,6 +241,9 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 #snav-mic{font-size:18px;}
 #snav-mic.recording{color:#e74c3c;animation:micPulse 0.8s ease infinite;}
 @keyframes micPulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+.hist-sort-btn{padding:5px 10px;border-radius:16px;border:1.5px solid #ddd;background:#fff;color:#666;font-size:11px;font-weight:600;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+.hist-sort-btn.active{border-color:var(--green);background:var(--green);color:#fff;}
 </style>
 </head>
 <body>
@@ -380,6 +383,11 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   <div id="page-history" class="page">
     <div class="inner">
       <div class="sec">📋 ラウンド履歴</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <button class="hist-sort-btn active" id="hsort-new" onclick="setHistSort('new')">🕐 新しい順</button>
+        <button class="hist-sort-btn" id="hsort-old" onclick="setHistSort('old')">🕐 古い順</button>
+        <button class="hist-sort-btn" id="hsort-score" onclick="setHistSort('score')">🏆 スコア良い順</button>
+      </div>
       <div id="hist-list"></div>
     </div>
   </div>
@@ -1112,10 +1120,38 @@ function renderOlySummary(){
 }
 
 // ===== 履歴 =====
+let histSortMode = 'new';
+
+function setHistSort(mode){
+  histSortMode = mode;
+  document.querySelectorAll('.hist-sort-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('hsort-'+mode)?.classList.add('active');
+  renderHist();
+}
+
+function getSortedHistory(){
+  const list = [...G.history];
+  if(histSortMode === 'new'){
+    return list.reverse(); // 保存順の逆（新しい順）
+  } else if(histSortMode === 'old'){
+    return list; // 保存順（古い順）
+  } else if(histSortMode === 'score'){
+    return list.sort((a,b)=>{
+      const getScore = r => {
+        const p0 = r.scores.map(row=>row[0]);
+        const any = p0.some(s=>s!==null);
+        return any ? p0.reduce((s,v)=>s+(v||0),0) : 9999;
+      };
+      return getScore(a) - getScore(b); // スコア少ない順
+    });
+  }
+  return list.reverse();
+}
+
 function renderHist(){
   const el=document.getElementById('hist-list');
   if(!G.history.length){el.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:8px;">📋</div><div>履歴がありません</div></div>';return;}
-  el.innerHTML=[...G.history].reverse().map(r=>{
+  el.innerHTML=getSortedHistory().map(r=>{
     const p0=r.scores.map(row=>row[0]);
     const g=p0.reduce((a,s)=>a+(s||0),0),any=p0.some(s=>s!==null);
     const puttTot=r.putts?r.putts.reduce((a,row)=>a+(row[0]||0),0):0;
