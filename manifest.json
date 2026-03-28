@@ -1,11 +1,11 @@
 {
-  "name": "ゴルフスコア管理",
-  "short_name": "GolfScore",
-  "description": "スコア入力・オリンピック計算・ラウンド保存",
-  "start_url": "./golf-score-app.html",
+  "name": "Golympic",
+  "short_name": "Golympic",
+  "description": "ゴルフスコア管理アプリ",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1a4a2e",
-  "theme_color": "#1a4a2e",
+  "background_color": "#1e8449",
+  "theme_color": "#1e8449",
   "orientation": "portrait-primary",
   "icons": [
     {

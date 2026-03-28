@@ -300,6 +300,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   <div class="snav-tab active" id="snav-score" onclick="showPage('score')">🏌️ スコア</div>
   <div class="snav-tab" id="snav-olympic" onclick="showPage('olympic')">🏅 オリンピック</div>
   <div class="snav-tab" id="snav-stats" onclick="showPage('stats')">📊 統計</div>
+  <div class="snav-tab" id="snav-back-hist" onclick="showPage('history')" style="display:none;">📋 履歴</div>
   <div class="snav-tab snav-save" onclick="saveToHistory()">💾 保存</div>
 </div>
 
@@ -312,7 +313,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
     <div class="home-inner">
       <div class="home-hero">
         <div class="home-hero-logo">GOLYMPIC</div>
-        <div class="home-hero-sub">GOLF SCORE MANAGER</div>
+        <div class="home-hero-sub">produced by parisken</div>
       </div>
       <div class="home-menu">
         <button class="home-btn" onclick="openNewRound()">
@@ -340,7 +341,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           <div class="home-btn-arrow">›</div>
         </button>
       </div>
-      <div style="text-align:center;color:#bbb;font-size:11px;margin-top:40px;padding-bottom:24px;letter-spacing:2px;font-family:'Oswald',sans-serif;">produced by parisken</div>
+
     </div>
   </div>
 
@@ -703,6 +704,9 @@ function loadEntry(id) {
   if(_hc) _hc.textContent=G.course||'-';
   if(_hd) _hd.textContent=G.date||'';
   renderScore(); showPage('score');
+  // 履歴から開いた場合は「履歴に戻る」ボタンを表示
+  const backBtn=document.getElementById('snav-back-hist');
+  if(backBtn) backBtn.style.display='flex';
   toast('📂 読み込みました');
 }
 
@@ -1468,6 +1472,9 @@ async function createRound(){
   onCourseChange();
   const pars=G.pars&&G.pars.length>=holes?G.pars.slice(0,holes):[...DPARS].slice(0,holes);
   const weather=document.getElementById('new-weather')?.value||'';
+  // 新規ラウンドなので履歴に戻るボタンを非表示
+  const _backBtn=document.getElementById('snav-back-hist');
+  if(_backBtn) _backBtn.style.display='none';
   G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-'; G.weather=weather;
   G.holes=holes; G.players=players; G.pars=pars; G.statsP=0;
   initData();
