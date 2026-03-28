@@ -2195,10 +2195,22 @@ function extractScoreNums(text, n, mode){
   const allNums = [];
 
   for(const tok of tokens){
-    if(tok.length <= 2){
-      // 1〜2桁はそのまま（0もパット用に許可）
+    if(tok.length === 1){
+      // 1桁はそのまま
       const v = parseInt(tok);
       if(v >= 0 && v <= max) allNums.push(v);
+    } else if(tok.length === 2){
+      const v = parseInt(tok);
+      if(v >= 10 && v <= max){
+        // 10〜20は有効な2桁スコア→そのまま使う
+        allNums.push(v);
+      } else {
+        // 45のような2桁→プレイヤー分に分解を試みる
+        const remain = n - allNums.length;
+        const decomp = decomposeNums(tok, Math.min(remain, 2), max);
+        if(decomp.length > 0) decomp.forEach(v2 => allNums.push(v2));
+        else if(v >= 1 && v <= max) allNums.push(v); // 分解失敗はそのまま
+      }
     } else {
       // 3桁以上：DPでプレイヤー数分に分解を試みる
       // 残りスロット数を考慮
