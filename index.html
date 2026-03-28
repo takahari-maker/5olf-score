@@ -1129,12 +1129,20 @@ function setHistSort(mode){
   renderHist();
 }
 
+function parseHistDate(dateStr){
+  // 「2026年3月28日（土）」→ソート可能な数値（YYYYMMDD）に変換
+  if(!dateStr) return 0;
+  const m = dateStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  if(!m) return 0;
+  return parseInt(m[1]) * 10000 + parseInt(m[2]) * 100 + parseInt(m[3]);
+}
+
 function getSortedHistory(){
   const list = [...G.history];
   if(histSortMode === 'new'){
-    return list.reverse(); // 保存順の逆（新しい順）
+    return list.sort((a,b) => parseHistDate(b.date) - parseHistDate(a.date));
   } else if(histSortMode === 'old'){
-    return list; // 保存順（古い順）
+    return list.sort((a,b) => parseHistDate(a.date) - parseHistDate(b.date));
   } else if(histSortMode === 'score'){
     return list.sort((a,b)=>{
       const getScore = r => {
@@ -1142,10 +1150,10 @@ function getSortedHistory(){
         const any = p0.some(s=>s!==null);
         return any ? p0.reduce((s,v)=>s+(v||0),0) : 9999;
       };
-      return getScore(a) - getScore(b); // スコア少ない順
+      return getScore(a) - getScore(b);
     });
   }
-  return list.reverse();
+  return list.sort((a,b) => parseHistDate(b.date) - parseHistDate(a.date));
 }
 
 function renderHist(){
