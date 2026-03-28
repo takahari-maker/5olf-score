@@ -297,27 +297,9 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   <div class="snav-tab active" id="snav-score" onclick="showPage('score')">🏌️ スコア</div>
   <div class="snav-tab" id="snav-olympic" onclick="showPage('olympic')">🏅 オリンピック</div>
   <div class="snav-tab" id="snav-stats" onclick="showPage('stats')">📊 統計</div>
-  <div class="snav-tab" id="snav-mic" onclick="toggleVoiceInput()" title="音声入力">🎤</div>
   <div class="snav-tab snav-save" onclick="saveToHistory()">💾 保存</div>
 </div>
 
-
-<!-- 音声入力パネル -->
-<div id="voice-panel" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#1a1a1a;color:#fff;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-    <div id="voice-status-dot" style="width:12px;height:12px;border-radius:50%;background:#e74c3c;flex-shrink:0;"></div>
-    <div style="font-size:12px;color:#aaa;flex:1;" id="voice-status-text">マイクボタンを押して話しかけてください</div>
-    <button onclick="closeVoicePanel()" style="background:none;border:none;color:#aaa;font-size:20px;cursor:pointer;padding:0 4px;">×</button>
-  </div>
-  <div id="voice-transcript" style="font-size:13px;color:#fff;min-height:20px;margin-bottom:8px;background:#333;border-radius:6px;padding:8px;">
-    例：「1ホール 田中5 鈴木4 佐藤6」
-  </div>
-  <div style="display:flex;gap:8px;">
-    <button id="voice-mic-btn" onclick="startVoice()" style="flex:1;padding:12px;border-radius:8px;border:none;background:var(--green);color:#fff;font-size:18px;font-weight:700;cursor:pointer;">🎤 話す</button>
-    <button onclick="clearVoiceTranscript()" style="padding:12px 16px;border-radius:8px;border:none;background:#555;color:#fff;font-size:13px;cursor:pointer;">クリア</button>
-  </div>
-  <div style="font-size:10px;color:#666;margin-top:8px;text-align:center;">「Nホール プレイヤー名スコア プレイヤー名スコア...」と話してください</div>
-</div>
 
 <div class="pages">
 
@@ -2153,11 +2135,25 @@ function startHoleVoice(hi, mode){
   holeVoiceRecognition.maxAlternatives = 3;
 
   holeVoiceRecognition.onresult = (e) => {
-    let text = '';
+    // 全候補を収集
+    const candidates = [];
     for(let i = e.resultIndex; i < e.results.length; i++){
-      if(e.results[i].isFinal) text += e.results[i][0].transcript;
+      for(let j = 0; j < e.results[i].length; j++){
+        candidates.push(e.results[i][j].transcript);
+      }
     }
-    if(text) applyHoleVoice(hi, mode, text);
+    // 認識テキストを表示（デバッグ兼ユーザー確認用）
+    toast('🎤 認識: ' + candidates[0]);
+    // 全候補を試してスコアが取れたものを使う
+    for(const cand of candidates){
+      const nums = extractScoreNums(cand, n, mode);
+      if(nums.length > 0){
+        applyHoleVoice(hi, mode, cand, nums);
+        return;
+      }
+    }
+    // どれもダメなら最初の候補で試す
+    if(candidates.length > 0) applyHoleVoice(hi, mode, candidates[0], null);
   };
 
   holeVoiceRecognition.onerror = (e) => {
@@ -2168,54 +2164,83 @@ function startHoleVoice(hi, mode){
 }
 
 function extractScoreNums(text, n, mode){
+  const max = mode==='putt' ? 10 : 20;
+
   // 全角→半角
   text = text.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
-  // 漢数字を個別に半角数字へ（連続漢数字も1文字ずつ）
-  const kn = {'一':'1','二':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9','零':'0','〇':'0'};
-  text = text.replace(/[一二三四五六七八九零〇]/g, c => kn[c] || c);
-  // 「十○」→10台の数字
-  text = text.replace(/十([一二三四五六七八九1-9])/g, (_,c)=> '1'+(kn[c]||c));
-  text = text.replace(/十/g, '10');
 
-  const max = mode==='putt' ? 10 : 20;
+  // 漢数字→半角数字
+  const knMap = {'〇':'0','零':'0','一':'1','二':'2','三':'3','四':'4','五':'5',
+                 '六':'6','七':'7','八':'8','九':'9'};
+  text = text.replace(/十([一二三四五六七八九])/g, (_,c)=>'1'+(knMap[c]||c));
+  text = text.replace(/十/g,'10');
+  text = text.replace(/[〇零一二三四五六七八九]/g, c=>knMap[c]||c);
+
+  // ひらがな読み→数字（長いものから優先）
+  const yomiMap = [
+    ['にじゅう','20'],['じゅうきゅう','19'],['じゅうく','19'],['じゅうはち','18'],
+    ['じゅうしち','17'],['じゅうなな','17'],['じゅうろく','16'],['じゅうご','15'],
+    ['じゅうし','14'],['じゅうよん','14'],['じゅうさん','13'],['じゅうに','12'],
+    ['じゅういち','11'],['じゅう','10'],
+    ['きゅう','9'],['はち','8'],['なな','7'],['しち','7'],['ろく','6'],
+    ['ご','5'],['よん','4'],['し','4'],['さん','3'],['に','2'],['いち','1'],
+  ];
+  for(const [k,v] of yomiMap){
+    text = text.split(k).join(' '+v+' ');
+  }
+
+  // スペースで分割したトークンから数字を抽出
+  const tokens = text.match(/\d+/g) || [];
   const nums = [];
 
-  // すべての数字トークンを抽出
-  const tokens = text.match(/\d+/g) || [];
-
   for(const tok of tokens){
-    const v = parseInt(tok);
     if(tok.length === 1){
-      // 1桁：そのまま
+      // 1桁
+      const v = parseInt(tok);
       if(v >= 1 && v <= max) nums.push(v);
-    } else if(tok.length >= n && tok.length <= n*2){
-      // 「4567」のように複数桁が連結→各桁に分解
-      // まず2桁区切りで試す（10以上のスコア用）
-      let split2 = [];
-      let ok2 = true;
-      for(let j=0; j<tok.length; j+=2){
-        const s = tok.slice(j, j+2);
-        const sv = parseInt(s);
-        if(sv >= 1 && sv <= max) split2.push(sv);
-        else { ok2 = false; break; }
-      }
-      if(ok2 && split2.length === n){ split2.forEach(v=>nums.push(v)); }
-      else {
-        // 1桁区切りで試す
+    } else if(tok.length === 2){
+      // 2桁：そのまま使う
+      const v = parseInt(tok);
+      if(v >= 1 && v <= max) nums.push(v);
+    } else {
+      // 3桁以上（連結されている）→賢く分解
+      // 戦略1：プレイヤー数分になるよう1桁/2桁を組み合わせて分解
+      const decomp = decomposeNums(tok, n, max);
+      if(decomp.length > 0){
+        decomp.forEach(v => nums.push(v));
+      } else {
+        // 失敗したら1桁ずつ
         for(const ch of tok){
-          const cv = parseInt(ch);
-          if(cv >= 1 && cv <= max) nums.push(cv);
+          const v = parseInt(ch);
+          if(v >= 1 && v <= max) nums.push(v);
         }
       }
-    } else if(v >= 1 && v <= max){
-      nums.push(v);
     }
   }
 
   return nums.slice(0, n);
 }
 
-function applyHoleVoice(hi, mode, text){
+function decomposeNums(tok, n, max){
+  // DPで tok をn個の数値（各1〜2桁、値1〜max）に分解
+  const results = [];
+  function dfs(pos, acc){
+    if(acc.length === n && pos === tok.length){ results.push([...acc]); return; }
+    if(acc.length >= n || pos >= tok.length) return;
+    // 1桁
+    const v1 = parseInt(tok[pos]);
+    if(v1 >= 1 && v1 <= max){ acc.push(v1); dfs(pos+1, acc); acc.pop(); }
+    // 2桁
+    if(pos+1 < tok.length){
+      const v2 = parseInt(tok.slice(pos, pos+2));
+      if(v2 >= 1 && v2 <= max){ acc.push(v2); dfs(pos+2, acc); acc.pop(); }
+    }
+  }
+  dfs(0, []);
+  return results.length > 0 ? results[0] : [];
+}
+
+function applyHoleVoice(hi, mode, text, preNums=null){
   console.log('音声:', text);
   const n = G.players.length;
 
@@ -2240,9 +2265,9 @@ function applyHoleVoice(hi, mode, text){
     }
   }
 
-  // ② 名前マッチなし→数字を賢く抽出して順番割り当て
+  // ② 名前マッチなし→事前抽出済みnums or 再抽出
   if(results.length === 0){
-    const nums = extractScoreNums(text, n, mode);
+    const nums = preNums || extractScoreNums(text, n, mode);
     console.log('抽出数字:', nums);
     for(let pi = 0; pi < Math.min(n, nums.length); pi++){
       results.push({pi, v: nums[pi]});
