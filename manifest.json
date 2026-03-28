@@ -1,12 +1,12 @@
 {
-  "name": "Golympic",
-  "short_name": "Golympic",
-  "description": "ゴルフスコア管理アプリ",
+  "name": "なんでもまるわかりサイト",
+  "short_name": "まるわかり",
+  "description": "旭日電気工業 社内ナレッジベース",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1e8449",
-  "theme_color": "#1e8449",
-  "orientation": "portrait-primary",
+  "background_color": "#1a2744",
+  "theme_color": "#1a2744",
+  "orientation": "any",
   "icons": [
     {
       "src": "icon-192.png",
