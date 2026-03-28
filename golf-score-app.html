@@ -236,6 +236,11 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .weather-btn.selected{border-color:var(--green);background:#e8f5ed;transform:scale(1.1);}
 .weather-btn:first-child{font-size:13px;font-weight:600;color:#888;padding:8px 12px;}
 .weather-btn.selected:first-child{color:var(--green);}
+
+/* 音声入力 */
+#snav-mic{font-size:18px;}
+#snav-mic.recording{color:#e74c3c;animation:micPulse 0.8s ease infinite;}
+@keyframes micPulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 </style>
 </head>
 <body>
@@ -292,7 +297,26 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   <div class="snav-tab active" id="snav-score" onclick="showPage('score')">🏌️ スコア</div>
   <div class="snav-tab" id="snav-olympic" onclick="showPage('olympic')">🏅 オリンピック</div>
   <div class="snav-tab" id="snav-stats" onclick="showPage('stats')">📊 統計</div>
+  <div class="snav-tab" id="snav-mic" onclick="toggleVoiceInput()" title="音声入力">🎤</div>
   <div class="snav-tab snav-save" onclick="saveToHistory()">💾 保存</div>
+</div>
+
+
+<!-- 音声入力パネル -->
+<div id="voice-panel" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#1a1a1a;color:#fff;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+    <div id="voice-status-dot" style="width:12px;height:12px;border-radius:50%;background:#e74c3c;flex-shrink:0;"></div>
+    <div style="font-size:12px;color:#aaa;flex:1;" id="voice-status-text">マイクボタンを押して話しかけてください</div>
+    <button onclick="closeVoicePanel()" style="background:none;border:none;color:#aaa;font-size:20px;cursor:pointer;padding:0 4px;">×</button>
+  </div>
+  <div id="voice-transcript" style="font-size:13px;color:#fff;min-height:20px;margin-bottom:8px;background:#333;border-radius:6px;padding:8px;">
+    例：「1ホール 田中5 鈴木4 佐藤6」
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button id="voice-mic-btn" onclick="startVoice()" style="flex:1;padding:12px;border-radius:8px;border:none;background:var(--green);color:#fff;font-size:18px;font-weight:700;cursor:pointer;">🎤 話す</button>
+    <button onclick="clearVoiceTranscript()" style="padding:12px 16px;border-radius:8px;border:none;background:#555;color:#fff;font-size:13px;cursor:pointer;">クリア</button>
+  </div>
+  <div style="font-size:10px;color:#666;margin-top:8px;text-align:center;">「Nホール プレイヤー名スコア プレイヤー名スコア...」と話してください</div>
 </div>
 
 <div class="pages">
@@ -1908,6 +1932,165 @@ function applyEditRound(){
   renderScore();
   document.getElementById('modal-edit-round').classList.remove('open');
   toast('✏️ ラウンド情報を更新しました');
+}
+
+
+// ===== 音声入力 =====
+let recognition = null;
+let isRecording = false;
+let voicePanelOpen = false;
+
+function toggleVoiceInput(){
+  if(!voicePanelOpen){ openVoicePanel(); }
+  else { closeVoicePanel(); }
+}
+
+function openVoicePanel(){
+  voicePanelOpen=true;
+  document.getElementById('voice-panel').style.display='block';
+  document.getElementById('snav-mic').classList.add('recording');
+}
+
+function closeVoicePanel(){
+  voicePanelOpen=false;
+  stopVoice();
+  document.getElementById('voice-panel').style.display='none';
+  document.getElementById('snav-mic').classList.remove('recording');
+}
+
+function clearVoiceTranscript(){
+  document.getElementById('voice-transcript').textContent='例：「1ホール 田中5 鈴木4 佐藤6」';
+}
+
+function startVoice(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    alert('お使いのブラウザは音声入力に対応していません。\nChromeをお使いください。');
+    return;
+  }
+  if(isRecording){ stopVoice(); return; }
+
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang='ja-JP';
+  recognition.continuous=false;
+  recognition.interimResults=true;
+  recognition.maxAlternatives=3;
+
+  const btn=document.getElementById('voice-mic-btn');
+  const dot=document.getElementById('voice-status-dot');
+  const status=document.getElementById('voice-status-text');
+
+  recognition.onstart=()=>{
+    isRecording=true;
+    btn.textContent='⏹ 停止';
+    btn.style.background='#e74c3c';
+    dot.style.background='#2ecc71';
+    dot.style.animation='micPulse 0.5s ease infinite';
+    status.textContent='聞いています...';
+  };
+
+  recognition.onresult=(e)=>{
+    let interim='', final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal) final+=t;
+      else interim+=t;
+    }
+    const text=final||interim;
+    document.getElementById('voice-transcript').textContent=text;
+    if(final) parseVoiceInput(final);
+  };
+
+  recognition.onerror=(e)=>{
+    status.textContent='エラー：'+e.error;
+    stopVoice();
+  };
+
+  recognition.onend=()=>{ stopVoice(); };
+  recognition.start();
+}
+
+function stopVoice(){
+  isRecording=false;
+  if(recognition){ try{recognition.stop();}catch(e){} recognition=null; }
+  const btn=document.getElementById('voice-mic-btn');
+  const dot=document.getElementById('voice-status-dot');
+  const status=document.getElementById('voice-status-text');
+  if(btn){ btn.textContent='🎤 話す'; btn.style.background='var(--green)'; }
+  if(dot){ dot.style.background='#e74c3c'; dot.style.animation=''; }
+  if(status) status.textContent='認識完了。もう一度話す場合はボタンを押してください。';
+}
+
+function parseVoiceInput(text){
+  // 数字の全角→半角変換
+  text=text.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+  // 「N番」「Nホール」「Nホール目」などを抽出
+  const holeMatch=text.match(/(\d+)\s*(番|ホール|番ホール|ホール目)?/);
+  if(!holeMatch){ showVoiceResult('❌ ホール番号が聞き取れませんでした',false); return; }
+  const hole=parseInt(holeMatch[1])-1; // 0-indexed
+  if(hole<0||hole>=G.holes){ showVoiceResult('❌ ホール番号が範囲外です (1〜'+G.holes+')',false); return; }
+
+  const n=G.players.length;
+  if(!n){ showVoiceResult('❌ プレイヤーが設定されていません',false); return; }
+
+  // プレイヤーごとのスコアを抽出
+  // 方法：プレイヤー名で分割して後ろの数字を取得
+  let matched=0;
+  const results=[];
+  for(let pi=0;pi<n;pi++){
+    const name=G.players[pi];
+    // 名前の一部でもマッチするよう柔軟に検索
+    // 「髙張」「たかはり」などの読みにも対応するため名前の各文字で検索
+    const shortName=name.slice(0,2); // 姓の2文字
+    const re=new RegExp(shortName+'\s*(\d+)');
+    const m=text.match(re);
+    if(m){
+      const score=parseInt(m[1]);
+      if(score>=1&&score<=20){ results.push({pi,score}); matched++; }
+    }
+  }
+
+  // プレイヤー名が聞き取れなかった場合、順番で数字を割り当て
+  if(matched===0){
+    // ホール番号の後ろの数字列を順番に割り当て
+    const afterHole=text.replace(/.*?(番|ホール)[目]?\s*/,'');
+    const nums=afterHole.match(/\d+/g);
+    if(nums&&nums.length>0){
+      for(let pi=0;pi<Math.min(n,nums.length);pi++){
+        const score=parseInt(nums[pi]);
+        if(score>=1&&score<=20) results.push({pi,score});
+      }
+      matched=results.length;
+    }
+  }
+
+  if(matched===0){ showVoiceResult('❌ スコアが聞き取れませんでした',false); return; }
+
+  // スコアを反映
+  let msg='✅ H'+(hole+1)+' ';
+  results.forEach(({pi,score})=>{
+    G.scores[hole][pi]=score;
+    // ボタン更新
+    const btn=document.getElementById('sc_'+hole+'_'+pi);
+    if(btn){
+      btn.textContent=score;
+      btn.className='sc-btn '+sClass(score,G.pars[hole]);
+    }
+    msg+=G.players[pi]+':'+score+' ';
+  });
+
+  // オーバー数更新
+  refreshTot();
+  renderSummary();
+  persist();
+  showVoiceResult(msg, true);
+}
+
+function showVoiceResult(msg, ok){
+  const el=document.getElementById('voice-transcript');
+  el.textContent=msg;
+  el.style.color=ok?'#2ecc71':'#e74c3c';
+  setTimeout(()=>{ el.style.color='#fff'; },2000);
 }
 
 // ===== INIT =====
