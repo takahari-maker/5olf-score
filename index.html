@@ -730,7 +730,27 @@ function loadEntry(id) {
 function delEntry(id) {
   if (!confirm('削除しますか？')) return;
   G.history = G.history.filter(h=>h.id!==id);
-  persist(); renderHist(); toast('🗑️ 削除しました');
+  // 削除したラウンドが現在のラウンドなら、G.idをリセット（再追加されないように）
+  if(G.id===id) G.id=null;
+  persistOnly(); // autoSaveToHistoryを呼ばずに保存
+  renderHist();
+  setTimeout(renderHistChart, 50);
+  toast('🗑️ 削除しました');
+}
+
+function persistOnly() {
+  // autoSaveToHistoryを呼ばずにlocalStorageに書き込む
+  try {
+    localStorage.setItem(SKEY, JSON.stringify({
+      history: G.history,
+      cur: {
+        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'',
+        players:G.players, pars:G.pars,
+        scores:G.scores, putts:G.putts, oly:G.oly,
+        showPutt:G.showPutt, statsP:G.statsP
+      }
+    }));
+  } catch(e) {}
 }
 
 // ===== ナビ =====
