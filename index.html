@@ -2190,54 +2190,64 @@ function extractScoreNums(text, n, mode){
   }
 
   // スペースで分割したトークンから数字を抽出
+  // スペース区切りのトークンに分解
   const tokens = text.match(/\d+/g) || [];
-  const nums = [];
+  const allNums = [];
 
   for(const tok of tokens){
-    if(tok.length === 1){
-      // 1桁
+    if(tok.length <= 2){
+      // 1〜2桁はそのまま（0もパット用に許可）
       const v = parseInt(tok);
-      if(v >= 1 && v <= max) nums.push(v);
-    } else if(tok.length === 2){
-      // 2桁：そのまま使う
-      const v = parseInt(tok);
-      if(v >= 1 && v <= max) nums.push(v);
+      if(v >= 0 && v <= max) allNums.push(v);
     } else {
-      // 3桁以上（連結されている）→賢く分解
-      // 戦略1：プレイヤー数分になるよう1桁/2桁を組み合わせて分解
-      const decomp = decomposeNums(tok, n, max);
+      // 3桁以上：DPでプレイヤー数分に分解を試みる
+      // 残りスロット数を考慮
+      const remain = n - allNums.length;
+      const decomp = decomposeNums(tok, remain, max);
       if(decomp.length > 0){
-        decomp.forEach(v => nums.push(v));
+        decomp.forEach(v => allNums.push(v));
       } else {
-        // 失敗したら1桁ずつ
-        for(const ch of tok){
-          const v = parseInt(ch);
-          if(v >= 1 && v <= max) nums.push(v);
+        // 失敗：2桁優先で1桁ずつ分解
+        let i = 0;
+        while(i < tok.length){
+          if(i+1 < tok.length){
+            const v2 = parseInt(tok.slice(i, i+2));
+            if(v2 >= 10 && v2 <= max){ allNums.push(v2); i+=2; continue; }
+          }
+          const v1 = parseInt(tok[i]);
+          if(v1 >= 0 && v1 <= max) allNums.push(v1);
+          i++;
         }
       }
     }
   }
 
-  return nums.slice(0, n);
+  // スコアは1以上、パットは0以上
+  const minVal = mode==='putt' ? 0 : 1;
+  return allNums.filter(v => v >= minVal && v <= max).slice(0, n);
 }
 
 function decomposeNums(tok, n, max){
-  // DPで tok をn個の数値（各1〜2桁、値1〜max）に分解
-  const results = [];
+  // DPで tok をn個の数値（各1〜2桁、値0〜max）に分解
+  // 2桁（10〜）を優先して探索
+  let found = null;
   function dfs(pos, acc){
-    if(acc.length === n && pos === tok.length){ results.push([...acc]); return; }
+    if(found) return;
+    if(acc.length === n && pos === tok.length){ found=[...acc]; return; }
     if(acc.length >= n || pos >= tok.length) return;
-    // 1桁
-    const v1 = parseInt(tok[pos]);
-    if(v1 >= 1 && v1 <= max){ acc.push(v1); dfs(pos+1, acc); acc.pop(); }
-    // 2桁
+    // 2桁を先に試す（10〜maxの範囲）
     if(pos+1 < tok.length){
       const v2 = parseInt(tok.slice(pos, pos+2));
-      if(v2 >= 1 && v2 <= max){ acc.push(v2); dfs(pos+2, acc); acc.pop(); }
+      if(v2 >= 10 && v2 <= max){ acc.push(v2); dfs(pos+2, acc); acc.pop(); }
     }
+    // 1桁（1〜9）
+    const v1 = parseInt(tok[pos]);
+    if(v1 >= 1 && v1 <= 9){ acc.push(v1); dfs(pos+1, acc); acc.pop(); }
+    // 0（パット用）
+    if(v1 === 0){ acc.push(0); dfs(pos+1, acc); acc.pop(); }
   }
   dfs(0, []);
-  return results.length > 0 ? results[0] : [];
+  return found || [];
 }
 
 function applyHoleVoice(hi, mode, text, preNums=null){
