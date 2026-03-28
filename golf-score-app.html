@@ -2022,64 +2022,96 @@ function stopVoice(){
 }
 
 function parseVoiceInput(text){
-  // 数字の全角→半角変換
-  text=text.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
-  // 「N番」「Nホール」「Nホール目」などを抽出
-  const holeMatch=text.match(/(\d+)\s*(番|ホール|番ホール|ホール目)?/);
-  if(!holeMatch){ showVoiceResult('❌ ホール番号が聞き取れませんでした',false); return; }
-  const hole=parseInt(holeMatch[1])-1; // 0-indexed
-  if(hole<0||hole>=G.holes){ showVoiceResult('❌ ホール番号が範囲外です (1〜'+G.holes+')',false); return; }
+  // デバッグ用：認識テキストを表示
+  console.log('音声認識:', text);
 
-  const n=G.players.length;
-  if(!n){ showVoiceResult('❌ プレイヤーが設定されていません',false); return; }
+  // 全角数字→半角
+  text = text.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  // 漢数字→算用数字（簡易）
+  const kanjiNum = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
+  text = text.replace(/[一二三四五六七八九十]/g, c => kanjiNum[c]||c);
 
-  // プレイヤーごとのスコアを抽出
-  // 方法：プレイヤー名で分割して後ろの数字を取得
-  let matched=0;
-  const results=[];
-  for(let pi=0;pi<n;pi++){
-    const name=G.players[pi];
-    // 名前の一部でもマッチするよう柔軟に検索
-    // 「髙張」「たかはり」などの読みにも対応するため名前の各文字で検索
-    const shortName=name.slice(0,2); // 姓の2文字
-    const re=new RegExp(shortName+'\s*(\d+)');
-    const m=text.match(re);
-    if(m){
-      const score=parseInt(m[1]);
-      if(score>=1&&score<=20){ results.push({pi,score}); matched++; }
-    }
+  // ホール番号を抽出（「1ホール」「3番」「2番ホール」など）
+  const holeRe = /(\d+)\s*(?:ホール|番)/;
+  const holeMatch = text.match(holeRe);
+  if(!holeMatch){
+    showVoiceResult('❌ ホール番号が聞き取れませんでした\n「1ホール 田中5 鈴木4」のように話してください', false);
+    return;
+  }
+  const hole = parseInt(holeMatch[1]) - 1;
+  if(hole < 0 || hole >= G.holes){
+    showVoiceResult('❌ ホール番号が範囲外です (1〜' + G.holes + ')', false);
+    return;
   }
 
-  // プレイヤー名が聞き取れなかった場合、順番で数字を割り当て
-  if(matched===0){
-    // ホール番号の後ろの数字列を順番に割り当て
-    const afterHole=text.replace(/.*?(番|ホール)[目]?\s*/,'');
-    const nums=afterHole.match(/\d+/g);
-    if(nums&&nums.length>0){
-      for(let pi=0;pi<Math.min(n,nums.length);pi++){
-        const score=parseInt(nums[pi]);
-        if(score>=1&&score<=20) results.push({pi,score});
+  const n = G.players.length;
+  if(!n){ showVoiceResult('❌ プレイヤーが設定されていません', false); return; }
+
+  // ホール番号部分を除いた残りのテキスト
+  const afterHole = text.slice(holeMatch.index + holeMatch[0].length).trim();
+  console.log('ホール後テキスト:', afterHole);
+
+  const results = [];
+
+  // ① プレイヤー名でのマッチング
+  // テキストをトークンに分解：「名前+数字」のパターンを探す
+  for(let pi = 0; pi < n; pi++){
+    const name = G.players[pi];
+    // 姓（最初のスペースまで、またはそのまま）
+    const sei = name.split(/[\s　]/)[0];
+    // 1文字〜全部でマッチを試みる（長い順から）
+    for(let len = sei.length; len >= 1; len--){
+      const part = sei.slice(0, len);
+      // part の後に空白を挟んで数字が来るパターン
+      const re = new RegExp(part + '[\s　]*(\d+)');
+      const m = afterHole.match(re);
+      if(m){
+        const score = parseInt(m[1]);
+        if(score >= 1 && score <= 20){
+          results.push({pi, score});
+          break;
+        }
       }
-      matched=results.length;
     }
   }
 
-  if(matched===0){ showVoiceResult('❌ スコアが聞き取れませんでした',false); return; }
+  // ② プレイヤー名が全員マッチしなかった場合：数字の順番で割り当て
+  if(results.length === 0){
+    const nums = afterHole.match(/\d+/g);
+    console.log('数字列:', nums);
+    if(nums && nums.length > 0){
+      for(let pi = 0; pi < Math.min(n, nums.length); pi++){
+        const score = parseInt(nums[pi]);
+        if(score >= 1 && score <= 20) results.push({pi, score});
+      }
+    }
+  }
+
+  if(results.length === 0){
+    showVoiceResult('❌ スコアが認識できませんでした\n例：「1ホール 田中5 鈴木4」', false);
+    return;
+  }
 
   // スコアを反映
-  let msg='✅ H'+(hole+1)+' ';
-  results.forEach(({pi,score})=>{
-    G.scores[hole][pi]=score;
-    // ボタン更新
-    const btn=document.getElementById('sc_'+hole+'_'+pi);
+  let msg = '✅ H' + (hole + 1) + '： ';
+  results.forEach(({pi, score}) => {
+    G.scores[hole][pi] = score;
+    const btn = document.getElementById('sc_' + hole + '_' + pi);
     if(btn){
-      btn.textContent=score;
-      btn.className='sc-btn '+sClass(score,G.pars[hole]);
+      btn.textContent = score;
+      btn.className = 'sc-btn ' + sClass(score, G.pars[hole]);
     }
-    msg+=G.players[pi]+':'+score+' ';
+    // オーバー数セル更新
+    const par = G.pars[hole];
+    const ov = score - par;
+    const ovEl = document.getElementById('ov_' + hole + '_' + pi);
+    if(ovEl){
+      ovEl.textContent = ov === 0 ? 'E' : ov > 0 ? '+' + ov : '' + ov;
+      ovEl.style.color = ov < 0 ? '#e74c3c' : ov === 0 ? '#2ecc71' : '#3498db';
+    }
+    msg += G.players[pi] + ':' + score + ' ';
   });
 
-  // オーバー数更新
   refreshTot();
   renderSummary();
   persist();
