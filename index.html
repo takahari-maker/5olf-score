@@ -383,7 +383,24 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   <!-- 履歴 -->
   <div id="page-history" class="page">
     <div class="inner">
-      <div class="sec">📋 ラウンド履歴</div>
+
+      <!-- スコアグラフ -->
+      <div class="card" style="margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+          <div style="font-weight:700;color:var(--gold);font-size:13px;">📈 グロススコア推移</div>
+          <div style="display:flex;gap:4px;">
+            <button class="hist-sort-btn active" id="hrange-1y" onclick="setHistRange('1y')">1年</button>
+            <button class="hist-sort-btn" id="hrange-6m" onclick="setHistRange('6m')">6ヶ月</button>
+            <button class="hist-sort-btn" id="hrange-all" onclick="setHistRange('all')">全期間</button>
+          </div>
+        </div>
+        <div id="hist-avg" style="font-size:12px;color:#666;margin-bottom:8px;"></div>
+        <div style="overflow-x:auto;">
+          <canvas id="hist-chart" style="min-width:300px;height:160px;display:block;"></canvas>
+        </div>
+      </div>
+
+      <div class="sec">📋 ラウンド一覧</div>
       <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
         <button class="hist-sort-btn active" id="hsort-new" onclick="setHistSort('new')">🕐 新しい順</button>
         <button class="hist-sort-btn" id="hsort-old" onclick="setHistSort('old')">🕐 古い順</button>
@@ -742,7 +759,7 @@ function showPage(p) {
   if(editBtn) editBtn.style.display=isScorePage&&G.players.length?'inline-block':'none';
   if (p==='score')    renderScore();
   if (p==='olympic')  { renderOlyTbl(); renderOlySummary(); }
-  if (p==='history')  renderHist();
+  if (p==='history')  { renderHist(); setTimeout(renderHistChart, 50); }
   if (p==='stats')    { renderStatChips(); renderStats(); }
   if (p==='course')   { buildVtbl(); renderGcList(); }
   if (p==='settings') {}
@@ -2377,6 +2394,130 @@ function applyHoleVoice(hi, mode, text, preNums=null){
   else { refreshPuttTot(); }
   persist();
   toast(msg);
+}
+
+
+// ===== 履歴グラフ =====
+let histRange = '1y';
+
+function setHistRange(range){
+  histRange = range;
+  ['1y','6m','all'].forEach(r=>{
+    const btn=document.getElementById('hrange-'+r);
+    if(btn) btn.classList.toggle('active', r===range);
+  });
+  renderHistChart();
+}
+
+function getHistRangeData(){
+  const now = new Date();
+  return G.history.filter(r=>{
+    if(histRange==='all') return true;
+    const m = (r.date||'').match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+    if(!m) return false;
+    const d = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+    const months = histRange==='1y' ? 12 : 6;
+    const cutoff = new Date(now);
+    cutoff.setMonth(cutoff.getMonth() - months);
+    return d >= cutoff;
+  });
+}
+
+function renderHistChart(){
+  const canvas = document.getElementById('hist-chart');
+  if(!canvas) return;
+  const data = getHistRangeData()
+    .filter(r=>{ const p0=r.scores.map(row=>row[0]); return p0.some(s=>s!==null); })
+    .sort((a,b)=>parseHistDate(a.date)-parseHistDate(b.date));
+
+  const avgEl = document.getElementById('hist-avg');
+
+  if(!data.length){
+    if(avgEl) avgEl.textContent='この期間のデータがありません';
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    return;
+  }
+
+  // スコア計算
+  const scores = data.map(r=>{
+    const p0=r.scores.map(row=>row[0]);
+    return p0.reduce((s,v)=>s+(v||0),0);
+  });
+  const labels = data.map(r=>{
+    const m=(r.date||'').match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+    return m ? m[2]+'/'+m[3] : r.date;
+  });
+  const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
+  const minS = Math.min(...scores), maxS = Math.max(...scores);
+
+  if(avgEl) avgEl.innerHTML =
+    `アベレージ：<strong style="color:var(--green);font-size:15px;">${avg.toFixed(1)}</strong>　`+
+    `最良：<strong style="color:#2563eb;">${minS}</strong>　`+
+    `最多：<strong style="color:#e74c3c;">${maxS}</strong>　`+
+    `（${scores.length}ラウンド）`;
+
+  // Canvas描画
+  const W = Math.max(canvas.parentElement.clientWidth-16, 300);
+  const H = 160;
+  canvas.width = Math.max(W, labels.length * 40);
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,H);
+
+  const PAD = {top:16, bottom:32, left:36, right:12};
+  const gW = canvas.width - PAD.left - PAD.right;
+  const gH = H - PAD.top - PAD.bottom;
+  const yMin = Math.max(50, minS-10);
+  const yMax = maxS+10;
+  const yRange = yMax - yMin || 1;
+
+  const toX = i => PAD.left + (i/(scores.length-1||1))*gW;
+  const toY = v => PAD.top + (1-(v-yMin)/yRange)*gH;
+
+  // 背景グリッド
+  ctx.strokeStyle='#eee'; ctx.lineWidth=1;
+  for(let g=0;g<=4;g++){
+    const y=PAD.top+gH*(g/4);
+    ctx.beginPath(); ctx.moveTo(PAD.left,y); ctx.lineTo(PAD.left+gW,y); ctx.stroke();
+    const val=Math.round(yMax-(g/4)*yRange);
+    ctx.fillStyle='#aaa'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(val, PAD.left-4, y+4);
+  }
+
+  // アベレージ線
+  const avgY = toY(avg);
+  ctx.strokeStyle='rgba(30,132,73,0.3)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(PAD.left,avgY); ctx.lineTo(PAD.left+gW,avgY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 折れ線
+  ctx.strokeStyle='var(--green)'; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  scores.forEach((v,i)=>{ const x=toX(i),y=toY(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.stroke();
+
+  // グラデーション塗り
+  const grad=ctx.createLinearGradient(0,PAD.top,0,PAD.top+gH);
+  grad.addColorStop(0,'rgba(30,132,73,0.25)'); grad.addColorStop(1,'rgba(30,132,73,0)');
+  ctx.fillStyle=grad;
+  ctx.beginPath();
+  scores.forEach((v,i)=>{ const x=toX(i),y=toY(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.lineTo(toX(scores.length-1),PAD.top+gH); ctx.lineTo(PAD.left,PAD.top+gH); ctx.closePath();
+  ctx.fill();
+
+  // ドットと日付ラベル
+  scores.forEach((v,i)=>{
+    const x=toX(i), y=toY(v);
+    ctx.fillStyle=v===minS?'#2563eb':v===maxS?'#e74c3c':'#1e8449';
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill();
+    // ラベル（間引き）
+    if(scores.length<=10 || i%(Math.ceil(scores.length/8))===0){
+      ctx.fillStyle='#888'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(labels[i], x, H-4);
+    }
+  });
 }
 
 // ===== INIT =====
