@@ -291,7 +291,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
     </div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn" id="edit-round-btn" style="display:none;" onclick="openEditRound()">✏️ 編集</button>
+    <button class="hbtn" id="edit-round-btn" style="display:none;" onclick="showPage('history')">📋 履歴</button>
   </div>
 </div>
 
@@ -300,7 +300,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   <div class="snav-tab active" id="snav-score" onclick="showPage('score')">🏌️ スコア</div>
   <div class="snav-tab" id="snav-olympic" onclick="showPage('olympic')">🏅 オリンピック</div>
   <div class="snav-tab" id="snav-stats" onclick="showPage('stats')">📊 統計</div>
-  <div class="snav-tab" id="snav-back-hist" onclick="showPage('history')" style="display:none;">📋 履歴</div>
+  <div class="snav-tab" id="snav-back-hist" onclick="openEditRound()" style="display:none;">✏️ 編集</div>
   <div class="snav-tab snav-save" onclick="saveToHistory()">💾 保存</div>
 </div>
 
@@ -739,7 +739,7 @@ function showPage(p) {
   const editBtn=document.getElementById('edit-round-btn');
   const isScorePage=p==='score'||p==='olympic'||p==='stats';
   if(hdrCourse) hdrCourse.style.display=isScorePage?'block':'none';
-  if(editBtn) editBtn.style.display=isScorePage&&G.players.length?'block':'none';
+  if(editBtn) editBtn.style.display=isScorePage&&G.players.length?'inline-block':'none';
   if (p==='score')    renderScore();
   if (p==='olympic')  { renderOlyTbl(); renderOlySummary(); }
   if (p==='history')  renderHist();
