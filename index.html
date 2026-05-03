@@ -382,6 +382,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
         </div>
         <div style="font-size:11px;color:#666;">スコアタブと独立して入力。未入力は0として計算。</div>
       </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:6px;">
+        <button id="oly-money-toggle" onclick="toggleOlyMoney()"
+          style="padding:5px 12px;border-radius:14px;border:1.5px solid var(--green);background:#e8f5ed;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;">
+          💰 ¥非表示
+        </button>
+      </div>
       <div class="otbl-wrap"><table class="otbl" id="otbl"></table></div>
       <div class="sec">🏆 順位・収支</div>
       <div style="overflow-x:auto;"><table class="rtbl" id="rtbl"></table></div>
@@ -627,9 +633,9 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <button class="kpad-btn" onclick="kpadPress(1)">1</button>
       <button class="kpad-btn" onclick="kpadPress(2)">2</button>
       <button class="kpad-btn" onclick="kpadPress(3)">3</button>
-      <button class="kpad-btn kpad-sign" onclick="kpadSign()">±</button>
+      <button class="kpad-btn kpad-sign" onclick="kpadSign()">−</button>
       <button class="kpad-btn" onclick="kpadPress(0)">0</button>
-      <button class="kpad-btn kpad-del" onclick="kpadDel()">⌫</button>
+      <button class="kpad-btn" style="background:#f8f9fa;color:#ccc;cursor:default;"></button>
     </div>
     <div style="display:flex;gap:8px;margin-top:10px;">
       <button class="btn btn-o" onclick="kpadClear()" style="flex:1;">クリア</button>
@@ -1071,8 +1077,8 @@ function renderOlyTbl() {
   const n=G.players.length, h=G.holes;
   // ヘッダー：H列 + プレイヤースコア列 + プレイヤーpt列
   let html='<thead><tr><th class="hcol">H</th>'
-    +G.players.map(p=>`<th style="font-size:10px;min-width:44px;">${p}</th>`).join('')
-    +G.players.map(p=>`<th style="font-size:10px;background:#d5e8d4;color:#1a1a1a;min-width:44px;">${p}<br>¥</th>`).join('')
+    +G.players.map(p=>`<th style="font-size:10px;min-width:${olyMoneyVisible?44:70}px;">${p}</th>`).join('')
+    +(olyMoneyVisible?G.players.map(p=>`<th style="font-size:10px;background:#d5e8d4;color:#1a1a1a;min-width:44px;">${p}<br>¥</th>`).join(''):'')
     +'</tr></thead><tbody>';
   function half(s,e,lbl){
     for(let hi=s;hi<e;hi++){
@@ -1082,7 +1088,7 @@ function renderOlyTbl() {
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
         html+=`<td><button class="oi-btn ${cls}" id="oi_${hi}_${pi}" onclick="openKpad(${hi},${pi})">${v!==null?v:'−'}</button></td>`;
       }
-      for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
+      if(olyMoneyVisible) for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
     }
     // スコア小計（入力値の合計）
@@ -1093,7 +1099,7 @@ function renderOlyTbl() {
     });
     html+=`<tr class="osub"><td class="hcell">${lbl}</td>`
       +scSub.map(v=>`<td style="font-weight:700;color:#1a1a1a;font-size:14px;">${v!==null?v:'-'}</td>`).join('')
-      +G.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fp(subPts(s,e,pi))}</td>`).join('')
+      +(olyMoneyVisible?G.players.map((_,pi)=>`<td id="os_${lbl}_${pi}">${fp(subPts(s,e,pi))}</td>`).join(''):'')
       +'</tr>';
   }
   half(0,Math.min(9,h),'前半');
@@ -1106,7 +1112,7 @@ function renderOlyTbl() {
   });
   html+='<tr class="otot"><td class="hcell">TOT</td>'
     +scTot.map(v=>`<td style="font-weight:700;color:#1a1a1a;font-size:20px;">${v!==null?v:'-'}</td>`).join('')
-    +G.players.map((_,pi)=>`<td id="ot_${pi}">${fp(subPts(0,h,pi))}</td>`).join('')
+    +(olyMoneyVisible?G.players.map((_,pi)=>`<td id="ot_${pi}">${fp(subPts(0,h,pi))}</td>`).join(''):'')
     +'</tr></tbody>';
   document.getElementById('otbl').innerHTML=html;
 }
@@ -1144,13 +1150,6 @@ function applyOly(inp,hi,pi){
 }
 
 function refreshOlySubs(){
-  const n=G.players.length,h=G.holes,out=Math.min(9,h);
-  for(let pi=0;pi<n;pi++){
-    const o=document.getElementById('os_前半_'+pi);if(o)o.innerHTML=fp(subPts(0,out,pi));
-    if(h>9){const i=document.getElementById('os_後半_'+pi);if(i)i.innerHTML=fp(subPts(9,h,pi));}
-    const t=document.getElementById('ot_'+pi);if(t)t.innerHTML=fp(subPts(0,h,pi));
-  }
-  // スコア合計セルも更新（osub/otot行の最初の列）
   renderOlyTbl();
 }
 
@@ -2548,6 +2547,17 @@ function renderHistChart(){
       ctx.fillText(labels[i], x, H-4);
     }
   });
+}
+
+
+// ===== オリンピック¥列表示/非表示 =====
+let olyMoneyVisible = true;
+
+function toggleOlyMoney(){
+  olyMoneyVisible = !olyMoneyVisible;
+  const btn = document.getElementById('oly-money-toggle');
+  if(btn) btn.textContent = olyMoneyVisible ? '💰 ¥非表示' : '💰 ¥表示';
+  renderOlyTbl();
 }
 
 // ===== INIT =====
