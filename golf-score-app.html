@@ -100,7 +100,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 .otbl td.hcell{background:#f0f7f3;font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:var(--green);position:sticky;left:0;z-index:4;border-right:2px solid #ccc;}
 .otbl tr.osub td{background:#e8f5ed;color:#1a1a1a;font-weight:700;border:1px solid #b2dfdb;}
 .otbl tr.osub td.hcell{background:var(--green);color:#fff;}
-.otbl tr.otot td{background:#c8e6c9;color:#1a1a1a;font-weight:700;font-size:14px;border:1px solid #a5d6a7;}
+.otbl tr.otot td{background:#c8e6c9;color:#1a1a1a;font-weight:700;font-size:18px;border:1px solid #a5d6a7;}
 .otbl tr.otot td.hcell{background:var(--green);color:#fff;}
 .oi{width:44px;height:36px;background:#f8f9fa;border:1.5px solid #ccc;border-radius:5px;text-align:center;font-size:14px;font-weight:700;color:#1a1a1a;font-family:'Oswald',sans-serif;-moz-appearance:textfield;}
 
@@ -527,6 +527,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="edit-weather-btns">
         <button class="weather-btn" data-weather="" onclick="selectEditWeather(this,'')">なし</button>
         <button class="weather-btn" data-weather="☀️" onclick="selectEditWeather(this,'☀️')">☀️</button>
+        <button class="weather-btn" data-weather="☁️" onclick="selectEditWeather(this,'☁️')">☁️</button>
         <button class="weather-btn" data-weather="⛅" onclick="selectEditWeather(this,'⛅')">⛅</button>
         <button class="weather-btn" data-weather="🌧️" onclick="selectEditWeather(this,'🌧️')">🌧️</button>
         <button class="weather-btn" data-weather="🌪️" onclick="selectEditWeather(this,'🌪️')">🌪️</button>
@@ -587,6 +588,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="weather-btns">
         <button class="weather-btn" data-weather="" onclick="selectWeather(this,'')">なし</button>
         <button class="weather-btn" data-weather="☀️" onclick="selectWeather(this,'☀️')">☀️</button>
+        <button class="weather-btn" data-weather="☁️" onclick="selectWeather(this,'☁️')">☁️</button>
         <button class="weather-btn" data-weather="⛅" onclick="selectWeather(this,'⛅')">⛅</button>
         <button class="weather-btn" data-weather="🌧️" onclick="selectWeather(this,'🌧️')">🌧️</button>
         <button class="weather-btn" data-weather="🌪️" onclick="selectWeather(this,'🌪️')">🌪️</button>
@@ -1095,7 +1097,7 @@ function renderOlyTbl() {
     return any?t:null;
   });
   html+='<tr class="otot"><td class="hcell">TOT</td>'
-    +scTot.map(v=>`<td style="font-weight:700;color:#1a1a1a;font-size:15px;">${v!==null?v:'-'}</td>`).join('')
+    +scTot.map(v=>`<td style="font-weight:700;color:#1a1a1a;font-size:20px;">${v!==null?v:'-'}</td>`).join('')
     +G.players.map((_,pi)=>`<td id="ot_${pi}">${fp(subPts(0,h,pi))}</td>`).join('')
     +'</tr></tbody>';
   document.getElementById('otbl').innerHTML=html;
