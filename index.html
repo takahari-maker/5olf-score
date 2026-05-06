@@ -620,8 +620,24 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 
 <!-- カスタムキーパッド -->
 <div class="mov" id="kpad-modal">
-  <div style="background:#fff;border-radius:14px;padding:16px;width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+  <div style="background:#fff;border-radius:14px;padding:16px;width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
     <div style="text-align:center;font-family:'Oswald',sans-serif;font-size:13px;color:#888;margin-bottom:6px;" id="kpad-label">スコア入力</div>
+
+    <!-- カウンター（スコアモード時のみ表示） -->
+    <div id="kpad-counter-area" style="display:none;margin-bottom:10px;">
+      <div style="font-size:10px;color:#888;text-align:center;margin-bottom:4px;">🏌️ 打数カウンター</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;background:#f8f9fa;border-radius:10px;padding:8px;">
+        <button onclick="counterDown()" style="width:48px;height:48px;border-radius:50%;border:2px solid #ddd;background:#fff;font-size:24px;font-weight:700;cursor:pointer;color:#e74c3c;">−</button>
+        <div style="text-align:center;">
+          <div id="counter-val" style="font-family:'Oswald',sans-serif;font-size:44px;font-weight:700;color:#1a1a1a;line-height:1;min-width:60px;">0</div>
+          <div style="font-size:10px;color:#aaa;margin-top:2px;">打</div>
+        </div>
+        <button onclick="counterUp()" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--green);background:var(--green);font-size:24px;font-weight:700;cursor:pointer;color:#fff;">＋</button>
+      </div>
+      <button onclick="counterApply()" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;border:none;background:var(--green);color:#fff;font-size:13px;font-weight:700;cursor:pointer;">この打数を入力 ▶</button>
+      <div style="text-align:center;margin:8px 0 4px;"><span style="font-size:10px;color:#bbb;">または数字で直接入力</span></div>
+    </div>
+
     <div id="kpad-display" style="text-align:center;font-family:'Oswald',sans-serif;font-size:36px;font-weight:700;color:#1a1a1a;background:#f0f0f0;border-radius:8px;padding:8px;margin-bottom:10px;min-height:56px;letter-spacing:2px;">−</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
       <button class="kpad-btn" onclick="kpadPress(7)">7</button>
@@ -1553,6 +1569,8 @@ let kpadHi=-1, kpadPi=-1, kpadVal='', kpadMode='oly', kpadScHi=-1, kpadScPi=-1;
 function openKpad(hi,pi){
   kpadMode='oly';
   kpadHi=hi; kpadPi=pi;
+  const _area=document.getElementById('kpad-counter-area');
+  if(_area) _area.style.display='none';
   const cur=G.oly[hi][pi];
   kpadVal=cur!==null?String(cur):'';
   const p=G.players[pi]||('P'+(pi+1));
@@ -1654,12 +1672,20 @@ function openScKpad(hi,pi){
   document.getElementById('kpad-label').textContent=`H${hi+1} ${p} スコア`;
   kpadVal=cur!==null?String(cur):'';
   kpadRefresh();
+  // カウンターを表示・初期値セット
+  const area=document.getElementById('kpad-counter-area');
+  if(area) area.style.display='block';
+  counterVal=cur!==null?cur:0;
+  const cv=document.getElementById('counter-val');
+  if(cv) cv.textContent=counterVal;
   document.getElementById('kpad-modal').classList.add('open');
 }
 
 function openPtKpad(hi,pi){
   kpadMode='putt';
   kpadScHi=hi; kpadScPi=pi;
+  const _area2=document.getElementById('kpad-counter-area');
+  if(_area2) _area2.style.display='none';
   const p=G.players[pi]||('P'+(pi+1));
   const cur=G.putts[hi][pi];
   document.getElementById('kpad-label').textContent=`H${hi+1} ${p} パット数`;
@@ -2558,6 +2584,29 @@ function toggleOlyMoney(){
   const btn = document.getElementById('oly-money-toggle');
   if(btn) btn.textContent = olyMoneyVisible ? '💰 ¥非表示' : '💰 ¥表示';
   renderOlyTbl();
+}
+
+
+// ===== 打数カウンター =====
+let counterVal = 0;
+
+function counterUp(){
+  counterVal = Math.min(counterVal+1, 20);
+  document.getElementById('counter-val').textContent = counterVal;
+}
+
+function counterDown(){
+  counterVal = Math.max(counterVal-1, 0);
+  document.getElementById('counter-val').textContent = counterVal;
+}
+
+function counterApply(){
+  if(counterVal <= 0){ toast('打数を入力してください'); return; }
+  kpadVal = String(counterVal);
+  kpadRefresh();
+  // カウンターをリセット
+  counterVal = 0;
+  document.getElementById('counter-val').textContent = '0';
 }
 
 // ===== INIT =====
