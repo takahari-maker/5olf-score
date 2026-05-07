@@ -247,6 +247,11 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 
 .back-home-btn{display:block;width:100%;margin-top:24px;padding:14px;border-radius:12px;border:2px solid var(--green);background:#fff;color:var(--green);font-size:14px;font-weight:700;cursor:pointer;text-align:center;font-family:'Noto Sans JP',sans-serif;}
 .back-home-btn:active{background:#e8f5ed;}
+
+.cf-suggest-item{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0;}
+.cf-suggest-item:last-child{border-bottom:none;}
+.cf-suggest-item:active{background:#e8f5ed;}
+.cf-suggest-highlight{color:var(--green);font-weight:700;}
 </style>
 </head>
 <body>
@@ -351,6 +356,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           </div>
           <div class="home-btn-arrow">›</div>
         </button>
+
       </div>
 
     </div>
@@ -450,7 +456,14 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <div class="card">
         <div style="font-family:'Oswald',sans-serif;font-size:15px;color:var(--green);margin-bottom:10px;" id="cf-ttl">新規登録</div>
         <label class="flbl">ゴルフ場名</label>
-        <input class="fi" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部">
+        <div style="position:relative;">
+          <input class="fi" type="text" id="cf-name" placeholder="例：よみうりゴルフ倶楽部"
+            oninput="onCfNameInput(this.value)" autocomplete="off"
+            style="margin-bottom:0;">
+          <div id="cf-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--green);border-top:none;border-radius:0 0 8px 8px;z-index:100;max-height:200px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
+        </div>
+        <div style="height:8px;"></div>
+
 
         <!-- コース一覧（動的追加） -->
         <div id="cf-courses-area"></div>
@@ -490,6 +503,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           </div>
           <div class="home-btn-arrow">›</div>
         </button>
+
       </div>
     </div>
   </div>
@@ -2626,6 +2640,80 @@ function counterDown(){
   kpadVal = counterVal > 0 ? String(counterVal) : '';
   kpadRefresh();
 }
+
+
+
+
+// ===== ゴルフ場名候補検索 =====
+let cfSuggestTimer = null;
+let cfSuggestCache = {};
+
+function onCfNameInput(val){
+  const box = document.getElementById('cf-suggest');
+  if(!box) return;
+  if(val.length < 2){
+    box.style.display = 'none';
+    return;
+  }
+  // 登録済みゴルフ場から部分一致を先に表示
+  const registered = Object.keys(getCourses()).filter(n => n.includes(val));
+  if(registered.length){
+    showCfSuggest(registered, val, true);
+  }
+  // AIで候補を検索（300ms debounce）
+  clearTimeout(cfSuggestTimer);
+  cfSuggestTimer = setTimeout(() => fetchCfSuggest(val), 500);
+}
+
+function showCfSuggest(names, query, registeredList){
+  const box = document.getElementById('cf-suggest');
+  if(!box) return;
+  if(!names.length){ box.style.display='none'; return; }
+  box.innerHTML = names.slice(0,8).map(name => {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const hi = name.replace(new RegExp(escaped.replace(escaped,query),'g'),
+      `<span class="cf-suggest-highlight">${query}</span>`);
+    const isReg = Array.isArray(registeredList)?registeredList.includes(name):registeredList;
+    const badge = isReg
+      ? '<span style="font-size:10px;color:#27ae60;margin-left:6px;">✅登録済</span>'
+      : '';
+    return `<div class="cf-suggest-item" onclick="selectCfSuggest('${name.replace(/'/g,"\'")}')">⛳ ${name}${badge}</div>`;
+  }).join('');
+  box.style.display = 'block';
+}
+
+function selectCfSuggest(name){
+  document.getElementById('cf-name').value = name;
+  document.getElementById('cf-suggest').style.display = 'none';
+  // 登録済みを優先、なければ内蔵DBから読み込む
+  const cs = getCourses();
+  if(cs[name]){
+    cfCourses = Object.entries(cs[name]).map(([cname, pars]) => ({name:cname, pars:[...pars]}));
+    renderCfCourses();
+    toast(`✅「${name}」の登録データを読み込みました`);
+  }
+}
+
+function fetchCfSuggest(val){
+  // 登録済みゴルフ場から部分一致検索のみ
+  const registered = Object.keys(getCourses()).filter(n=>n.includes(val));
+  if(registered.length){
+    showCfSuggest(registered, val, registered);
+  } else {
+    const box=document.getElementById('cf-suggest');
+    if(box) box.style.display='none';
+  }
+}
+
+// 候補以外をタップしたら閉じる
+document.addEventListener('click', e=>{
+  const box = document.getElementById('cf-suggest');
+  if(box && !box.contains(e.target) && e.target.id !== 'cf-name'){
+    box.style.display = 'none';
+  }
+});
+
+
 
 // ===== INIT =====
 if('serviceWorker' in navigator){
