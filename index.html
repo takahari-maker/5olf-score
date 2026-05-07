@@ -244,6 +244,9 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 
 .hist-sort-btn{padding:5px 10px;border-radius:16px;border:1.5px solid #ddd;background:#fff;color:#666;font-size:11px;font-weight:600;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
 .hist-sort-btn.active{border-color:var(--green);background:var(--green);color:#fff;}
+
+.back-home-btn{display:block;width:100%;margin-top:24px;padding:14px;border-radius:12px;border:2px solid var(--green);background:#fff;color:var(--green);font-size:14px;font-weight:700;cursor:pointer;text-align:center;font-family:'Noto Sans JP',sans-serif;}
+.back-home-btn:active{background:#e8f5ed;}
 </style>
 </head>
 <body>
@@ -462,6 +465,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       </div>
       <div class="sec">📋 登録済み</div>
       <div id="gc-list"></div>
+      <button class="back-home-btn" onclick="showPage('home')">🏠 HOMEに戻る</button>
     </div>
   </div>
 
@@ -515,6 +519,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       </div>
       <div class="sec" style="margin-top:4px;">📋 登録済みプレイヤー</div>
       <div id="player-list"></div>
+      <button class="back-home-btn" onclick="showPage('home')">🏠 HOMEに戻る</button>
     </div>
   </div>
 
