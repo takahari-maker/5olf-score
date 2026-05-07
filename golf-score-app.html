@@ -384,8 +384,8 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       </div>
       <div style="display:flex;justify-content:flex-end;margin-bottom:6px;">
         <button id="oly-money-toggle" onclick="toggleOlyMoney()"
-          style="padding:5px 12px;border-radius:14px;border:1.5px solid var(--green);background:#e8f5ed;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;">
-          💰 ¥非表示
+          style="padding:5px 12px;border-radius:14px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;">
+          💰 ¥表示
         </button>
       </div>
       <div class="otbl-wrap"><table class="otbl" id="otbl"></table></div>
@@ -2594,12 +2594,12 @@ function renderHistChart(){
 
 
 // ===== オリンピック¥列表示/非表示 =====
-let olyMoneyVisible = true;
+let olyMoneyVisible = false;
 
 function toggleOlyMoney(){
   olyMoneyVisible = !olyMoneyVisible;
   const btn = document.getElementById('oly-money-toggle');
-  if(btn) btn.textContent = olyMoneyVisible ? '💰 ¥非表示' : '💰 ¥表示';
+  if(btn){ btn.textContent = olyMoneyVisible ? '💰 ¥非表示' : '💰 ¥表示'; btn.style.background = olyMoneyVisible ? '#e8f5ed' : '#fff'; }
   renderOlyTbl();
 }
 
