@@ -1685,12 +1685,16 @@ function openScKpad(hi,pi){
   document.getElementById('kpad-label').textContent=`H${hi+1} ${p} スコア`;
   kpadVal=cur!==null?String(cur):'';
   kpadRefresh();
-  // カウンターを表示・初期値セット
+  // 自分のスロットのみカウンターを表示
+  const myName=getMyName();
+  const isMe=myName&&G.players[pi]===myName;
   const area=document.getElementById('kpad-counter-area');
-  if(area) area.style.display='block';
-  counterVal=cur!==null?cur:0;
-  const cv=document.getElementById('counter-val');
-  if(cv) cv.textContent=counterVal;
+  if(area) area.style.display=isMe?'block':'none';
+  if(isMe){
+    counterVal=cur!==null?cur:0;
+    const cv=document.getElementById('counter-val');
+    if(cv) cv.textContent=counterVal;
+  }
   document.getElementById('kpad-modal').classList.add('open');
 }
 
