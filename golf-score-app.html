@@ -748,6 +748,23 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
   <div style="background:#fff;border-radius:14px;padding:16px;width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
     <div style="text-align:center;font-family:'Oswald',sans-serif;font-size:13px;color:#888;margin-bottom:6px;" id="kpad-label">スコア入力</div>
 
+    <!-- スコア+パット同時入力エリア（自分のスコア入力＆showPutt=true時のみ表示） -->
+    <div id="kpad-combo-area" style="display:none;margin-bottom:10px;">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <!-- スコア -->
+        <div style="flex:1;background:#f0f8f4;border:2px solid var(--green);border-radius:10px;padding:8px;text-align:center;cursor:pointer;" onclick="kpadComboSelect('score')" id="combo-score-box">
+          <div style="font-size:10px;color:#888;margin-bottom:2px;">🏌️ スコア</div>
+          <div id="combo-score-val" style="font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;color:var(--green);min-height:40px;">−</div>
+        </div>
+        <!-- パット -->
+        <div style="flex:1;background:#f0f0f0;border:2px solid #ddd;border-radius:10px;padding:8px;text-align:center;cursor:pointer;" onclick="kpadComboSelect('putt')" id="combo-putt-box">
+          <div style="font-size:10px;color:#888;margin-bottom:2px;">⛳ パット</div>
+          <div id="combo-putt-val" style="font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;color:#888;min-height:40px;">−</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#aaa;text-align:center;margin-bottom:6px;">タップで切替 → 数字で入力 → 確定</div>
+    </div>
+
     <!-- カウンター（スコアモード時のみ表示） -->
     <div id="kpad-counter-area" style="display:none;margin-bottom:10px;">
       <div style="font-size:10px;color:#888;text-align:center;margin-bottom:6px;">🏌️ 打数カウンター（仮）／ 確定でスコアに反映</div>
@@ -1711,7 +1728,17 @@ function kpadRefresh(){
 }
 
 function kpadPress(n){
-  if(kpadMode==='score'||kpadMode==='putt'){
+  if(kpadMode==='combo'){
+    if(kpadVal.length>=2) return;
+    kpadVal+=String(n);
+    if(kpadComboTarget==='score'){
+      comboScoreVal=kpadVal;
+      // カウンターにも反映
+      const v=parseInt(kpadVal);
+      if(!isNaN(v)&&v>=0&&v<=20){ counterVal=v; const cv=document.getElementById('counter-val'); if(cv) cv.textContent=counterVal; }
+    } else { comboPuttVal=kpadVal; }
+    kpadComboRefresh();
+  } else if(kpadMode==='score'||kpadMode==='putt'){
     if(kpadVal.length>=2) return;
     kpadVal+=String(n);
     // カウンターにも反映
@@ -1749,8 +1776,11 @@ function kpadDel(){
 function kpadClear(){
   kpadVal='';
   kpadRefresh();
-  // カウンターもリセット
-  if(kpadMode==='score'){
+  if(kpadMode==='combo'){
+    if(kpadComboTarget==='score'){ comboScoreVal=''; }
+    else { comboPuttVal=''; }
+    kpadComboRefresh();
+  } else if(kpadMode==='score'){
     counterVal=0;
     const cv=document.getElementById('counter-val');
     if(cv) cv.textContent='0';
@@ -1758,8 +1788,36 @@ function kpadClear(){
 }
 
 function kpadOk(){
+  // コンボモード：スコア選択中は自動でパット側に切り替え
+  if(kpadMode==='combo' && kpadComboTarget==='score'){
+    // スコアを確定してパット入力へ
+    comboScoreVal=kpadVal;
+    kpadComboRefresh();
+    kpadComboSelect('putt');
+    return; // まだ閉じない
+  }
   document.getElementById('kpad-modal').classList.remove('open');
-  if(kpadMode==='oly'){
+  if(kpadMode==='combo'){
+    // パット確定 → 両方まとめて保存
+    comboScoreVal = comboScoreVal||kpadVal;
+    const hi=kpadScHi, pi=kpadScPi;
+    const sv=comboScoreVal===''?null:parseInt(comboScoreVal);
+    const pv=comboPuttVal===''?null:parseInt(comboPuttVal);
+    G.scores[hi][pi]=(isNaN(sv)||sv<1)?null:sv;
+    G.putts[hi][pi]=(isNaN(pv)||pv<0)?null:pv;
+    const par=G.pars[hi];
+    const btn=document.getElementById('sc_'+hi+'_'+pi);
+    if(btn){ btn.textContent=G.scores[hi][pi]!==null?G.scores[hi][pi]:'-'; btn.className='sc-btn '+sClass(G.scores[hi][pi],par); }
+    const ptBtn=document.getElementById('pt_'+hi+'_'+pi);
+    if(ptBtn) ptBtn.textContent=G.putts[hi][pi]!==null?G.putts[hi][pi]:'-';
+    const ov=G.scores[hi][pi]!==null?G.scores[hi][pi]-par:null;
+    const el=document.getElementById('ov_'+hi+'_'+pi);
+    if(el){ el.textContent=ov===null?'':ov===0?'E':ov>0?'+'+ov:''+ov; el.style.color=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db'; }
+    refreshTot(); refreshPuttTot(); renderSummary(); persist();
+    const _n=G.players.length;
+    const _allFilled=G.scores[hi]&&G.scores[hi].slice(0,_n).every(s=>s!==null&&s!==undefined);
+    if(_allFilled) setTimeout(()=>showOrderPopup(hi), 400);
+  } else if(kpadMode==='oly'){
     const hi=kpadHi, pi=kpadPi;
     const n=kpadVal===''||kpadVal==='-'?null:parseInt(kpadVal);
     G.oly[hi][pi]=isNaN(n)?null:n;
@@ -1790,11 +1848,18 @@ function kpadOk(){
       el.style.color=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
     }
     refreshTot(); renderSummary(); persist();
-    // 全員スコア入力済みなら打順ポップアップ
-    const _hi=kpadScHi;
-    const _n=G.players.length;
-    const _allFilled=G.scores[_hi]&&G.scores[_hi].slice(0,_n).every(s=>s!==null&&s!==undefined);
-    if(_allFilled) setTimeout(()=>showOrderPopup(_hi), 400);
+    // パット表示中かつ自分のスロットならパット入力へ連続表示
+    const _hi=kpadScHi, _pi=kpadScPi;
+    const myName=getMyName();
+    const isMe=myName&&G.players[_pi]===myName;
+    if(G.showPutt && isMe){
+      setTimeout(()=>openPtKpad(_hi, _pi), 200);
+    } else {
+      // 全員スコア入力済みなら打順ポップアップ
+      const _n=G.players.length;
+      const _allFilled=G.scores[_hi]&&G.scores[_hi].slice(0,_n).every(s=>s!==null&&s!==undefined);
+      if(_allFilled) setTimeout(()=>showOrderPopup(_hi), 400);
+    }
   } else if(kpadMode==='putt'){
     const hi=kpadScHi, pi=kpadScPi;
     const v=kpadVal===''?null:parseInt(kpadVal);
@@ -1802,6 +1867,10 @@ function kpadOk(){
     const btn=document.getElementById('pt_'+hi+'_'+pi);
     if(btn) btn.textContent=G.putts[hi][pi]!==null?G.putts[hi][pi]:'-';
     refreshPuttTot(); persist();
+    // パット確定後に打順ポップアップ
+    const _n2=G.players.length;
+    const _allFilled2=G.scores[hi]&&G.scores[hi].slice(0,_n2).every(s=>s!==null&&s!==undefined);
+    if(_allFilled2) setTimeout(()=>showOrderPopup(hi), 400);
   }
 }
 
@@ -1814,18 +1883,34 @@ function openScKpad(hi,pi){
   const p=G.players[pi]||('P'+(pi+1));
   const cur=G.scores[hi][pi];
   document.getElementById('kpad-label').textContent=`H${hi+1} ${p} スコア`;
-  kpadVal=cur!==null?String(cur):'';
-  kpadRefresh();
-  // 自分のスロットのみカウンターを表示
-  const myName=getMyName();
-  const isMe=myName&&G.players[pi]===myName;
-  const area=document.getElementById('kpad-counter-area');
-  if(area) area.style.display=isMe?'block':'none';
-  if(isMe){
-    counterVal=cur!==null?cur:0;
-    const cv=document.getElementById('counter-val');
-    if(cv) cv.textContent=counterVal;
+  const myName2=getMyName();
+  const isMe2=myName2&&G.players[pi]===myName2;
+  // コンボモード（自分 & showPutt）
+  const comboArea=document.getElementById('kpad-combo-area');
+  const counterArea2=document.getElementById('kpad-counter-area');
+  if(isMe2 && G.showPutt){
+    // コンボモード
+    kpadMode='combo';
+    comboScoreVal=cur!==null?String(cur):'';
+    comboPuttVal=G.putts[hi][pi]!==null?String(G.putts[hi][pi]):'';
+    kpadComboTarget='score';
+    kpadVal=comboScoreVal;
+    if(comboArea) comboArea.style.display='block';
+    if(counterArea2) counterArea2.style.display='none';
+    kpadComboRefresh();
+    kpadComboSelect('score');
+  } else {
+    kpadMode='score';
+    kpadVal=cur!==null?String(cur):'';
+    if(comboArea) comboArea.style.display='none';
+    if(counterArea2) counterArea2.style.display=isMe2?'block':'none';
+    if(isMe2){
+      counterVal=cur!==null?cur:0;
+      const cv=document.getElementById('counter-val');
+      if(cv) cv.textContent=counterVal;
+    }
   }
+  kpadRefresh();
   document.getElementById('kpad-modal').classList.add('open');
 }
 
@@ -2957,6 +3042,35 @@ function showOrderPopup(currentHole){
   orderPopupTimer = setTimeout(() => {
     popup.style.display = 'none';
   }, 5000);
+}
+
+
+// ===== スコア+パット同時入力 =====
+let kpadComboTarget = 'score'; // 'score' or 'putt'
+let comboScoreVal = '';
+let comboPuttVal = '';
+
+function kpadComboSelect(target){
+  kpadComboTarget = target;
+  // ボックスのハイライト切替
+  const sb = document.getElementById('combo-score-box');
+  const pb = document.getElementById('combo-putt-box');
+  if(sb) sb.style.border = target==='score' ? '2px solid var(--green)' : '2px solid #ddd';
+  if(pb) pb.style.border = target==='putt'  ? '2px solid var(--blue)'  : '2px solid #ddd';
+  if(sb) sb.style.background = target==='score' ? '#f0f8f4' : '#f8f9fa';
+  if(pb) pb.style.background = target==='putt'  ? '#eaf4fd' : '#f0f0f0';
+  // kpadValを切替
+  kpadVal = target==='score' ? comboScoreVal : comboPuttVal;
+  kpadRefresh();
+}
+
+function kpadComboRefresh(){
+  const sv = document.getElementById('combo-score-val');
+  const pv = document.getElementById('combo-putt-val');
+  if(sv) sv.textContent = comboScoreVal||'−';
+  if(pv) pv.textContent = comboPuttVal||'−';
+  if(sv) sv.style.color = comboScoreVal ? 'var(--green)' : '#ccc';
+  if(pv) pv.style.color = comboPuttVal ? 'var(--blue)' : '#ccc';
 }
 
 // ===== INIT =====
