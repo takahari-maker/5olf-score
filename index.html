@@ -1848,11 +1848,9 @@ function kpadOk(){
       el.style.color=ov===null?'var(--g2)':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db';
     }
     refreshTot(); renderSummary(); persist();
-    // パット表示中かつ自分のスロットならパット入力へ連続表示
+    // パット表示中なら全員パット入力へ連続表示
     const _hi=kpadScHi, _pi=kpadScPi;
-    const myName=getMyName();
-    const isMe=myName&&G.players[_pi]===myName;
-    if(G.showPutt && isMe){
+    if(G.showPutt){
       setTimeout(()=>openPtKpad(_hi, _pi), 200);
     } else {
       // 全員スコア入力済みなら打順ポップアップ
@@ -1885,18 +1883,23 @@ function openScKpad(hi,pi){
   document.getElementById('kpad-label').textContent=`H${hi+1} ${p} スコア`;
   const myName2=getMyName();
   const isMe2=myName2&&G.players[pi]===myName2;
-  // コンボモード（自分 & showPutt）
+  // コンボモード（showPutt=trueなら全員）
   const comboArea=document.getElementById('kpad-combo-area');
   const counterArea2=document.getElementById('kpad-counter-area');
-  if(isMe2 && G.showPutt){
-    // コンボモード
+  if(G.showPutt){
+    // 全員コンボモード
     kpadMode='combo';
     comboScoreVal=cur!==null?String(cur):'';
     comboPuttVal=G.putts[hi][pi]!==null?String(G.putts[hi][pi]):'';
     kpadComboTarget='score';
     kpadVal=comboScoreVal;
     if(comboArea) comboArea.style.display='block';
-    if(counterArea2) counterArea2.style.display='none';
+    if(counterArea2) counterArea2.style.display=isMe2?'block':'none';
+    if(isMe2){
+      counterVal=cur!==null?cur:0;
+      const cv=document.getElementById('counter-val');
+      if(cv) cv.textContent=counterVal;
+    }
     kpadComboRefresh();
     kpadComboSelect('score');
   } else {
