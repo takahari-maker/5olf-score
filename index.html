@@ -359,6 +359,14 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           </div>
           <div class="home-btn-arrow">›</div>
         </button>
+        <button class="home-btn" onclick="showPage('gemini')">
+          <div class="home-btn-icon" style="background:#fff8e1;">🔑</div>
+          <div class="home-btn-text">
+            <div class="home-btn-title">APIキー設定</div>
+            <div class="home-btn-desc">スコアカード読み取り設定</div>
+          </div>
+          <div class="home-btn-arrow">›</div>
+        </button>
         <button class="home-btn" onclick="showPage('howto')">
           <div class="home-btn-icon" style="background:#eaf3ff;">📖</div>
           <div class="home-btn-text">
@@ -480,7 +488,14 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
             style="margin-bottom:0;">
           <div id="cf-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--green);border-top:none;border-radius:0 0 8px 8px;z-index:100;max-height:200px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
         </div>
-        <div style="height:8px;"></div>
+        <div style="height:6px;"></div>
+        <label style="width:100%;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#1e8449,#27ae60);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;box-sizing:border-box;">
+          📷 スコアカードを撮影してPAR自動入力
+          <input type="file" accept="image/*" capture="environment" id="scorecard-input"
+            style="display:none;" onchange="onScorecardPhoto(this)">
+        </label>
+        <div id="scorecard-status" style="font-size:11px;color:#888;margin-bottom:6px;display:none;text-align:center;"></div>
+        <div style="height:2px;"></div>
 
 
         <!-- コース一覧（動的追加） -->
@@ -518,6 +533,14 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           <div class="home-btn-text">
             <div class="home-btn-title">プレイヤー登録</div>
             <div class="home-btn-desc">よく一緒にプレーする仲間を登録</div>
+          </div>
+          <div class="home-btn-arrow">›</div>
+        </button>
+        <button class="home-btn" onclick="showPage('gemini')">
+          <div class="home-btn-icon" style="background:#fff8e1;">🔑</div>
+          <div class="home-btn-text">
+            <div class="home-btn-title">APIキー設定</div>
+            <div class="home-btn-desc">スコアカード読み取り設定</div>
           </div>
           <div class="home-btn-arrow">›</div>
         </button>
@@ -563,6 +586,26 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
     </div>
   </div>
 
+
+
+  <!-- Gemini APIキー設定 -->
+  <div id="page-gemini" class="page">
+    <div class="inner">
+      <div class="sec">🔑 Gemini APIキー設定</div>
+      <div class="card">
+        <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.6;">
+          スコアカード写真からPAR自動読み取りに使用します。<br>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--green);">Google AI Studio</a> で無料のAPIキーを取得してください。<br>
+          <span style="color:#e67e22;">※無料枠：1日1,500回まで</span>
+        </div>
+        <label class="flbl">APIキー</label>
+        <input class="fi" type="password" id="gemini-key-input" placeholder="AIza..." style="font-family:monospace;font-size:12px;">
+        <button class="btn btn-g" onclick="saveGeminiKey()" style="width:100%;margin-top:4px;">💾 保存</button>
+        <div id="gemini-key-status" style="font-size:12px;margin-top:8px;color:#888;"></div>
+      </div>
+      <button class="back-home-btn" onclick="showPage('home')">🏠 HOMEに戻る</button>
+    </div>
+  </div>
 
   <!-- 使い方 -->
   <div id="page-howto" class="page">
@@ -734,6 +777,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
         <button class="weather-btn" data-weather="🌨️" onclick="selectWeather(this,'🌨️')">🌨️</button>
       </div>
       <input type="hidden" id="new-weather" value="">
+
+      <div style="font-weight:700;color:var(--gold);margin:10px 0 6px;">🏆 1番ホールのオナー（任意）</div>
+      <div style="font-size:11px;color:#888;margin-bottom:6px;">最初に打つ人を選んでください</div>
+      <select class="fsel" id="new-honor" style="margin-bottom:0;">
+        <option value="">-- 選択してください（任意） --</option>
+      </select>
     </div>
     <div class="mftr">
       <button class="btn btn-o" onclick="document.getElementById('modal-new').classList.remove('open')">キャンセル</button>
@@ -779,6 +828,19 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       <div style="font-size:10px;color:#aaa;text-align:center;margin-top:6px;">または下の数字で直接入力（確定で反映）</div>
     </div>
 
+    <!-- スコア/オーバー切替（スコアモード時） -->
+    <div id="kpad-mode-toggle" style="display:none;margin-bottom:8px;">
+      <div style="display:flex;background:#f0f0f0;border-radius:8px;padding:2px;gap:2px;">
+        <button id="kpad-toggle-score" onclick="kpadSetInputMode('score')"
+          style="flex:1;padding:6px;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:var(--green);color:#fff;">
+          スコア
+        </button>
+        <button id="kpad-toggle-over" onclick="kpadSetInputMode('over')"
+          style="flex:1;padding:6px;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#888;">
+          ±PAR
+        </button>
+      </div>
+    </div>
     <div id="kpad-display" style="text-align:center;font-family:'Oswald',sans-serif;font-size:36px;font-weight:700;color:#1a1a1a;background:#f0f0f0;border-radius:8px;padding:8px;margin-bottom:10px;min-height:56px;letter-spacing:2px;">−</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
       <button class="kpad-btn" onclick="kpadPress(7)">7</button>
@@ -810,7 +872,7 @@ const DPARS = [4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4];
 
 // ===== STATE =====
 let G = {
-  id:null, course:'', date:'', holes:18, weather:'',
+  id:null, course:'', date:'', holes:18, weather:'', honor:'',
   players:[], pars:[...DPARS],
   scores:null, putts:null, oly:null,
   showPutt:false, history:[], statsP:0
@@ -848,7 +910,7 @@ function persist() {
     localStorage.setItem(SKEY, JSON.stringify({
       history: G.history,
       cur: {
-        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'',
+        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'',
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
         showPutt:G.showPutt, statsP:G.statsP
@@ -865,7 +927,7 @@ function loadSaved() {
     if (d.cur) {
       const c = d.cur;
       G.id=c.id||null; G.course=c.course||''; G.date=c.date||'';
-      G.holes=c.holes||18; G.weather=c.weather||''; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
+      G.holes=c.holes||18; G.weather=c.weather||''; G.honor=c.honor||''; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
       G.scores=c.scores||null; G.putts=c.putts||null; G.oly=c.oly||null;
       G.showPutt=c.showPutt||false; G.statsP=c.statsP||0;
       if (!G.scores) initData();
@@ -917,7 +979,7 @@ function persistOnly() {
     localStorage.setItem(SKEY, JSON.stringify({
       history: G.history,
       cur: {
-        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'',
+        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'',
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
         showPutt:G.showPutt, statsP:G.statsP
@@ -957,6 +1019,7 @@ function showPage(p) {
   if (p==='course')   { buildVtbl(); renderGcList(); }
   if (p==='settings') {}
   if (p==='players')  { renderPlayerList(); showMyNameDisplay(); }
+  if (p==='gemini')   loadGeminiPage();
   if (p==='howto')    {}
 }
 
@@ -1679,7 +1742,8 @@ async function createRound(){
   // 新規ラウンドなので履歴に戻るボタンを非表示
   const _backBtn=document.getElementById('snav-back-hist');
   if(_backBtn) _backBtn.style.display='none';
-  G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-'; G.weather=weather;
+  const honor=document.getElementById('new-honor')?.value||'';
+  G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-'; G.weather=weather; G.honor=honor;
   G.holes=holes; G.players=players; G.pars=pars; G.statsP=0;
   initData();
   const hc=document.getElementById('hdr-course-name');
@@ -1713,6 +1777,8 @@ function openKpad(hi,pi){
   kpadHi=hi; kpadPi=pi;
   const _area=document.getElementById('kpad-counter-area');
   if(_area) _area.style.display='none';
+  const _tog=document.getElementById('kpad-mode-toggle');
+  if(_tog) _tog.style.display='none';
   const cur=G.oly[hi][pi];
   kpadVal=cur!==null?String(cur):'';
   const p=G.players[pi]||('P'+(pi+1));
@@ -1761,7 +1827,8 @@ function kpadPress(n){
 }
 
 function kpadSign(){
-  if(kpadMode==='score'||kpadMode==='putt') return; // スコア・パットは符号なし
+  if(kpadMode==='putt') return; // パットは符号なし
+  if(kpadMode==='score' && kpadInputMode!=='over') return; // スコアモードかつオーバー入力以外は符号なし
   if(kpadVal===''){ kpadVal='-'; }
   else if(kpadVal==='-'){ kpadVal=''; }
   else { kpadVal=kpadVal.startsWith('-')?kpadVal.slice(1):'-'+kpadVal; }
@@ -1801,9 +1868,9 @@ function kpadOk(){
     // パット確定 → 両方まとめて保存
     comboScoreVal = comboScoreVal||kpadVal;
     const hi=kpadScHi, pi=kpadScPi;
-    const sv=comboScoreVal===''?null:parseInt(comboScoreVal);
+    const sv=getScoreFromInput(comboScoreVal, hi);
     const pv=comboPuttVal===''?null:parseInt(comboPuttVal);
-    G.scores[hi][pi]=(isNaN(sv)||sv<1)?null:sv;
+    G.scores[hi][pi]=sv;
     G.putts[hi][pi]=(isNaN(pv)||pv<0)?null:pv;
     const par=G.pars[hi];
     const btn=document.getElementById('sc_'+hi+'_'+pi);
@@ -1831,8 +1898,7 @@ function kpadOk(){
     refreshOlySubs(); renderOlySummary(); persist();
   } else if(kpadMode==='score'){
     const hi=kpadScHi, pi=kpadScPi;
-    const v=kpadVal===''?null:parseInt(kpadVal);
-    G.scores[hi][pi]=(isNaN(v)||v<1)?null:v;
+    G.scores[hi][pi]=getScoreFromInput(kpadVal, hi);
     const par=G.pars[hi];
     const btn=document.getElementById('sc_'+hi+'_'+pi);
     if(btn){
@@ -1880,7 +1946,11 @@ function openScKpad(hi,pi){
   kpadScHi=hi; kpadScPi=pi;
   const p=G.players[pi]||('P'+(pi+1));
   const cur=G.scores[hi][pi];
-  document.getElementById('kpad-label').textContent=`H${hi+1} ${p} スコア`;
+  document.getElementById('kpad-label').textContent=`H${hi+1} ${p} スコア(PAR:${G.pars[hi]})`;
+  // スコア/オーバー切替を表示
+  kpadInputMode='score';
+  const toggleArea=document.getElementById('kpad-mode-toggle');
+  if(toggleArea) toggleArea.style.display='block';
   const myName2=getMyName();
   const isMe2=myName2&&G.players[pi]===myName2;
   // コンボモード（showPutt=trueなら全員）
@@ -2015,6 +2085,15 @@ function renderPlayerList(){
 // ===== 新規ラウンド プレイヤースロット =====
 let selectedPlayers=['','','',''];
 
+function updateHonorSelect(){
+  const sel=document.getElementById('new-honor');
+  if(!sel) return;
+  const names=getPlayerNames();
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- 選択してください（任意） --</option>'
+    +names.map(n=>`<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+}
+
 function renderPlayerSlots(){
   const area=document.getElementById('player-slots');
   if(!area) return;
@@ -2062,6 +2141,7 @@ function onPlayerSelect(idx,val){
     selectedPlayers[idx]=val;
   }
   renderPlayerSlots();
+  updateHonorSelect();
   if(val==='__manual__'){
     setTimeout(()=>{ const inp=document.getElementById('pm'+idx); if(inp)inp.focus(); },50);
   }
@@ -3010,10 +3090,22 @@ function showOrderPopup(currentHole){
   const allFilled = scores.slice(0,n).every(s => s !== null && s !== undefined);
   if(!allFilled) return;
 
-  // 打順計算：現在ホールのスコアが少ない順（同スコアは現在の順番を維持）
-  const order = G.players.map((name, pi) => ({
-    name, score: scores[pi], pi
-  })).sort((a, b) => (a.score||99) - (b.score||99));
+  // 打順計算
+  let order;
+  if(currentHole === 0 && G.honor){
+    // 1ホール目はオナーが先頭
+    const honorIdx = G.players.indexOf(G.honor);
+    const base = G.players.map((name,pi)=>({name,score:scores[pi],pi}));
+    if(honorIdx>=0){
+      const honorItem = base.find(p=>p.pi===honorIdx);
+      const rest = base.filter(p=>p.pi!==honorIdx).sort((a,b)=>(a.score||99)-(b.score||99));
+      order = [honorItem,...rest];
+    } else {
+      order = base.sort((a,b)=>(a.score||99)-(b.score||99));
+    }
+  } else {
+    order = G.players.map((name,pi)=>({name,score:scores[pi],pi})).sort((a,b)=>(a.score||99)-(b.score||99));
+  }
 
   // ポップアップ表示
   const popup = document.getElementById('order-popup');
@@ -3021,7 +3113,8 @@ function showOrderPopup(currentHole){
   const listEl = document.getElementById('order-popup-list');
   if(!popup || !listEl) return;
 
-  holeEl.textContent = `H${currentHole+1} 終了 → H${nextHole+1} 開始`;
+  const honorTxt = currentHole===0&&G.honor ? ` （オナー：${G.honor}）` : '';
+  holeEl.textContent = `H${currentHole+1} 終了 → H${nextHole+1} 開始${honorTxt}`;
   listEl.innerHTML = order.map((p,i) => {
     const medal = i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : `${i+1}.`;
     const colors = getPlayerColors();
@@ -3074,6 +3167,123 @@ function kpadComboRefresh(){
   if(pv) pv.textContent = comboPuttVal||'−';
   if(sv) sv.style.color = comboScoreVal ? 'var(--green)' : '#ccc';
   if(pv) pv.style.color = comboPuttVal ? 'var(--blue)' : '#ccc';
+}
+
+
+// ===== スコア/オーバー数入力切替 =====
+let kpadInputMode = 'score'; // 'score' or 'over'
+
+function kpadSetInputMode(mode){
+  kpadInputMode = mode;
+  kpadVal = '';
+  kpadRefresh();
+  const ts = document.getElementById('kpad-toggle-score');
+  const to = document.getElementById('kpad-toggle-over');
+  const par = G.pars[kpadScHi];
+  if(mode==='score'){
+    if(ts){ ts.style.background='var(--green)'; ts.style.color='#fff'; }
+    if(to){ to.style.background='transparent'; to.style.color='#888'; }
+    // ±ボタンを非表示
+    const signBtn = document.querySelector('.kpad-sign');
+    if(signBtn) signBtn.style.display='';
+  } else {
+    if(ts){ ts.style.background='transparent'; ts.style.color='#888'; }
+    if(to){ to.style.background='#e67e22'; to.style.color='#fff'; }
+    // ±ボタンを表示（オーバー数はマイナスもあり）
+    const signBtn = document.querySelector('.kpad-sign');
+    if(signBtn) signBtn.style.display='';
+    // ヒント表示
+    const disp = document.getElementById('kpad-display');
+    if(disp) disp.title = `PARは${par}`;
+  }
+}
+
+function getScoreFromInput(val, hi){
+  if(val===''||val===null) return null;
+  const par = G.pars[hi];
+  if(kpadInputMode==='over'){
+    const ov = parseInt(val);
+    if(isNaN(ov)) return null;
+    return par + ov; // PAR+オーバー数=スコア
+  } else {
+    const v = parseInt(val);
+    return isNaN(v)||v<1 ? null : v;
+  }
+}
+
+
+// ===== Gemini API（スコアカード読み取り） =====
+const GEMINI_KEY = 'golympic_gemini_key';
+function getGeminiKey(){ return localStorage.getItem(GEMINI_KEY)||''; }
+function saveGeminiKey(){
+  const k=document.getElementById('gemini-key-input').value.trim();
+  if(!k){ toast('APIキーを入力してください'); return; }
+  localStorage.setItem(GEMINI_KEY, k);
+  const st=document.getElementById('gemini-key-status');
+  if(st){ st.textContent='✅ 保存しました'; st.style.color='#27ae60'; }
+  toast('🔑 APIキーを保存しました');
+}
+
+function loadGeminiPage(){
+  const k=getGeminiKey();
+  const inp=document.getElementById('gemini-key-input');
+  const st=document.getElementById('gemini-key-status');
+  if(inp) inp.value=k;
+  if(st){ st.textContent=k?'✅ APIキーが設定済みです':'未設定'; st.style.color=k?'#27ae60':'#888'; }
+}
+
+function onScorecardPhoto(input){
+  const file=input.files[0];
+  if(!file) return;
+  const status=document.getElementById('scorecard-status');
+  status.style.display='block';
+  status.style.color='#888';
+  status.textContent='📷 画像を読み込み中...';
+  const apiKey=getGeminiKey();
+  if(!apiKey){
+    status.textContent='⚠️ APIキーが未設定です。HOMEの「🔑 APIキー設定」で入力してください。';
+    status.style.color='#e74c3c';
+    input.value='';
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const b64=e.target.result.split(',')[1];
+    const mime=file.type||'image/jpeg';
+    status.textContent='🤖 AIがスコアカードを解析中...';
+    try{
+      const res=await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        { method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ contents:[{ parts:[
+            { inline_data:{ mime_type:mime, data:b64 } },
+            { text:'このゴルフ場のスコアカード画像から各コースのホールごとのPARを読み取りJSONのみ返してください。形式:{"courses":[{"name":"コース名","pars":[4,3,4,5,4,3,5,4,4]}]}、parsは9ホール分の配列。' }
+          ]}]})
+        }
+      );
+      const data=await res.json();
+      if(data.error) throw new Error(data.error.message);
+      const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+      const m=text.match(/\{[\s\S]*\}/);
+      if(!m) throw new Error('解析結果が取得できませんでした');
+      const result=JSON.parse(m[0]);
+      const courses=result.courses||[];
+      if(!courses.length) throw new Error('コースデータが見つかりませんでした');
+      cfCourses=courses.map(c=>({
+        name:c.name||'',
+        pars:Array.isArray(c.pars)&&c.pars.length===9?c.pars.map(p=>parseInt(p)||4):Array(9).fill(4)
+      }));
+      renderCfCourses();
+      status.textContent=`✅ ${courses.length}コース分のPARを読み取りました。内容を確認してください。`;
+      status.style.color='#27ae60';
+      toast('📷 スコアカードからPARを読み取りました');
+    }catch(err){
+      status.textContent='❌ '+( err.message||String(err));
+      status.style.color='#e74c3c';
+    }
+    input.value='';
+  };
+  reader.readAsDataURL(file);
 }
 
 // ===== INIT =====
