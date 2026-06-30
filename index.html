@@ -734,11 +734,9 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
       </div>
       <input type="hidden" id="new-weather" value="">
 
-      <div style="font-weight:700;color:var(--gold);margin:10px 0 6px;">🏆 1番ホールのオナー（任意）</div>
-      <div style="font-size:11px;color:#888;margin-bottom:6px;">最初に打つ人を選んでください</div>
-      <select class="fsel" id="new-honor" style="margin-bottom:0;">
-        <option value="">-- 選択してください（任意） --</option>
-      </select>
+      <div style="font-weight:700;color:var(--gold);margin:10px 0 6px;">🏆 1番ホールの打順（任意）</div>
+      <div style="font-size:11px;color:#888;margin-bottom:6px;">各順番に打つ人を選んでください</div>
+      <div id="new-order-area"></div>
     </div>
     <div class="mftr">
       <button class="btn btn-o" onclick="document.getElementById('modal-new').classList.remove('open')">キャンセル</button>
@@ -844,7 +842,7 @@ const DPARS = [4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4];
 
 // ===== STATE =====
 let G = {
-  id:null, course:'', date:'', holes:18, weather:'', honor:'',
+  id:null, course:'', date:'', holes:18, weather:'', honor:'', firstOrder:[],
   players:[], pars:[...DPARS],
   scores:null, putts:null, oly:null,
   showPutt:false, history:[], statsP:0
@@ -882,7 +880,7 @@ function persist() {
     localStorage.setItem(SKEY, JSON.stringify({
       history: G.history,
       cur: {
-        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'',
+        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'', firstOrder:G.firstOrder||[],
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
         showPutt:G.showPutt, statsP:G.statsP
@@ -899,7 +897,7 @@ function loadSaved() {
     if (d.cur) {
       const c = d.cur;
       G.id=c.id||null; G.course=c.course||''; G.date=c.date||'';
-      G.holes=c.holes||18; G.weather=c.weather||''; G.honor=c.honor||''; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
+      G.holes=c.holes||18; G.weather=c.weather||''; G.honor=c.honor||''; G.firstOrder=c.firstOrder||[]; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
       G.scores=c.scores||null; G.putts=c.putts||null; G.oly=c.oly||null;
       G.showPutt=c.showPutt||false; G.statsP=c.statsP||0;
       if (!G.scores) initData();
@@ -951,7 +949,7 @@ function persistOnly() {
     localStorage.setItem(SKEY, JSON.stringify({
       history: G.history,
       cur: {
-        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'',
+        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'', firstOrder:G.firstOrder||[],
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
         showPutt:G.showPutt, statsP:G.statsP
@@ -1716,8 +1714,9 @@ async function createRound(){
   // 新規ラウンドなので履歴に戻るボタンを非表示
   const _backBtn=document.getElementById('snav-back-hist');
   if(_backBtn) _backBtn.style.display='none';
-  const honor=document.getElementById('new-honor')?.value||'';
-  G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-'; G.weather=weather; G.honor=honor;
+  const firstOrder=newOrder.filter(x=>x);
+  const honor=firstOrder[0]||'';
+  G.id=null; G.course=course; G.date=dateRaw?fmtDate(dateRaw):'-'; G.weather=weather; G.honor=honor; G.firstOrder=firstOrder;
   G.holes=holes; G.players=players; G.pars=pars; G.statsP=0;
   initData();
   const hc=document.getElementById('hdr-course-name');
@@ -2071,13 +2070,33 @@ function renderPlayerList(){
 // ===== 新規ラウンド プレイヤースロット =====
 let selectedPlayers=['','','',''];
 
+let newOrder = ['','','',''];
+
 function updateHonorSelect(){
-  const sel=document.getElementById('new-honor');
-  if(!sel) return;
+  const area=document.getElementById('new-order-area');
+  if(!area) return;
   const names=getPlayerNames();
-  const cur=sel.value;
-  sel.innerHTML='<option value="">-- 選択してください（任意） --</option>'
-    +names.map(n=>`<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+  const n=names.length;
+  if(n===0){ area.innerHTML='<div style="font-size:11px;color:#aaa;">先にプレイヤーを選択してください</div>'; return; }
+  let html='';
+  for(let i=0;i<n;i++){
+    const used=newOrder.filter((_,j)=>j!==i&&_);
+    const avail=names.filter(nm=>!used.includes(nm));
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+    html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <div style="width:28px;font-size:16px;text-align:center;">${medal}</div>
+      <select class="fsel" style="margin-bottom:0;flex:1;" onchange="setNewOrder(${i},this.value)">
+        <option value="">-- ${i+1}番目に打つ人 --</option>
+        ${avail.map(nm=>`<option value="${nm}"${newOrder[i]===nm?' selected':''}>${nm}</option>`).join('')}
+      </select>
+    </div>`;
+  }
+  area.innerHTML=html;
+}
+
+function setNewOrder(idx,val){
+  newOrder[idx]=val;
+  updateHonorSelect();
 }
 
 function renderPlayerSlots(){
@@ -2857,17 +2876,17 @@ function showOrderPopup(currentHole){
 
   // 打順計算
   let order;
-  if(currentHole === 0 && G.honor){
-    // 1ホール目はオナーが先頭
-    const honorIdx = G.players.indexOf(G.honor);
+  if(currentHole === 0 && G.firstOrder && G.firstOrder.length){
+    // 1ホール目は指定した打順
     const base = G.players.map((name,pi)=>({name,score:scores[pi],pi}));
-    if(honorIdx>=0){
-      const honorItem = base.find(p=>p.pi===honorIdx);
-      const rest = base.filter(p=>p.pi!==honorIdx).sort((a,b)=>(a.score||99)-(b.score||99));
-      order = [honorItem,...rest];
-    } else {
-      order = base.sort((a,b)=>(a.score||99)-(b.score||99));
-    }
+    const ordered = [];
+    G.firstOrder.forEach(nm=>{
+      const item = base.find(p=>p.name===nm);
+      if(item) ordered.push(item);
+    });
+    // 指定externalにない人を末尾に
+    base.forEach(p=>{ if(!ordered.includes(p)) ordered.push(p); });
+    order = ordered;
   } else {
     order = G.players.map((name,pi)=>({name,score:scores[pi],pi})).sort((a,b)=>(a.score||99)-(b.score||99));
   }
@@ -3112,15 +3131,19 @@ function renderHoleInput(){
       <div style="background:${bg};color:${fg};padding:4px 8px;border-radius:8px;font-size:13px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${G.players[pi]}</div>
       <div onclick="holeInputSelect(${pi},'score')" style="width:50px;height:44px;border:2px solid ${scoreActive?'var(--green)':'#ddd'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;cursor:pointer;background:${scoreActive?'#f0f8f4':'#fff'};color:#1a1a1a;">${scoreVal||'−'}</div>
       <div style="font-size:11px;color:${ov===null?'#ccc':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db'};width:24px;">${ovStr}</div>`;
-    if(G.showPutt){
+    const myName = getMyName();
+    const isMe = myName && G.players[pi]===myName;
+    if(G.showPutt && isMe){
       html += `<div onclick="holeInputSelect(${pi},'putt')" style="width:44px;height:44px;border:2px solid ${puttActive?'var(--blue)':'#ddd'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;cursor:pointer;background:${puttActive?'#eaf4fd':'#fff'};color:#3498db;">${puttVal||'−'}</div>`;
+    } else if(G.showPutt){
+      html += `<div style="width:44px;height:44px;"></div>`;
     }
     html += `</div>`;
   }
 
   // ヘッダーラベル
   let labelHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:10px;color:#888;"><div style="flex:1;">プレイヤー</div><div style="width:50px;text-align:center;">スコア</div><div style="width:24px;"></div>';
-  if(G.showPutt) labelHtml += '<div style="width:44px;text-align:center;">パット</div>';
+  if(G.showPutt) labelHtml += '<div style="width:44px;text-align:center;font-size:9px;">パット<br>(自分)</div>';
   labelHtml += '</div>';
 
   // テンキー
@@ -3168,14 +3191,17 @@ function holeInputClear(){
 
 function holeInputNext(){
   const n = G.players.length;
-  if(G.showPutt){
-    // スコア→パット→次のプレイヤーのスコア...
-    if(holeInputField==='score'){
+  const myName = getMyName();
+  if(G.showPutt && holeInputField==='score'){
+    // 現在のプレイヤーが自分ならパットへ、そうでなければ次の人のスコアへ
+    if(myName && G.players[holeInputActive]===myName){
       holeInputField='putt';
     } else {
-      holeInputField='score';
       holeInputActive = (holeInputActive+1) % n;
     }
+  } else if(G.showPutt && holeInputField==='putt'){
+    holeInputField='score';
+    holeInputActive = (holeInputActive+1) % n;
   } else {
     holeInputActive = (holeInputActive+1) % n;
   }
