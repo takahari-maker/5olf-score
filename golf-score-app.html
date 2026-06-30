@@ -1468,7 +1468,22 @@ function renderStats(){
 }
 
 // ===== ゴルフ場登録 =====
-function getCourses(){try{return JSON.parse(localStorage.getItem(CKEY)||'{}');}catch(e){return {};}}
+const DEFAULT_COURSES = {"磯子カンツリークラブ": {"OUT": [4, 4, 5, 3, 4, 3, 4, 4, 5], "IN": [4, 4, 4, 3, 5, 4, 3, 5, 4]}, "小田急藤沢ゴルフクラブ": {"OUT": [5, 4, 3, 4, 3, 4, 4, 4, 5], "IN": [4, 4, 3, 3, 4, 4, 5, 5, 4]}, "ファイブハンドレッドクラブ": {"OUT": [5, 4, 4, 3, 5, 4, 4, 4, 3], "IN": [4, 3, 4, 4, 5, 4, 3, 5, 4]}, "メイプルポイントゴルフクラブ": {"OUT": [5, 4, 3, 4, 4, 4, 5, 3, 4], "IN": [5, 4, 3, 4, 4, 4, 3, 4, 5]}};
+const DEFAULT_COURSES_FLAG = 'golympic_default_courses_loaded';
+
+function getCourses(){
+  try{
+    // 初回のみデフォルトゴルフ場を登録
+    if(!localStorage.getItem(DEFAULT_COURSES_FLAG)){
+      const existing = JSON.parse(localStorage.getItem(CKEY)||'{}');
+      const merged = {...DEFAULT_COURSES, ...existing};
+      localStorage.setItem(CKEY, JSON.stringify(merged));
+      localStorage.setItem(DEFAULT_COURSES_FLAG, '1');
+      return merged;
+    }
+    return JSON.parse(localStorage.getItem(CKEY)||'{}');
+  }catch(e){return {};}
+}
 function setCourses(obj){localStorage.setItem(CKEY,JSON.stringify(obj));}
 
 // cfCoursesは登録フォームで一時保持するコース配列
