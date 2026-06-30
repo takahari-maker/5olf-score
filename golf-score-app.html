@@ -751,7 +751,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
 
 <!-- ホール一括入力モーダル -->
 <div class="mov" id="hole-input-modal">
-  <div style="background:#fff;border-radius:14px;padding:16px;width:300px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+  <div style="background:#fff;border-radius:14px;padding:16px;width:300px;max-width:92vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
     <div style="text-align:center;font-family:'Oswald',sans-serif;font-size:15px;color:var(--green);font-weight:700;margin-bottom:4px;" id="hole-input-title">H1 スコア入力</div>
     <div style="text-align:center;font-size:11px;color:#888;margin-bottom:12px;" id="hole-input-par">PAR 4</div>
 
@@ -3130,7 +3130,7 @@ function renderHoleInput(){
         ${[1,2,3,4,5,6,7,8,9].map(d=>`<button onclick="holeInputPress(${d})" class="kpad-btn" style="padding:14px;">${d}</button>`).join('')}
         <button onclick="holeInputClear()" class="kpad-btn" style="padding:14px;background:#fee;color:#e74c3c;">C</button>
         <button onclick="holeInputPress(0)" class="kpad-btn" style="padding:14px;">0</button>
-        <button onclick="holeInputNext()" class="kpad-btn" style="padding:14px;background:var(--green);color:#fff;">▶</button>
+        <button onclick="holeInputNext()" class="kpad-btn" style="padding:14px;background:var(--green);color:#fff;font-size:13px;">次へ</button>
       </div>
     </div>`;
 
