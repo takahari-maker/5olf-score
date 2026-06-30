@@ -359,14 +359,6 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           </div>
           <div class="home-btn-arrow">›</div>
         </button>
-        <button class="home-btn" onclick="showPage('gemini')">
-          <div class="home-btn-icon" style="background:#fff8e1;">🔑</div>
-          <div class="home-btn-text">
-            <div class="home-btn-title">APIキー設定</div>
-            <div class="home-btn-desc">スコアカード読み取り設定</div>
-          </div>
-          <div class="home-btn-arrow">›</div>
-        </button>
         <button class="home-btn" onclick="showPage('howto')">
           <div class="home-btn-icon" style="background:#eaf3ff;">📖</div>
           <div class="home-btn-text">
@@ -488,14 +480,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
             style="margin-bottom:0;">
           <div id="cf-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--green);border-top:none;border-radius:0 0 8px 8px;z-index:100;max-height:200px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
         </div>
-        <div style="height:6px;"></div>
-        <label style="width:100%;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#1e8449,#27ae60);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;box-sizing:border-box;">
-          📷 スコアカードを撮影してPAR自動入力
-          <input type="file" accept="image/*" capture="environment" id="scorecard-input"
-            style="display:none;" onchange="onScorecardPhoto(this)">
-        </label>
-        <div id="scorecard-status" style="font-size:11px;color:#888;margin-bottom:6px;display:none;text-align:center;"></div>
-        <div style="height:2px;"></div>
+        <div style="height:8px;"></div>
 
 
         <!-- コース一覧（動的追加） -->
@@ -533,14 +518,6 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
           <div class="home-btn-text">
             <div class="home-btn-title">プレイヤー登録</div>
             <div class="home-btn-desc">よく一緒にプレーする仲間を登録</div>
-          </div>
-          <div class="home-btn-arrow">›</div>
-        </button>
-        <button class="home-btn" onclick="showPage('gemini')">
-          <div class="home-btn-icon" style="background:#fff8e1;">🔑</div>
-          <div class="home-btn-text">
-            <div class="home-btn-title">APIキー設定</div>
-            <div class="home-btn-desc">スコアカード読み取り設定</div>
           </div>
           <div class="home-btn-arrow">›</div>
         </button>
@@ -586,28 +563,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:#1a1a1a;di
     </div>
   </div>
 
-
-
-  <!-- Gemini APIキー設定 -->
-  <div id="page-gemini" class="page">
-    <div class="inner">
-      <div class="sec">🔑 Gemini APIキー設定</div>
-      <div class="card">
-        <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.6;">
-          スコアカード写真からPAR自動読み取りに使用します。<br>
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--green);">Google AI Studio</a> で無料のAPIキーを取得してください。<br>
-          <span style="color:#e67e22;">※無料枠：1日1,500回まで</span>
-        </div>
-        <label class="flbl">APIキー</label>
-        <input class="fi" type="password" id="gemini-key-input" placeholder="AIza..." style="font-family:monospace;font-size:12px;">
-        <button class="btn btn-g" onclick="saveGeminiKey()" style="width:100%;margin-top:4px;">💾 保存</button>
-        <div id="gemini-key-status" style="font-size:12px;margin-top:8px;color:#888;"></div>
-      </div>
-      <button class="back-home-btn" onclick="showPage('home')">🏠 HOMEに戻る</button>
-    </div>
-  </div>
-
-  <!-- 使い方 -->
+<!-- 使い方 -->
   <div id="page-howto" class="page">
     <div class="inner">
       <div class="sec">📖 使い方</div>
@@ -1019,7 +975,6 @@ function showPage(p) {
   if (p==='course')   { buildVtbl(); renderGcList(); }
   if (p==='settings') {}
   if (p==='players')  { renderPlayerList(); showMyNameDisplay(); }
-  if (p==='gemini')   loadGeminiPage();
   if (p==='howto')    {}
 }
 
@@ -1552,6 +1507,9 @@ function renderCfCourses(){
       <label class="flbl">コース名</label>
       <input class="fi" type="text" value="${c.name}" placeholder="例：OUT、東コース"
         oninput="cfSetName(${ci},this.value)" style="margin-bottom:8px;">
+      <button onclick="startParVoice(${ci})" style="width:100%;padding:9px;margin-bottom:8px;border-radius:8px;border:none;background:linear-gradient(135deg,#1e8449,#27ae60);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">
+        🎤 PARを音声で入力（9ホール分）
+      </button>
       <table class="vtbl">
         <thead><tr><th>ホール</th><th>PAR</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -3212,78 +3170,95 @@ function getScoreFromInput(val, hi){
 }
 
 
-// ===== Gemini API（スコアカード読み取り） =====
-const GEMINI_KEY = 'golympic_gemini_key';
-function getGeminiKey(){ return localStorage.getItem(GEMINI_KEY)||''; }
-function saveGeminiKey(){
-  const k=document.getElementById('gemini-key-input').value.trim();
-  if(!k){ toast('APIキーを入力してください'); return; }
-  localStorage.setItem(GEMINI_KEY, k);
-  const st=document.getElementById('gemini-key-status');
-  if(st){ st.textContent='✅ 保存しました'; st.style.color='#27ae60'; }
-  toast('🔑 APIキーを保存しました');
-}
 
-function loadGeminiPage(){
-  const k=getGeminiKey();
-  const inp=document.getElementById('gemini-key-input');
-  const st=document.getElementById('gemini-key-status');
-  if(inp) inp.value=k;
-  if(st){ st.textContent=k?'✅ APIキーが設定済みです':'未設定'; st.style.color=k?'#27ae60':'#888'; }
-}
 
-function onScorecardPhoto(input){
-  const file=input.files[0];
-  if(!file) return;
-  const status=document.getElementById('scorecard-status');
-  status.style.display='block';
-  status.style.color='#888';
-  status.textContent='📷 画像を読み込み中...';
-  const apiKey=getGeminiKey();
-  if(!apiKey){
-    status.textContent='⚠️ APIキーが未設定です。HOMEの「🔑 APIキー設定」で入力してください。';
-    status.style.color='#e74c3c';
-    input.value='';
+
+// ===== PAR音声入力 =====
+let parVoiceRecognition = null;
+
+function startParVoice(ci){
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
+    toast('音声入力はChromeのみ対応です');
     return;
   }
-  const reader=new FileReader();
-  reader.onload=async(e)=>{
-    const b64=e.target.result.split(',')[1];
-    const mime=file.type||'image/jpeg';
-    status.textContent='🤖 AIがスコアカードを解析中...';
-    try{
-      const res=await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        { method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ contents:[{ parts:[
-            { inline_data:{ mime_type:mime, data:b64 } },
-            { text:'このゴルフ場のスコアカード画像から各コースのホールごとのPARを読み取りJSONのみ返してください。形式:{"courses":[{"name":"コース名","pars":[4,3,4,5,4,3,5,4,4]}]}、parsは9ホール分の配列。' }
-          ]}]})
-        }
-      );
-      const data=await res.json();
-      if(data.error) throw new Error(data.error.message);
-      const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-      const m=text.match(/\{[\s\S]*\}/);
-      if(!m) throw new Error('解析結果が取得できませんでした');
-      const result=JSON.parse(m[0]);
-      const courses=result.courses||[];
-      if(!courses.length) throw new Error('コースデータが見つかりませんでした');
-      cfCourses=courses.map(c=>({
-        name:c.name||'',
-        pars:Array.isArray(c.pars)&&c.pars.length===9?c.pars.map(p=>parseInt(p)||4):Array(9).fill(4)
-      }));
-      renderCfCourses();
-      status.textContent=`✅ ${courses.length}コース分のPARを読み取りました。内容を確認してください。`;
-      status.style.color='#27ae60';
-      toast('📷 スコアカードからPARを読み取りました');
-    }catch(err){
-      status.textContent='❌ '+( err.message||String(err));
-      status.style.color='#e74c3c';
+  if(parVoiceRecognition){ try{parVoiceRecognition.stop();}catch(e){} }
+
+  toast('🎤 9ホール分のPARを順番に言ってください\n例：「4 3 4 5 4 3 5 4 4」');
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  parVoiceRecognition = new SR();
+  parVoiceRecognition.lang = 'ja-JP';
+  parVoiceRecognition.continuous = false;
+  parVoiceRecognition.interimResults = false;
+  parVoiceRecognition.maxAlternatives = 3;
+
+  parVoiceRecognition.onresult = (e) => {
+    const candidates = [];
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      for(let j=0;j<e.results[i].length;j++){
+        candidates.push(e.results[i][j].transcript);
+      }
     }
-    input.value='';
+    // 9個の数字が取れる候補を探す
+    for(const cand of candidates){
+      const pars = extractParNums(cand);
+      if(pars.length >= 9){
+        applyParVoice(ci, pars.slice(0,9));
+        return;
+      }
+    }
+    // 9個に満たない場合も最善で適用
+    const pars = extractParNums(candidates[0]||'');
+    if(pars.length > 0){
+      applyParVoice(ci, pars);
+    } else {
+      toast('❌ PARが聞き取れませんでした\nもう一度お試しください');
+    }
   };
-  reader.readAsDataURL(file);
+
+  parVoiceRecognition.onerror = (e) => { toast('❌ 音声認識エラー: '+e.error); };
+  parVoiceRecognition.start();
+}
+
+function extractParNums(text){
+  // 全角→半角
+  text = text.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+  // 漢数字
+  const kn = {'〇':'0','零':'0','一':'1','二':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9'};
+  text = text.replace(/[〇零一二三四五六七八九]/g, c=>kn[c]||c);
+  // ひらがな読み
+  const yomi = [['さん','3'],['よん','4'],['ご','5'],['ろく','6'],['なな','7'],['し','4'],['みっつ','3']];
+  for(const [k,v] of yomi){ text = text.split(k).join(' '+v+' '); }
+
+  // 連続した数字トークンを1桁ずつ分解（PARは3〜6が基本）
+  const nums = [];
+  const tokens = text.match(/\d+/g) || [];
+  for(const tok of tokens){
+    if(tok.length === 1){
+      const v = parseInt(tok);
+      if(v>=3 && v<=6) nums.push(v);
+    } else {
+      // 連結された数字を1桁ずつ
+      for(const ch of tok){
+        const v = parseInt(ch);
+        if(v>=3 && v<=6) nums.push(v);
+      }
+    }
+  }
+  return nums;
+}
+
+function applyParVoice(ci, pars){
+  if(!cfCourses[ci]) return;
+  for(let hi=0; hi<Math.min(9,pars.length); hi++){
+    cfCourses[ci].pars[hi] = pars[hi];
+  }
+  renderCfCourses();
+  if(pars.length >= 9){
+    toast('✅ 9ホール分のPARを入力しました');
+  } else {
+    toast(`⚠️ ${pars.length}ホール分入力（9に満たない分は確認してください）`);
+  }
 }
 
 // ===== INIT =====
