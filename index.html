@@ -1866,7 +1866,6 @@ function kpadOk(){
     refreshTot(); refreshPuttTot(); renderSummary(); persist();
     const _n=G.players.length;
     const _allFilled=G.scores[hi]&&G.scores[hi].slice(0,_n).every(s=>s!==null&&s!==undefined);
-    if(_allFilled) setTimeout(()=>showOrderPopup(hi), 400);
   } else if(kpadMode==='oly'){
     const hi=kpadHi, pi=kpadPi;
     const n=kpadVal===''||kpadVal==='-'?null:parseInt(kpadVal);
@@ -1905,7 +1904,6 @@ function kpadOk(){
       // 全員スコア入力済みなら打順ポップアップ
       const _n=G.players.length;
       const _allFilled=G.scores[_hi]&&G.scores[_hi].slice(0,_n).every(s=>s!==null&&s!==undefined);
-      if(_allFilled) setTimeout(()=>showOrderPopup(_hi), 400);
     }
   } else if(kpadMode==='putt'){
     const hi=kpadScHi, pi=kpadScPi;
@@ -1917,7 +1915,6 @@ function kpadOk(){
     // パット確定後に打順ポップアップ
     const _n2=G.players.length;
     const _allFilled2=G.scores[hi]&&G.scores[hi].slice(0,_n2).every(s=>s!==null&&s!==undefined);
-    if(_allFilled2) setTimeout(()=>showOrderPopup(hi), 400);
   }
 }
 
@@ -3103,6 +3100,7 @@ function openHoleInput(hi){
   holeInputPutts = G.putts[hi].slice(0, n).map(p => p!==null ? String(p) : '');
   holeInputActive = 0;
   holeInputField = 'score';
+  holeInputLastTime = 0;
   document.getElementById('hole-input-title').textContent = `H${hi+1} スコア入力`;
   document.getElementById('hole-input-par').textContent = `PAR ${G.pars[hi]}`;
   renderHoleInput();
@@ -3131,19 +3129,12 @@ function renderHoleInput(){
       <div style="background:${bg};color:${fg};padding:4px 8px;border-radius:8px;font-size:13px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${G.players[pi]}</div>
       <div onclick="holeInputSelect(${pi},'score')" style="width:50px;height:44px;border:2px solid ${scoreActive?'var(--green)':'#ddd'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;cursor:pointer;background:${scoreActive?'#f0f8f4':'#fff'};color:#1a1a1a;">${scoreVal||'−'}</div>
       <div style="font-size:11px;color:${ov===null?'#ccc':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db'};width:24px;">${ovStr}</div>`;
-    const myName = getMyName();
-    const isMe = myName && G.players[pi]===myName;
-    if(G.showPutt && isMe){
-      html += `<div onclick="holeInputSelect(${pi},'putt')" style="width:44px;height:44px;border:2px solid ${puttActive?'var(--blue)':'#ddd'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;cursor:pointer;background:${puttActive?'#eaf4fd':'#fff'};color:#3498db;">${puttVal||'−'}</div>`;
-    } else if(G.showPutt){
-      html += `<div style="width:44px;height:44px;"></div>`;
-    }
     html += `</div>`;
   }
 
   // ヘッダーラベル
   let labelHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:10px;color:#888;"><div style="flex:1;">プレイヤー</div><div style="width:50px;text-align:center;">スコア</div><div style="width:24px;"></div>';
-  if(G.showPutt) labelHtml += '<div style="width:44px;text-align:center;font-size:9px;">パット<br>(自分)</div>';
+
   labelHtml += '</div>';
 
   // テンキー
@@ -3166,21 +3157,28 @@ function holeInputSelect(pi, field){
   renderHoleInput();
 }
 
+let holeInputLastTime = 0;
 function holeInputPress(n){
-  const max = holeInputField==='putt' ? 10 : 20;
-  if(holeInputField==='score'){
-    let cur = holeInputScores[holeInputActive]||'';
-    // 1桁目入力 or 2桁目
-    if(cur.length>=2 || (cur!=='' && parseInt(cur+n)>max)){ cur=String(n); }
-    else cur += String(n);
-    holeInputScores[holeInputActive] = cur;
-  } else {
-    let cur = holeInputPutts[holeInputActive]||'';
-    if(cur.length>=2 || (cur!=='' && parseInt(cur+n)>max)){ cur=String(n); }
-    else cur += String(n);
-    holeInputPutts[holeInputActive] = cur;
+  const now = Date.now();
+  const isQuick = (now - holeInputLastTime) < 800; // 0.8秒以内の連続入力は2桁とみなす
+  holeInputLastTime = now;
+  const n2 = G.players.length;
+
+  let cur = holeInputScores[holeInputActive]||'';
+  // 0.8秒以内に同じマスへ連続入力したら2桁目として追加
+  if(isQuick && cur.length===1 && parseInt(cur+n)<=20){
+    holeInputScores[holeInputActive] = cur + String(n);
+    renderHoleInput();
+    return;
   }
+  // 通常：1桁入力して次の人へ自動遷移
+  holeInputScores[holeInputActive] = String(n);
   renderHoleInput();
+  // 自動で次の人のスコアへ
+  setTimeout(()=>{
+    holeInputActive = (holeInputActive+1) % n2;
+    renderHoleInput();
+  }, 250);
 }
 
 function holeInputClear(){
@@ -3191,20 +3189,7 @@ function holeInputClear(){
 
 function holeInputNext(){
   const n = G.players.length;
-  const myName = getMyName();
-  if(G.showPutt && holeInputField==='score'){
-    // 現在のプレイヤーが自分ならパットへ、そうでなければ次の人のスコアへ
-    if(myName && G.players[holeInputActive]===myName){
-      holeInputField='putt';
-    } else {
-      holeInputActive = (holeInputActive+1) % n;
-    }
-  } else if(G.showPutt && holeInputField==='putt'){
-    holeInputField='score';
-    holeInputActive = (holeInputActive+1) % n;
-  } else {
-    holeInputActive = (holeInputActive+1) % n;
-  }
+  holeInputActive = (holeInputActive+1) % n;
   renderHoleInput();
 }
 
@@ -3213,9 +3198,7 @@ function saveHoleInput(){
   const n = G.players.length;
   for(let pi=0; pi<n; pi++){
     const sv = holeInputScores[pi]==='' ? null : parseInt(holeInputScores[pi]);
-    const pv = holeInputPutts[pi]==='' ? null : parseInt(holeInputPutts[pi]);
     G.scores[hi][pi] = (sv===null||isNaN(sv)||sv<1) ? null : sv;
-    G.putts[hi][pi] = (pv===null||isNaN(pv)||pv<0) ? null : pv;
   }
   renderStbl();
   renderSummary();
@@ -3223,7 +3206,7 @@ function saveHoleInput(){
   document.getElementById('hole-input-modal').classList.remove('open');
   // 全員入力済みなら打順ポップアップ
   const allFilled = G.scores[hi].slice(0,n).every(s=>s!==null);
-  if(allFilled) setTimeout(()=>showOrderPopup(hi), 300);
+  if(false){}
   else toast('✅ H'+(hi+1)+' を保存しました');
 }
 
