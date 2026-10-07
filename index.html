@@ -663,8 +663,22 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
       <button class="mx" onclick="document.getElementById('modal-edit-round').classList.remove('open')">×</button>
     </div>
     <div class="mbody">
-      <label class="flbl">ゴルフ場名</label>
-      <input class="fi" type="text" id="edit-course" placeholder="例：よみうりゴルフ倶楽部">
+      <label class="flbl">ゴルフ場</label>
+      <select class="fsel" id="edit-club" onchange="onEditClubChange()">
+        <option value="">-- ゴルフ場を選択 --</option>
+      </select>
+      <input class="fi" type="text" id="edit-course" placeholder="ゴルフ場名を入力" style="display:none;margin-top:-4px;">
+      <div class="frow" id="edit-half-row" style="display:none;">
+        <div>
+          <label class="flbl">前半コース</label>
+          <select class="fsel" id="edit-out"><option value="">-- 変更しない --</option></select>
+        </div>
+        <div>
+          <label class="flbl">後半コース</label>
+          <select class="fsel" id="edit-in"><option value="">-- 変更しない --</option></select>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#888;margin:-4px 0 8px;">※コースを選ぶとPARが選び直されます（スコアはそのまま）</div>
 
       <label class="flbl">日付</label>
       <input class="fi" type="date" id="edit-date">
@@ -2557,11 +2571,53 @@ function showMyNameDisplay(){
 // ===== ラウンド情報編集 =====
 let editSelectedPlayers = ['','','',''];
 
+
+function onEditClubChange(keepManual){
+  const clubSel=document.getElementById('edit-club');
+  const courseInp=document.getElementById('edit-course');
+  const halfRow=document.getElementById('edit-half-row');
+  const sOut=document.getElementById('edit-out');
+  const sIn=document.getElementById('edit-in');
+  const club=clubSel.value;
+  if(club==='__manual__'){
+    courseInp.style.display='block';
+    if(keepManual!==true){ courseInp.value=G.course||''; courseInp.focus(); }
+    halfRow.style.display='none';
+    sOut.innerHTML='<option value="">-- 変更しない --</option>';
+    sIn.innerHTML ='<option value="">-- 変更しない --</option>';
+    return;
+  }
+  courseInp.style.display='none';
+  courseInp.value=club;
+  if(!club){ halfRow.style.display='none'; return; }
+  const cs=getCourses(), cobj=cs[club];
+  if(!cobj){ halfRow.style.display='none'; return; }
+  const names=Object.keys(cobj);
+  const opts='<option value="">-- 変更しない --</option>'+names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  sOut.innerHTML=opts; sIn.innerHTML=opts;
+  halfRow.style.display='flex';
+}
+
 function openEditRound(){
   // 現在の値をセット
   const courseInp=document.getElementById('edit-course');
   const dateInp=document.getElementById('edit-date');
-  if(courseInp) courseInp.value=G.course||'';
+  // ゴルフ場セレクト構築
+  const clubSel=document.getElementById('edit-club');
+  const csAll=getCourses();
+  clubSel.innerHTML='<option value="">-- ゴルフ場を選択 --</option>'
+    +Object.keys(csAll).map(n=>`<option value="${n}">${n}</option>`).join('')
+    +'<option value="__manual__">✏️ 直接入力する</option>';
+  if(G.course && csAll[G.course]){
+    clubSel.value=G.course;
+    courseInp.style.display='none';
+    courseInp.value=G.course;
+  } else {
+    clubSel.value='__manual__';
+    courseInp.style.display='block';
+    courseInp.value=G.course||'';
+  }
+  onEditClubChange(true);
   // G.dateをdate input用に変換（例：2026年3月28日→2026-03-28）
   if(dateInp){
     // fmtDateの逆変換
@@ -2661,6 +2717,20 @@ function applyEditRound(){
   G.course=course;
   if(dateRaw) G.date=fmtDate(dateRaw);
   G.weather=weather;
+
+  // 選択コースでPARを更新（選んだ側だけ）
+  try{
+    const clubSel=document.getElementById('edit-club').value;
+    if(clubSel && clubSel!=='__manual__'){
+      const cobj=getCourses()[clubSel];
+      const outN=document.getElementById('edit-out').value;
+      const inN =document.getElementById('edit-in').value;
+      if(cobj){
+        if(outN&&cobj[outN]) for(let i=0;i<9&&i<G.holes;i++) G.pars[i]=cobj[outN][i];
+        if(inN&&cobj[inN]&&G.holes>9) for(let i=0;i<9&&9+i<G.holes;i++) G.pars[9+i]=cobj[inN][i];
+      }
+    }
+  }catch(e){}
 
   // プレイヤー数が変わる場合はスコア配列を調整
   if(players.length!==G.players.length){
