@@ -1004,6 +1004,7 @@ const MEDALS = [
   {k:'iron',   ic:'⚙️', nm:'鉄'},
 ];
 const MEDAL_IC = {dia:'💎',gold:'🥇',silver:'🥈',bronze:'🥉',iron:'⚙️'};
+const MEDAL_NM = {dia:'ダイヤ',gold:'金',silver:'銀',bronze:'銅',iron:'鉄'};
 function getOlySettings(){
   let s;
   try{ s=JSON.parse(localStorage.getItem(OLYSET_KEY)||'null'); }catch(e){ s=null; }
@@ -1446,7 +1447,7 @@ function renderOlyTbl() {
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
         const md=(G.olyMedal&&G.olyMedal[hi])?G.olyMedal[hi][pi]:null;
         const np=(G.nearpin&&G.nearpin[hi])?G.nearpin[hi][pi]:false;
-        const inner = md ? `${MEDAL_IC[md]}<span style="font-size:11px;margin-left:1px;">${v}</span>` : (v!==null?v:'−');
+        const inner = md ? MEDAL_IC[md] : (v!==null?v:'−');
         const npMk = np ? `<span style="position:absolute;top:-5px;right:-4px;font-size:10px;">📍</span>` : '';
         html+=`<td style="position:relative;"><button class="oi-btn ${md?'':cls}" id="oi_${hi}_${pi}" onclick="openKpad(${hi},${pi})" style="position:relative;">${inner}${npMk}</button></td>`;
       }
@@ -3459,7 +3460,8 @@ function renderHoleInput(){
     const oa = holeInputActive===pi && holeInputField==='oly';
     const ov = scoreVal!=='' ? parseInt(scoreVal)-par : null;
     const ovStr = ov===null?'':ov===0?'E':ov>0?'+'+ov:''+ov;
-    const olyNum = olyVal===''?null:parseInt(olyVal);
+    const olyNum = (olyVal===''||olyVal==='-')?null:parseInt(olyVal);
+    const olyShow = olyVal==='-'?'−…':(olyNum!==null?(olyNum>0?'+':'')+olyNum:'−');
     const olyCol = olyNum===null?'#C9C5B8':olyNum<0?'#C05548':'var(--turf)';
 
     html += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">
@@ -3475,9 +3477,9 @@ function renderHoleInput(){
     const near = holeInputNears[pi];
     let olyInner;
     if(medal){
-      olyInner = `<span style="font-size:17px;line-height:1;">${MEDAL_IC[medal]}</span><span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:13px;color:var(--ink2);margin-left:1px;">${olyVal}</span>`;
+      olyInner = `<span style="font-size:16px;line-height:1;">${MEDAL_IC[medal]}</span><span style="font-size:10px;font-weight:700;color:var(--ink2);">${MEDAL_NM[medal]}</span>`;
     } else {
-      olyInner = `<span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:21px;color:${olyCol};">${olyVal!==''?(olyNum>0?'+':'')+olyNum:'−'}</span>`;
+      olyInner = `<span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:21px;color:${olyCol};">${olyShow}</span>`;
     }
     const npBadge = near ? `<span style="position:absolute;top:-6px;right:-6px;font-size:12px;background:#E0F2F7;border-radius:8px;padding:1px 3px;line-height:1;">📍</span>` : '';
     html += `<div onclick="holeInputSelect(${pi},'oly')" style="position:relative;width:50px;height:48px;border:2.5px solid ${oa?'var(--gold)':'#E4E1D8'};border-radius:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${oa?'#FCF6E8':'#FAF9F4'};">${olyInner}${npBadge}</div>
@@ -3494,7 +3496,7 @@ function renderHoleInput(){
           const selM = holeInputMedals[holeInputActive]===m.k;
           return `<button onclick="holeInputMedal('${m.k}')" style="border:2px solid ${selM?'var(--turf)':'transparent'};border-radius:11px;padding:6px 2px;cursor:pointer;background:${selM?'#EDF6F0':'#fff'};box-shadow:0 1px 4px rgba(14,59,46,.1);display:flex;flex-direction:column;align-items:center;gap:1px;font-family:inherit;">
             <span style="font-size:17px;line-height:1;">${m.ic}</span>
-            <span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:12px;color:var(--ink2);">${S.pts[m.k]}</span>
+            <span style="font-size:10px;font-weight:700;color:var(--ink2);letter-spacing:0;">${m.nm}</span>
           </button>`;
         }).join('')}
         <button onclick="holeInputNear()" style="grid-column:span 6;border:2px solid ${activeNear?'#0E7490':'transparent'};border-radius:11px;padding:7px;cursor:pointer;background:${activeNear?'#E0F2F7':'#F3F8FA'};font-family:inherit;font-size:12px;font-weight:700;color:#0E7490;display:flex;align-items:center;justify-content:center;gap:6px;">
@@ -3509,9 +3511,9 @@ function renderHoleInput(){
         ${[1,2,3,4,5,6,7,8,9].map(d=>`<button onclick="holeInputPress(${d})" class="kpad-btn" style="padding:13px;">${d}</button>`).join('')}
         <button onclick="holeInputClear()" class="kpad-btn" style="padding:13px;background:#FBE7E3;color:#C05548;font-family:'Zen Kaku Gothic New',sans-serif;font-size:15px;font-weight:700;">C</button>
         <button onclick="holeInputPress(0)" class="kpad-btn" style="padding:13px;">0</button>
-        <button onclick="holeInputSign()" class="kpad-btn" style="padding:13px;background:${olyOn?'var(--gold)':'#F3F1EA'};color:${olyOn?'var(--deep)':'#C9C5B8'};font-family:'Zen Kaku Gothic New',sans-serif;font-size:17px;font-weight:700;">±</button>
+        <button onclick="holeInputSign()" class="kpad-btn" style="padding:13px;background:${olyOn?'#FBE7E3':'#F3F1EA'};color:${olyOn?'#C05548':'#C9C5B8'};font-family:'Zen Kaku Gothic New',sans-serif;font-size:19px;font-weight:700;">−</button>
       </div>
-      <div style="text-align:center;font-size:10px;color:#B4AE9E;margin-top:6px;">${olyOn?'メダルでも数字でも入力OK（±で符号反転）':'数字を押すと自動で次の人へ／マスをタップで切替'}</div>
+      <div style="text-align:center;font-size:10px;color:#B4AE9E;margin-top:6px;">${olyOn?'プラスはそのまま数字／マイナスは −を押してから数字':'数字を押すと自動で次の人へ／マスをタップで切替'}</div>
     </div>`;
 
   area.innerHTML = html + keypad;
@@ -3585,8 +3587,9 @@ function holeInputSign(){
   if(holeInputField!=='oly') return;
   holeInputMedals[holeInputActive]=null;
   let cur = holeInputOlys[holeInputActive]||'';
-  if(cur==='') return;
-  holeInputOlys[holeInputActive] = cur.startsWith('-') ? cur.slice(1) : '-'+cur;
+  if(cur===''){ holeInputOlys[holeInputActive]='-'; }
+  else if(cur==='-'){ holeInputOlys[holeInputActive]=''; }
+  else { holeInputOlys[holeInputActive] = cur.startsWith('-') ? cur.slice(1) : '-'+cur; }
   renderHoleInput();
 }
 
