@@ -442,7 +442,10 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
       <div style="flex-shrink:0;padding:6px 12px;border-top:1px solid var(--bg3);background:var(--bg);max-height:40vh;overflow-y:auto;">
         <div class="sec" style="display:flex;align-items:center;justify-content:space-between;">
           <span>🏆 順位</span>
-          <button onclick="openOlyTotalModal()" style="border:1.5px solid var(--turf);background:#fff;color:var(--turf);border-radius:10px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ トータル入力</button>
+          <div style="display:flex;gap:6px;">
+            <button onclick="openOlySettings()" style="border:1.5px solid var(--gold);background:#fff;color:#A8842F;border-radius:10px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">⚙️ 設定</button>
+            <button onclick="openOlyTotalModal()" style="border:1.5px solid var(--turf);background:#fff;color:var(--turf);border-radius:10px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ トータル入力</button>
+          </div>
         </div>
         <div style="overflow-x:auto;"><table class="rtbl" id="rtbl"></table></div>
       </div>
@@ -786,6 +789,26 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
 
 
 
+
+<!-- オリンピック設定モーダル -->
+<div class="mov" id="oly-settings-modal">
+  <div style="background:#fff;border-radius:24px;padding:20px;width:310px;max-width:94vw;max-height:92vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <div style="text-align:center;font-size:15px;color:var(--deep);font-weight:700;margin-bottom:12px;">⚙️ オリンピック設定</div>
+
+    <div style="font-size:12px;font-weight:700;color:var(--deep);margin-bottom:6px;">🏅 メダルの点数</div>
+    <div class="card" style="padding:10px 12px;margin-bottom:12px;" id="oly-set-medals"></div>
+
+    <div style="font-size:12px;font-weight:700;color:var(--deep);margin-bottom:2px;">📍 ニアピン金額（1人からもらう額）</div>
+    <div style="font-size:10px;color:var(--ink2);margin-bottom:6px;">獲得すると「他の全員 × この金額」を受け取ります</div>
+    <div class="card" style="padding:10px 12px;margin-bottom:12px;" id="oly-set-np"></div>
+
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-o" onclick="document.getElementById('oly-settings-modal').classList.remove('open')" style="flex:1;">キャンセル</button>
+      <button class="btn btn-g" onclick="saveOlySettings()" style="flex:1;">💾 保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- オリンピック トータル入力モーダル -->
 <div class="mov" id="oly-total-modal">
   <div style="background:#fff;border-radius:24px;padding:22px;width:300px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
@@ -811,12 +834,58 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
       </div>
       <button onclick="holeInputMove(1)" id="hole-next-btn" style="width:44px;height:44px;border:none;border-radius:12px;background:#F3F1EA;color:var(--ink);font-size:20px;cursor:pointer;">▶</button>
     </div>
+    <button onclick="openBulkInput()" style="width:100%;margin-bottom:8px;padding:8px;border:1.5px dashed var(--turf);border-radius:12px;background:#F4FAF6;color:var(--turf);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🔢 スコアだけ先に入力（あとで人に紐付け）</button>
 
     <div id="hole-input-players"></div>
 
     <button class="btn btn-g" onclick="holeInputSaveNext()" id="hole-save-btn" style="width:100%;margin-top:10px;padding:14px;font-size:15px;letter-spacing:1px;">保存して H2 へ ▶</button>
     <div style="text-align:center;margin-top:8px;">
       <button onclick="saveHoleInput()" style="border:none;background:transparent;color:var(--ink2);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;">保存して閉じる</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- まとめ入力モーダル -->
+<div class="mov" id="bulk-modal">
+  <div style="background:#fff;border-radius:24px;padding:18px 16px;width:320px;max-width:94vw;max-height:94vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <div style="text-align:center;margin-bottom:8px;">
+      <div id="bulk-title" style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:28px;color:var(--deep);line-height:1;">H1</div>
+      <div id="bulk-par" style="font-size:11px;color:var(--ink2);font-weight:700;">PAR 4</div>
+    </div>
+
+    <!-- STEP1 -->
+    <div id="bulk-step1">
+      <div style="text-align:center;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:8px;">🔢 聞いた順にスコアだけ入力</div>
+      <div id="bulk-digits" style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;"></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(1)">1</button>
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(2)">2</button>
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(3)">3</button>
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(4)">4</button>
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(5)">5</button>
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(6)">6</button>
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(7)">7</button>
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(8)">8</button>
+        <button class="kpad-btn" style="padding:12px;" onclick="bulkAdd(9)">9</button>
+        <button class="kpad-btn" style="padding:12px;background:#FBE7E3;color:#C05548;font-family:'Zen Kaku Gothic New',sans-serif;font-size:15px;font-weight:700;" onclick="bulkDel()">⌫</button>
+      </div>
+      <button class="btn btn-g" id="bulk-go" style="width:100%;margin-top:10px;padding:13px;opacity:.35;pointer-events:none;" onclick="bulkToStep2()">👥 だれのスコアか選ぶ ▶</button>
+      <div style="text-align:center;font-size:10px;color:#B4AE9E;margin-top:6px;">人数分入力すると次へ進めます（2桁は続けて押す）</div>
+    </div>
+
+    <!-- STEP2 -->
+    <div id="bulk-step2" style="display:none;">
+      <div style="text-align:center;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:8px;">👥 光っているスコアは<span style="color:var(--turf);">だれ？</span></div>
+      <div id="bulk-digits2" style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;"></div>
+      <div id="bulk-players" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+      <div id="bulk-result" style="margin-top:10px;"></div>
+      <button class="btn btn-g" id="bulk-ok" style="display:none;width:100%;margin-top:4px;padding:13px;" onclick="bulkCommit()">✅ この内容で確定</button>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:10px;">
+      <button onclick="bulkRestart()" style="border:none;background:transparent;color:var(--ink2);font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;">やり直す</button>
+      <button onclick="document.getElementById('bulk-modal').classList.remove('open')" style="border:none;background:transparent;color:var(--ink2);font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;">閉じる</button>
     </div>
   </div>
 </div>
@@ -914,7 +983,37 @@ function initData() {
   G.scores = Array.from({length:h},()=>Array(n).fill(null));
   G.putts  = Array.from({length:h},()=>Array(n).fill(null));
   G.oly    = Array.from({length:h},()=>Array(n).fill(null));
+  G.olyMedal = Array.from({length:h},()=>Array(n).fill(null));
+  G.nearpin  = Array.from({length:h},()=>Array(n).fill(false));
 }
+
+function ensureOlyExtra(){
+  // 旧データ読込時の補完
+  const h=G.holes, n=G.players.length;
+  if(!G.olyMedal||G.olyMedal.length!==h) G.olyMedal=Array.from({length:h},()=>Array(n).fill(null));
+  if(!G.nearpin ||G.nearpin.length!==h)  G.nearpin =Array.from({length:h},()=>Array(n).fill(false));
+}
+
+// ===== オリンピック設定（メダル点数・ニアピン金額） =====
+const OLYSET_KEY = 'golympic_oly_settings_v1';
+const MEDALS = [
+  {k:'dia',    ic:'💎', nm:'ダイヤ'},
+  {k:'gold',   ic:'🥇', nm:'金'},
+  {k:'silver', ic:'🥈', nm:'銀'},
+  {k:'bronze', ic:'🥉', nm:'銅'},
+  {k:'iron',   ic:'⚙️', nm:'鉄'},
+];
+const MEDAL_IC = {dia:'💎',gold:'🥇',silver:'🥈',bronze:'🥉',iron:'⚙️'};
+function getOlySettings(){
+  let s;
+  try{ s=JSON.parse(localStorage.getItem(OLYSET_KEY)||'null'); }catch(e){ s=null; }
+  if(!s) s={};
+  if(!s.pts) s.pts={dia:5,gold:4,silver:3,bronze:2,iron:1};
+  if(!s.np)  s.np={};
+  return s;
+}
+function setOlySettings(s){ localStorage.setItem(OLYSET_KEY, JSON.stringify(s)); }
+function npYen(name){ const s=getOlySettings(); const v=parseInt(s.np[name]); return isNaN(v)?100:v; }
 
 // ===== 永続化 =====
 function autoSaveToHistory(){
@@ -924,7 +1023,9 @@ function autoSaveToHistory(){
     id:G.id||Date.now(), course:G.course, date:G.date, holes:G.holes, weather:G.weather||'',
     players:[...G.players], pars:[...G.pars],
     scores:G.scores.map(r=>[...r]), putts:G.putts.map(r=>[...r]),
-    oly:G.oly.map(r=>[...r]), savedAt:new Date().toISOString()
+    oly:G.oly.map(r=>[...r]),
+    olyMedal:(G.olyMedal||[]).map(r=>[...r]), nearpin:(G.nearpin||[]).map(r=>[...r]),
+    savedAt:new Date().toISOString()
   };
   if(!G.id) G.id=e.id;
   else e.id=G.id;
@@ -942,6 +1043,7 @@ function persist() {
         id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'', firstOrder:G.firstOrder||[], olyAdj:G.olyAdj||[0,0,0,0,0,0],
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
+        olyMedal:G.olyMedal, nearpin:G.nearpin,
         showPutt:G.showPutt, statsP:G.statsP
       }
     }));
@@ -958,8 +1060,9 @@ function loadSaved() {
       G.id=c.id||null; G.course=c.course||''; G.date=c.date||'';
       G.holes=c.holes||18; G.weather=c.weather||''; G.honor=c.honor||''; G.firstOrder=c.firstOrder||[]; G.olyAdj=c.olyAdj||[0,0,0,0,0,0]; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
       G.scores=c.scores||null; G.putts=c.putts||null; G.oly=c.oly||null;
+      G.olyMedal=c.olyMedal||null; G.nearpin=c.nearpin||null;
       G.showPutt=c.showPutt||false; G.statsP=c.statsP||0;
-      if (!G.scores) initData();
+      if (!G.scores) initData(); else ensureOlyExtra();
     }
   } catch(e) {}
 }
@@ -979,6 +1082,9 @@ function loadEntry(id) {
   G.scores=e.scores.map(r=>[...r]);
   G.putts=e.putts ? e.putts.map(r=>[...r]) : Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
   G.oly=e.oly ? e.oly.map(r=>[...r]) : Array.from({length:e.holes},()=>Array(e.players.length).fill(null));
+  G.olyMedal=e.olyMedal ? e.olyMedal.map(r=>[...r]) : null;
+  G.nearpin =e.nearpin ? e.nearpin.map(r=>[...r]) : null;
+  ensureOlyExtra();
   G.statsP=0;
   const _hc=document.getElementById('hdr-course-name');
   const _hd=document.getElementById('hdr-course-date');
@@ -1011,6 +1117,7 @@ function persistOnly() {
         id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'', firstOrder:G.firstOrder||[], olyAdj:G.olyAdj||[0,0,0,0,0,0],
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
+        olyMedal:G.olyMedal, nearpin:G.nearpin,
         showPutt:G.showPutt, statsP:G.statsP
       }
     }));
@@ -1301,29 +1408,30 @@ function subPts(s,e,pi){
   return any?t:null;
 }
 function fp(v){
-  // テーブル内：下2桁省略（例：¥1,400→¥14）
+  // テーブル内：下2桁省略（例：¥1,400→¥14）／ptが多いほど受取
   if(v===null) return '<span class="pn">-</span>';
   const unit=parseInt(document.getElementById('unit-price')?.value)||100;
-  const yen=(-v)*unit;
+  const yen=v*unit;
   if(v===0) return '<span class="pz">0</span>';
-  const short=Math.round(yen/100); // 下2桁省略
+  const short=Math.round(Math.abs(yen)/100);
   return yen>0
-    ? `<span class="pm">-¥${short}</span>`
-    : `<span class="pp">+¥${(-short)}</span>`;
+    ? `<span class="pp">+¥${short}</span>`
+    : `<span class="pm">-¥${short}</span>`;
 }
 
 function fpFull(v, unit){
-  // 順位テーブル用：省略なし
+  // 順位テーブル用：省略なし／ptが多いほど受取
   if(v===null) return '<span style="color:var(--g2)">-</span>';
-  const yen=(-v)*unit;
+  const yen=v*unit;
   if(v===0) return '<span style="color:var(--g2)">0円</span>';
   return yen>0
-    ? `<span class="pm">-¥${yen.toLocaleString()}</span>`
-    : `<span class="pp">+¥${(-yen).toLocaleString()}</span>`;
+    ? `<span class="pp">+¥${yen.toLocaleString()}</span>`
+    : `<span class="pm">-¥${(-yen).toLocaleString()}</span>`;
 }
 
 function renderOlyTbl() {
   if (!G.players.length){document.getElementById('otbl').innerHTML='';return;}
+  ensureOlyExtra();
   const n=G.players.length, h=G.holes;
   // ヘッダー：H列 + プレイヤースコア列 + プレイヤーpt列
   let html='<thead><tr><th class="hcol" style="position:sticky;top:0;z-index:6;">H</th>'
@@ -1336,7 +1444,11 @@ function renderOlyTbl() {
       html+=`<tr><td class="hcell" style="min-width:24px;font-size:12px;">${hi+1}</td>`;
       for(let pi=0;pi<n;pi++){
         const v=row[pi], cls=v!==null?(v<0?'neg':'pos'):'';
-        html+=`<td><button class="oi-btn ${cls}" id="oi_${hi}_${pi}" onclick="openKpad(${hi},${pi})">${v!==null?v:'−'}</button></td>`;
+        const md=(G.olyMedal&&G.olyMedal[hi])?G.olyMedal[hi][pi]:null;
+        const np=(G.nearpin&&G.nearpin[hi])?G.nearpin[hi][pi]:false;
+        const inner = md ? `${MEDAL_IC[md]}<span style="font-size:11px;margin-left:1px;">${v}</span>` : (v!==null?v:'−');
+        const npMk = np ? `<span style="position:absolute;top:-5px;right:-4px;font-size:10px;">📍</span>` : '';
+        html+=`<td style="position:relative;"><button class="oi-btn ${md?'':cls}" id="oi_${hi}_${pi}" onclick="openKpad(${hi},${pi})" style="position:relative;">${inner}${npMk}</button></td>`;
       }
       if(olyMoneyVisible) for(let pi=0;pi<n;pi++) html+=`<td id="op_${hi}_${pi}">${fp(pts[pi])}</td>`;
       html+='</tr>';
@@ -1405,22 +1517,50 @@ function refreshOlySubs(){
 
 function renderOlySummary(){
   const unit=parseInt(document.getElementById('unit-price').value)||100;
-  const n=G.players.length,h=G.holes,out=Math.min(9,h);
+  const n=G.players.length,h=G.holes;
   if(!G.olyAdj) G.olyAdj=[0,0,0,0,0,0];
-  // 調整値込みの合計
+  ensureOlyExtra();
+  // 調整値込みのpt合計（pt多い=勝ち）
   const tots=G.players.map((_,pi)=>{
     const base=subPts(0,h,pi);
     const adj=G.olyAdj[pi]||0;
     return base===null&&adj===0?null:(base||0)+adj;
   });
-  const ranked=tots.map((p,i)=>({i,p})).sort((a,b)=>{if(a.p===null&&b.p===null)return 0;if(a.p===null)return 1;if(b.p===null)return -1;return a.p-b.p;});
-  const fpp=v=>fpFull(v,unit);
-  let html='<thead><tr><th>順位</th><th class="pnm">プレイヤー</th><th>OUT</th>'+(h>9?'<th>IN</th>':'')+'<th>合計</th></tr></thead><tbody>';
-  ranked.forEach(({i:pi},rank)=>{
+  // ニアピン回数と受払
+  const npCnt=G.players.map((_,pi)=>G.nearpin.reduce((a,row)=>a+((row&&row[pi])?1:0),0));
+  const npNet=G.players.map((name,pi)=>{
+    let net=npCnt[pi]*npYen(name)*(n-1);
+    G.players.forEach((nm2,j)=>{ if(j!==pi) net-=npCnt[j]*npYen(nm2); });
+    return net;
+  });
+  const anyAt=pi=>tots[pi]!==null||npCnt[pi]>0||npCnt.some(x=>x>0);
+  const totalYen=G.players.map((_,pi)=>(tots[pi]||0)*unit+npNet[pi]);
+  const ranked=[...Array(n).keys()].sort((a,b)=>{
+    const av=anyAt(a)?totalYen[a]:-Infinity, bv=anyAt(b)?totalYen[b]:-Infinity;
+    if(av===bv) return (tots[b]||0)-(tots[a]||0);
+    return bv-av;
+  });
+  let html='<thead><tr><th>順位</th><th class="pnm">プレイヤー</th><th>pt</th><th>📍</th><th>合計</th></tr></thead><tbody>';
+  ranked.forEach((pi,rank)=>{
     const badge=rank<3?`<span class="rb r${rank+1}">${rank+1}</span>`:rank+1;
     const adj=G.olyAdj[pi]||0;
-    const adjMark=adj!==0?`<span style="font-size:9px;color:#C4763B;">※調整${adj>0?'+':''}${adj}</span>`:'';
-    html+=`<tr><td>${badge}</td><td class="pnm">${G.players[pi]}</td><td>${fpp(subPts(0,out,pi))}</td>${h>9?`<td>${fpp(subPts(9,h,pi))}</td>`:''}<td style="font-weight:700;cursor:pointer;" onclick="editOlyTotal(${pi})">${fpp(tots[pi])} ${adjMark}<div style="font-size:8px;color:#B4AE9E;">タップで修正</div></td></tr>`;
+    const adjMark=adj!==0?`<div style="font-size:9px;color:#C4763B;">※調整${adj>0?'+':''}${adj}</div>`:'';
+    const t=tots[pi];
+    const tStr=t===null?'-':(t>0?'+':'')+t;
+    const tCol=t===null?'var(--g2)':t>0?'var(--turf)':t<0?'#C05548':'var(--g1)';
+    const myNp=npCnt[pi]*npYen(G.players[pi])*(n-1);
+    const npStr=npCnt[pi]>0
+      ?`${npCnt[pi]}回<div style="font-size:9px;color:#0E7490;font-weight:700;">+¥${myNp.toLocaleString()}</div>`
+      :'<span style="color:#C9C5B8;">−</span>';
+    const yen=totalYen[pi];
+    const yenStr=!anyAt(pi)?'<span style="color:var(--g2)">-</span>'
+      :yen>0?`<span class="pp">+¥${yen.toLocaleString()}</span>`
+      :yen<0?`<span class="pm">-¥${(-yen).toLocaleString()}</span>`
+      :'<span style="color:var(--g2)">±0</span>';
+    html+=`<tr><td>${badge}</td><td class="pnm">${G.players[pi]}</td>
+      <td style="cursor:pointer;" onclick="editOlyTotal(${pi})"><span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:18px;font-weight:700;color:${tCol};">${tStr}</span>${adjMark}<div style="font-size:8px;color:#B4AE9E;">タップで修正</div></td>
+      <td style="font-size:11px;">${npStr}</td>
+      <td style="font-weight:700;">${yenStr}</td></tr>`;
   });
   document.getElementById('rtbl').innerHTML=html+'</tbody>';
 }
@@ -1548,8 +1688,9 @@ function renderStats(){
 }
 
 // ===== ゴルフ場登録 =====
-const DEFAULT_COURSES = {"磯子カンツリークラブ": {"OUT": [4, 4, 5, 3, 4, 3, 4, 4, 5], "IN": [4, 4, 4, 3, 5, 4, 3, 5, 4]}, "小田急藤沢ゴルフクラブ": {"OUT": [5, 4, 3, 4, 3, 4, 4, 4, 5], "IN": [4, 4, 3, 3, 4, 4, 5, 5, 4]}, "ファイブハンドレッドクラブ": {"OUT": [5, 4, 4, 3, 5, 4, 4, 4, 3], "IN": [4, 3, 4, 4, 5, 4, 3, 5, 4]}, "メイプルポイントゴルフクラブ": {"OUT": [5, 4, 3, 4, 4, 4, 5, 3, 4], "IN": [5, 4, 3, 4, 4, 4, 3, 4, 5]}};
+const DEFAULT_COURSES = {"磯子カンツリークラブ": {"OUT": [4, 4, 5, 3, 4, 3, 4, 4, 5], "IN": [4, 4, 4, 3, 5, 4, 3, 5, 4]}, "小田急藤沢ゴルフクラブ": {"OUT": [5, 4, 3, 4, 3, 4, 4, 4, 5], "IN": [4, 4, 3, 3, 4, 4, 5, 5, 4]}, "ファイブハンドレッドクラブ": {"OUT": [5, 4, 4, 3, 5, 4, 4, 4, 3], "IN": [4, 3, 4, 4, 5, 4, 3, 5, 4]}, "メイプルポイントゴルフクラブ": {"OUT": [5, 4, 3, 4, 4, 4, 5, 3, 4], "IN": [5, 4, 3, 4, 4, 4, 3, 4, 5]}, "よみうりゴルフ倶楽部": {"OUT": [5, 3, 4, 4, 4, 3, 5, 4, 4], "IN": [4, 5, 3, 4, 5, 4, 3, 4, 4]}};
 const DEFAULT_COURSES_FLAG = 'golympic_default_courses_loaded';
+const DEFAULT_COURSES_V2 = 'golympic_default_courses_v2';
 
 function getCourses(){
   try{
@@ -1559,7 +1700,18 @@ function getCourses(){
       const merged = {...DEFAULT_COURSES, ...existing};
       localStorage.setItem(CKEY, JSON.stringify(merged));
       localStorage.setItem(DEFAULT_COURSES_FLAG, '1');
+      localStorage.setItem(DEFAULT_COURSES_V2, '1');
       return merged;
+    }
+    // v2: 既存ユーザーにも「よみうりゴルフ倶楽部」を追加（未登録の場合のみ）
+    if(!localStorage.getItem(DEFAULT_COURSES_V2)){
+      const cs = JSON.parse(localStorage.getItem(CKEY)||'{}');
+      if(!cs['よみうりゴルフ倶楽部']){
+        cs['よみうりゴルフ倶楽部'] = DEFAULT_COURSES['よみうりゴルフ倶楽部'];
+        localStorage.setItem(CKEY, JSON.stringify(cs));
+      }
+      localStorage.setItem(DEFAULT_COURSES_V2, '1');
+      return cs;
     }
     return JSON.parse(localStorage.getItem(CKEY)||'{}');
   }catch(e){return {};}
@@ -2004,6 +2156,7 @@ function kpadOk(){
     const hi=kpadHi, pi=kpadPi;
     const n=kpadVal===''||kpadVal==='-'?null:parseInt(kpadVal);
     G.oly[hi][pi]=isNaN(n)?null:n;
+    ensureOlyExtra(); G.olyMedal[hi][pi]=null;
     const btn=document.getElementById('oi_'+hi+'_'+pi);
     if(btn){
       btn.textContent=G.oly[hi][pi]!==null?G.oly[hi][pi]:'−';
@@ -2515,10 +2668,14 @@ function applyEditRound(){
       G.scores=G.scores.map(r=>[...r,...Array(newN-oldN).fill(null)]);
       G.putts =G.putts.map(r=>[...r,...Array(newN-oldN).fill(null)]);
       G.oly   =G.oly.map(r=>[...r,...Array(newN-oldN).fill(null)]);
+      G.olyMedal=(G.olyMedal||[]).map(r=>[...r,...Array(newN-oldN).fill(null)]);
+      G.nearpin =(G.nearpin||[]).map(r=>[...r,...Array(newN-oldN).fill(false)]);
     } else {
       G.scores=G.scores.map(r=>r.slice(0,newN));
       G.putts =G.putts.map(r=>r.slice(0,newN));
       G.oly   =G.oly.map(r=>r.slice(0,newN));
+      G.olyMedal=(G.olyMedal||[]).map(r=>r.slice(0,newN));
+      G.nearpin =(G.nearpin||[]).map(r=>r.slice(0,newN));
     }
   }
   G.players=players;
@@ -3244,6 +3401,8 @@ let holeInputActive = -1; // 現在入力中のプレイヤーインデックス
 let holeInputField = 'score'; // 'score' or 'putt'
 
 let holeInputOlys = [];
+let holeInputMedals = [];
+let holeInputNears = [];
 
 function openHoleInput(hi){
   holeInputHi = hi;
@@ -3251,6 +3410,9 @@ function openHoleInput(hi){
   holeInputScores = G.scores[hi].slice(0, n).map(s => s!==null ? String(s) : '');
   holeInputPutts = G.putts[hi].slice(0, n).map(p => p!==null ? String(p) : '');
   holeInputOlys  = G.oly[hi].slice(0, n).map(v => v!==null ? String(v) : '');
+  ensureOlyExtra();
+  holeInputMedals = G.olyMedal[hi].slice(0, n).map(m=>m||null);
+  holeInputNears  = G.nearpin[hi].slice(0, n).map(b=>!!b);
   holeInputActive = 0;
   holeInputField = 'score';
   holeInputLastTime = 0;
@@ -3309,21 +3471,47 @@ function renderHoleInput(){
     } else {
       html += `<div style="width:46px;height:48px;"></div>`;
     }
-    html += `<div onclick="holeInputSelect(${pi},'oly')" style="width:50px;height:48px;border:2.5px solid ${oa?'var(--gold)':'#E4E1D8'};border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:21px;cursor:pointer;background:${oa?'#FCF6E8':'#FAF9F4'};color:${olyCol};">${olyVal!==''?(olyNum>0?'+':'')+olyNum:'−'}</div>
+    const medal = holeInputMedals[pi];
+    const near = holeInputNears[pi];
+    let olyInner;
+    if(medal){
+      olyInner = `<span style="font-size:17px;line-height:1;">${MEDAL_IC[medal]}</span><span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:13px;color:var(--ink2);margin-left:1px;">${olyVal}</span>`;
+    } else {
+      olyInner = `<span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:21px;color:${olyCol};">${olyVal!==''?(olyNum>0?'+':'')+olyNum:'−'}</span>`;
+    }
+    const npBadge = near ? `<span style="position:absolute;top:-6px;right:-6px;font-size:12px;background:#E0F2F7;border-radius:8px;padding:1px 3px;line-height:1;">📍</span>` : '';
+    html += `<div onclick="holeInputSelect(${pi},'oly')" style="position:relative;width:50px;height:48px;border:2.5px solid ${oa?'var(--gold)':'#E4E1D8'};border-radius:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${oa?'#FCF6E8':'#FAF9F4'};">${olyInner}${npBadge}</div>
     </div>`;
   }
 
   // テンキー（±はオリ選択時のみ有効）
   const olyOn = holeInputField==='oly';
+  const S = getOlySettings();
+  const activeNear = holeInputNears[holeInputActive];
+  const medalRow = olyOn ? `
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:7px;">
+        ${MEDALS.map(m=>{
+          const selM = holeInputMedals[holeInputActive]===m.k;
+          return `<button onclick="holeInputMedal('${m.k}')" style="border:2px solid ${selM?'var(--turf)':'transparent'};border-radius:11px;padding:6px 2px;cursor:pointer;background:${selM?'#EDF6F0':'#fff'};box-shadow:0 1px 4px rgba(14,59,46,.1);display:flex;flex-direction:column;align-items:center;gap:1px;font-family:inherit;">
+            <span style="font-size:17px;line-height:1;">${m.ic}</span>
+            <span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:12px;color:var(--ink2);">${S.pts[m.k]}</span>
+          </button>`;
+        }).join('')}
+        <button onclick="holeInputNear()" style="grid-column:span 6;border:2px solid ${activeNear?'#0E7490':'transparent'};border-radius:11px;padding:7px;cursor:pointer;background:${activeNear?'#E0F2F7':'#F3F8FA'};font-family:inherit;font-size:12px;font-weight:700;color:#0E7490;display:flex;align-items:center;justify-content:center;gap:6px;">
+          📍 ニアピン獲得（¥${npYen(G.players[holeInputActive])}×${Math.max(G.players.length-1,1)}人）
+          <span style="width:18px;height:18px;border-radius:6px;border:2px solid #0E7490;display:inline-flex;align-items:center;justify-content:center;background:${activeNear?'#0E7490':'transparent'};color:#fff;font-size:12px;">${activeNear?'✓':''}</span>
+        </button>
+      </div>` : '';
   const keypad = `
     <div style="margin-top:8px;border-top:1px solid #eee;padding-top:10px;">
+      ${medalRow}
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
         ${[1,2,3,4,5,6,7,8,9].map(d=>`<button onclick="holeInputPress(${d})" class="kpad-btn" style="padding:13px;">${d}</button>`).join('')}
         <button onclick="holeInputClear()" class="kpad-btn" style="padding:13px;background:#FBE7E3;color:#C05548;font-family:'Zen Kaku Gothic New',sans-serif;font-size:15px;font-weight:700;">C</button>
         <button onclick="holeInputPress(0)" class="kpad-btn" style="padding:13px;">0</button>
         <button onclick="holeInputSign()" class="kpad-btn" style="padding:13px;background:${olyOn?'var(--gold)':'#F3F1EA'};color:${olyOn?'var(--deep)':'#C9C5B8'};font-family:'Zen Kaku Gothic New',sans-serif;font-size:17px;font-weight:700;">±</button>
       </div>
-      <div style="text-align:center;font-size:10px;color:#B4AE9E;margin-top:6px;">${olyOn?'オリンピック入力中：±で符号を反転':'数字を押すと自動で次の人へ／マスをタップで切替'}</div>
+      <div style="text-align:center;font-size:10px;color:#B4AE9E;margin-top:6px;">${olyOn?'メダルでも数字でも入力OK（±で符号反転）':'数字を押すと自動で次の人へ／マスをタップで切替'}</div>
     </div>`;
 
   area.innerHTML = html + keypad;
@@ -3367,6 +3555,7 @@ function holeInputPress(n){
     }
     renderHoleInput();
   } else { // oly
+    holeInputMedals[holeInputActive]=null; // 数字入力はメダル解除
     let cur = holeInputOlys[holeInputActive]||'';
     const neg = cur.startsWith('-');
     let abs = cur.replace('-','');
@@ -3380,8 +3569,21 @@ function holeInputPress(n){
   }
 }
 
+function holeInputMedal(k){
+  const S=getOlySettings();
+  holeInputMedals[holeInputActive]=k;
+  holeInputOlys[holeInputActive]=String(S.pts[k]);
+  renderHoleInput();
+}
+
+function holeInputNear(){
+  holeInputNears[holeInputActive]=!holeInputNears[holeInputActive];
+  renderHoleInput();
+}
+
 function holeInputSign(){
   if(holeInputField!=='oly') return;
+  holeInputMedals[holeInputActive]=null;
   let cur = holeInputOlys[holeInputActive]||'';
   if(cur==='') return;
   holeInputOlys[holeInputActive] = cur.startsWith('-') ? cur.slice(1) : '-'+cur;
@@ -3391,7 +3593,7 @@ function holeInputSign(){
 function holeInputClear(){
   if(holeInputField==='score') holeInputScores[holeInputActive]='';
   else if(holeInputField==='putt') holeInputPutts[holeInputActive]='';
-  else holeInputOlys[holeInputActive]='';
+  else { holeInputOlys[holeInputActive]=''; holeInputMedals[holeInputActive]=null; holeInputNears[holeInputActive]=false; }
   renderHoleInput();
 }
 
@@ -3409,6 +3611,8 @@ function holeInputCommit(){
     }
     const ov = holeInputOlys[pi]==='' || holeInputOlys[pi]==='-' ? null : parseInt(holeInputOlys[pi]);
     G.oly[hi][pi] = (ov===null||isNaN(ov)) ? null : ov;
+    G.olyMedal[hi][pi] = (G.oly[hi][pi]===null) ? null : (holeInputMedals[pi]||null);
+    G.nearpin[hi][pi] = !!holeInputNears[pi];
   }
   renderStbl();
   renderSummary();
@@ -3439,6 +3643,193 @@ function holeInputSaveNext(){
   }
 }
 
+
+
+// ===== オリンピック設定モーダル =====
+function openOlySettings(){
+  const S=getOlySettings();
+  const mArea=document.getElementById('oly-set-medals');
+  mArea.innerHTML=MEDALS.map(m=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F0EEE6;">
+      <span style="font-size:17px;width:24px;text-align:center;">${m.ic}</span>
+      <span style="font-size:13px;font-weight:700;flex:1;">${m.nm}</span>
+      <input type="number" id="olyset-pt-${m.k}" value="${S.pts[m.k]}" 
+        style="width:58px;padding:7px;border:2px solid #E4E1D8;border-radius:10px;text-align:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:17px;background:#FAF9F4;">
+      <span style="font-size:11px;color:var(--ink2);">pt</span>
+    </div>`).join('');
+  const npArea=document.getElementById('oly-set-np');
+  const names=G.players.length?G.players:getPlayers().slice(0,8);
+  if(!names.length){
+    npArea.innerHTML='<div style="font-size:11px;color:#aaa;">プレイヤーがいません</div>';
+  } else {
+    const colors=getPlayerColors();
+    npArea.innerHTML=names.map((name,i)=>{
+      const bg=colors[name]||DEFAULT_COLORS[i%DEFAULT_COLORS.length];
+      const fg=getPlayerFg(bg);
+      return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F0EEE6;">
+        <span style="background:${bg};color:${fg};padding:4px 10px;border-radius:9px;font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>
+        <span style="font-size:12px;color:var(--ink2);">¥</span>
+        <input type="number" step="50" min="0" data-npname="${name.replace(/"/g,'&quot;')}" value="${npYen(name)}"
+          style="width:80px;padding:7px;border:2px solid #E4E1D8;border-radius:10px;text-align:right;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:16px;background:#FAF9F4;">
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('oly-settings-modal').classList.add('open');
+}
+
+function saveOlySettings(){
+  const S=getOlySettings();
+  MEDALS.forEach(m=>{
+    const v=parseInt(document.getElementById('olyset-pt-'+m.k)?.value);
+    if(!isNaN(v)) S.pts[m.k]=v;
+  });
+  document.querySelectorAll('#oly-set-np input[data-npname]').forEach(inp=>{
+    const v=parseInt(inp.value);
+    if(!isNaN(v)&&v>=0) S.np[inp.dataset.npname]=v;
+  });
+  setOlySettings(S);
+  document.getElementById('oly-settings-modal').classList.remove('open');
+  renderOlySummary();
+  toast('⚙️ 設定を保存しました');
+}
+
+
+// ===== まとめ入力（スコア→あとで紐付け） =====
+let bulkDigits=[], bulkAssign=[], bulkCur=0, bulkLastTime=0;
+
+function openBulkInput(){
+  bulkDigits=[]; bulkAssign=[]; bulkCur=0; bulkLastTime=0;
+  document.getElementById('bulk-title').textContent='H'+(holeInputHi+1);
+  document.getElementById('bulk-par').textContent='PAR '+G.pars[holeInputHi];
+  document.getElementById('bulk-step1').style.display='block';
+  document.getElementById('bulk-step2').style.display='none';
+  bulkRender1();
+  document.getElementById('bulk-modal').classList.add('open');
+}
+
+function bulkRender1(){
+  const n=G.players.length;
+  const box=document.getElementById('bulk-digits');
+  box.innerHTML=Array.from({length:n},(_,i)=>{
+    const v=bulkDigits[i];
+    const fill=v!==undefined;
+    return `<div style="width:52px;height:52px;border:2.5px ${fill?'solid var(--turf)':'dashed #D9D5C8'};border-radius:15px;background:${fill?'#EDF6F0':'#FAF9F4'};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:26px;color:${fill?'var(--turf)':'#C9C5B8'};">${fill?v:'−'}</div>`;
+  }).join('');
+  const go=document.getElementById('bulk-go');
+  const ready=bulkDigits.length===n;
+  go.style.opacity=ready?'1':'.35';
+  go.style.pointerEvents=ready?'auto':'none';
+}
+
+function bulkAdd(d){
+  const n=G.players.length;
+  const now=Date.now();
+  const quick=(now-bulkLastTime)<800;
+  bulkLastTime=now;
+  // 直前入力から0.8秒以内なら2桁目として結合（10〜20）
+  if(quick && bulkDigits.length>0){
+    const last=bulkDigits[bulkDigits.length-1];
+    const comb=last*10+d;
+    if(last>=1&&last<=2&&comb<=20){ bulkDigits[bulkDigits.length-1]=comb; bulkRender1(); return; }
+  }
+  if(bulkDigits.length<n){ bulkDigits.push(d); bulkRender1(); }
+}
+function bulkDel(){ bulkDigits.pop(); bulkRender1(); }
+function bulkRestart(){
+  bulkDigits=[]; bulkAssign=[]; bulkCur=0;
+  document.getElementById('bulk-step2').style.display='none';
+  document.getElementById('bulk-step1').style.display='block';
+  bulkRender1();
+}
+
+function bulkToStep2(){
+  bulkDigits.sort((a,b)=>a-b); // 良いスコア順
+  bulkAssign=Array(G.players.length).fill(null);
+  bulkCur=0;
+  document.getElementById('bulk-step1').style.display='none';
+  document.getElementById('bulk-step2').style.display='block';
+  bulkRender2();
+}
+
+function bulkRender2(){
+  const n=G.players.length;
+  const colors=getPlayerColors();
+  const d2=document.getElementById('bulk-digits2');
+  d2.innerHTML=bulkDigits.map((v,i)=>{
+    const a=bulkAssign[i];
+    const cur=i===bulkCur&&a===null;
+    const border=a!==null?'2.5px solid #E4E1D8':cur?'2.5px solid var(--gold)':'2.5px solid var(--turf)';
+    const bg=a!==null?'#fff':cur?'#FCF6E8':'#EDF6F0';
+    const glow=cur?'box-shadow:0 0 0 4px rgba(212,185,106,.35);':'';
+    const nm=a!==null?G.players[a]:(cur?'だれ？':'　');
+    const nmCol=a!==null?(colors[G.players[a]]||DEFAULT_COLORS[a%DEFAULT_COLORS.length]):'#C9C5B8';
+    return `<div style="text-align:center;">
+      <div style="width:52px;height:52px;border:${border};border-radius:15px;background:${bg};${glow}display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:26px;color:var(--ink);">${v}</div>
+      <div style="font-size:10px;font-weight:700;margin-top:3px;color:${nmCol};min-height:14px;">${nm}</div>
+    </div>`;
+  }).join('');
+
+  const used=bulkAssign.filter(a=>a!==null);
+  const pl=document.getElementById('bulk-players');
+  pl.innerHTML=G.players.map((name,pi)=>{
+    const bg=colors[name]||DEFAULT_COLORS[pi%DEFAULT_COLORS.length];
+    const fg=getPlayerFg(bg);
+    const u=used.includes(pi);
+    return `<button onclick="bulkPick(${pi})" style="border:none;border-radius:13px;padding:13px 6px;font-size:14px;font-weight:700;color:${fg};background:${bg};cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(14,59,46,.12);${u?'opacity:.25;pointer-events:none;':''}">${name}</button>`;
+  }).join('');
+
+  const done=bulkAssign.every(a=>a!==null);
+  const res=document.getElementById('bulk-result');
+  if(done){
+    const par=G.pars[holeInputHi];
+    res.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:6px;">📋 H'+(holeInputHi+1)+' の結果</div>'
+      +G.players.map((name,pi)=>{
+        const i=bulkAssign.indexOf(pi); const v=bulkDigits[i]; const ov=v-par;
+        const os=ov===0?'E':ov>0?'+'+ov:''+ov;
+        const oc=ov<0?'#2563EB':ov===0?'var(--turf)':ov===1?'#C4763B':'#C05548';
+        const bg=colors[name]||DEFAULT_COLORS[pi%DEFAULT_COLORS.length];
+        const fg=getPlayerFg(bg);
+        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="background:${bg};color:${fg};padding:4px 10px;border-radius:9px;font-size:12px;font-weight:700;flex:1;">${name}</span>
+          <span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:20px;width:32px;text-align:center;">${v}</span>
+          <span style="font-size:11px;font-weight:700;width:26px;color:${oc};">${os}</span>
+        </div>`;
+      }).join('');
+    document.getElementById('bulk-ok').style.display='block';
+  } else {
+    res.innerHTML='';
+    document.getElementById('bulk-ok').style.display='none';
+  }
+}
+
+function bulkPick(pi){
+  if(bulkAssign.includes(pi)) return;
+  bulkAssign[bulkCur]=pi;
+  let next=bulkAssign.findIndex(a=>a===null);
+  // 残り1つは自動で最後の人
+  const remain=bulkAssign.filter(a=>a===null).length;
+  if(remain===1){
+    const lastP=[...Array(G.players.length).keys()].find(x=>!bulkAssign.includes(x));
+    bulkAssign[next]=lastP;
+    next=-1;
+  }
+  bulkCur=next;
+  bulkRender2();
+}
+
+function bulkCommit(){
+  const hi=holeInputHi;
+  G.players.forEach((_,pi)=>{
+    const i=bulkAssign.indexOf(pi);
+    if(i>=0) G.scores[hi][pi]=bulkDigits[i];
+  });
+  // ホール入力画面の状態にも反映
+  holeInputScores=G.scores[hi].slice(0,G.players.length).map(s=>s!==null?String(s):'');
+  renderStbl(); renderSummary(); persist();
+  renderHoleInput();
+  document.getElementById('bulk-modal').classList.remove('open');
+  toast('✅ H'+(hi+1)+' のスコアを入力しました');
+}
 
 // ===== HOME統計 =====
 function renderHomeStats(){
