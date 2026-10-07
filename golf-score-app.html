@@ -808,12 +808,8 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
   <div style="background:#fff;border-radius:24px;padding:20px;width:310px;max-width:94vw;max-height:92vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
     <div style="text-align:center;font-size:15px;color:var(--deep);font-weight:700;margin-bottom:12px;">⚙️ オリンピック設定</div>
 
-    <div style="font-size:12px;font-weight:700;color:var(--deep);margin-bottom:6px;">🏅 メダルの点数</div>
+    <div style="font-size:12px;font-weight:700;color:var(--deep);margin-bottom:6px;">🏅 ポイント設定</div>
     <div class="card" style="padding:10px 12px;margin-bottom:12px;" id="oly-set-medals"></div>
-
-    <div style="font-size:12px;font-weight:700;color:var(--deep);margin-bottom:2px;">📍 ニアピンの点数（人ごとに3pt／5pt）</div>
-    <div style="font-size:10px;color:var(--ink2);margin-bottom:6px;">オリンピックとは別枠で加算されるポイントです</div>
-    <div class="card" style="padding:10px 12px;margin-bottom:12px;" id="oly-set-np"></div>
 
     <div style="display:flex;gap:8px;">
       <button class="btn btn-o" onclick="document.getElementById('oly-settings-modal').classList.remove('open')" style="flex:1;">キャンセル</button>
@@ -1024,10 +1020,11 @@ function getOlySettings(){
   if(!s) s={};
   if(!s.pts) s.pts={dia:5,gold:4,silver:3,bronze:2,iron:1};
   if(!s.npp) s.npp={};
+  const v=parseInt(s.nppt); s.nppt=(v>=1&&v<=10)?v:1;
   return s;
 }
 function setOlySettings(s){ localStorage.setItem(OLYSET_KEY, JSON.stringify(s)); }
-function npPts(name){ const s=getOlySettings(); const v=parseInt(s.npp[name]); return (v===3||v===5)?v:3; }
+function npPts(){ return getOlySettings().nppt; }
 
 // ===== 永続化 =====
 function autoSaveToHistory(){
@@ -1543,7 +1540,7 @@ function renderOlySummary(){
   });
   // ニアピンpt（並列の別ポイント）
   const npCnt=G.players.map((_,pi)=>G.nearpin.reduce((a,row)=>a+((row&&row[pi])?1:0),0));
-  const npPt=G.players.map((name,pi)=>npCnt[pi]*npPts(name));
+  const npPt=G.players.map((name,pi)=>npCnt[pi]*npPts());
   // 総合pt＝オリpt＋ニアピンpt（精算用）
   const total=G.players.map((_,pi)=>olyRaw[pi].t+npPt[pi]);
   const anyAt=pi=>olyRaw[pi].any||npCnt[pi]>0;
@@ -1551,7 +1548,7 @@ function renderOlySummary(){
   const sumAll=total.reduce((a,b)=>a+b,0);
   const yenArr=G.players.map((_,pi)=>(n*total[pi]-sumAll)*unit);
   const ranked=[...Array(n).keys()].sort((a,b)=>total[b]-total[a]);
-  let html='<thead><tr><th>順位</th><th class="pnm">プレイヤー</th><th>オリpt</th><th>📍pt</th><th>合計</th></tr></thead><tbody>';
+  let html='<thead><tr><th>順位</th><th class="pnm">プレイヤー</th><th>pt</th><th>📍pt</th><th>合計</th></tr></thead><tbody>';
   ranked.forEach((pi,rank)=>{
     const badge=rank<3?`<span class="rb r${rank+1}">${rank+1}</span>`:rank+1;
     const adj=G.olyAdj[pi]||0;
@@ -1560,7 +1557,7 @@ function renderOlySummary(){
     const oStr=o.any?String(o.t):'-';
     const oCol=!o.any?'var(--g2)':o.t>0?'var(--turf)':o.t<0?'#C05548':'var(--g1)';
     const npStr=npCnt[pi]>0
-      ?`<span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:17px;font-weight:700;color:#0E7490;">+${npPt[pi]}</span><div style="font-size:9px;color:#0E7490;">${npCnt[pi]}回×${npPts(G.players[pi])}pt</div>`
+      ?`<span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:17px;font-weight:700;color:#0E7490;">+${npPt[pi]}</span><div style="font-size:9px;color:#0E7490;">${npCnt[pi]}回×${npPts()}pt</div>`
       :'<span style="color:#C9C5B8;">−</span>';
     const yen=yenArr[pi];
     const yenStr=!anyAll?'<span style="color:var(--g2)">-</span>'
@@ -3565,7 +3562,7 @@ function renderHoleInput(){
           </button>`;
         }).join('')}
         <button onclick="holeInputNear()" style="grid-column:span 6;border:2px solid ${activeNear?'#0E7490':'transparent'};border-radius:11px;padding:7px;cursor:pointer;background:${activeNear?'#E0F2F7':'#F3F8FA'};font-family:inherit;font-size:12px;font-weight:700;color:#0E7490;display:flex;align-items:center;justify-content:center;gap:6px;">
-          📍 ニアピン獲得（+${npPts(G.players[holeInputActive])}pt）
+          📍 ニアピン獲得（+${npPts()}pt）
           <span style="width:18px;height:18px;border-radius:6px;border:2px solid #0E7490;display:inline-flex;align-items:center;justify-content:center;background:${activeNear?'#0E7490':'transparent'};color:#fff;font-size:12px;">${activeNear?'✓':''}</span>
         </button>
       </div>` : '';
@@ -3724,38 +3721,18 @@ function openOlySettings(){
       <input type="number" id="olyset-pt-${m.k}" value="${S.pts[m.k]}" 
         style="width:58px;padding:7px;border:2px solid #E4E1D8;border-radius:10px;text-align:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:17px;background:#FAF9F4;">
       <span style="font-size:11px;color:var(--ink2);">pt</span>
-    </div>`).join('');
-  const npArea=document.getElementById('oly-set-np');
-  const names=G.players.length?G.players:getPlayers().slice(0,8);
-  if(!names.length){
-    npArea.innerHTML='<div style="font-size:11px;color:#aaa;">プレイヤーがいません</div>';
-  } else {
-    const colors=getPlayerColors();
-    npArea.innerHTML=names.map((name,i)=>{
-      const bg=colors[name]||DEFAULT_COLORS[i%DEFAULT_COLORS.length];
-      const fg=getPlayerFg(bg);
-      return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F0EEE6;">
-        <span style="background:${bg};color:${fg};padding:4px 10px;border-radius:9px;font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>
-        <div data-npname="${name.replace(/"/g,'&quot;')}" style="display:flex;background:#F3F1EA;border-radius:11px;padding:3px;gap:3px;">
-          <button type="button" data-npv="3" data-sel="${npPts(name)===3?'1':''}" onclick="npSel(this)" style="border:none;border-radius:9px;padding:7px 14px;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:16px;cursor:pointer;background:${npPts(name)===3?'var(--turf)':'transparent'};color:${npPts(name)===3?'#fff':'var(--ink2)'};">3pt</button>
-          <button type="button" data-npv="5" data-sel="${npPts(name)===5?'1':''}" onclick="npSel(this)" style="border:none;border-radius:9px;padding:7px 14px;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:16px;cursor:pointer;background:${npPts(name)===5?'var(--turf)':'transparent'};color:${npPts(name)===5?'#fff':'var(--ink2)'};">5pt</button>
-        </div>
-      </div>`;
-    }).join('');
-  }
-  document.getElementById('oly-settings-modal').classList.add('open');
+    </div>`).join('')
+    +`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+      <span style="font-size:17px;width:24px;text-align:center;">📍</span>
+      <span style="font-size:13px;font-weight:700;flex:1;">ニアピン</span>
+      <select id="olyset-nppt" style="width:72px;padding:7px;border:2px solid #E4E1D8;border-radius:10px;text-align:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:17px;background:#FAF9F4;">
+        ${[1,2,3,4,5,6,7,8,9,10].map(v=>`<option value="${v}"${v===S.nppt?' selected':''}>${v}</option>`).join('')}
+      </select>
+      <span style="font-size:11px;color:var(--ink2);">pt</span>
+    </div>`;
+    document.getElementById('oly-settings-modal').classList.add('open');
 }
 
-
-function npSel(btn){
-  const row=btn.parentElement;
-  row.querySelectorAll('button').forEach(b=>{
-    const on=b===btn;
-    b.dataset.sel=on?'1':'';
-    b.style.background=on?'var(--turf)':'transparent';
-    b.style.color=on?'#fff':'var(--ink2)';
-  });
-}
 
 function saveOlySettings(){
   const S=getOlySettings();
@@ -3763,10 +3740,8 @@ function saveOlySettings(){
     const v=parseInt(document.getElementById('olyset-pt-'+m.k)?.value);
     if(!isNaN(v)) S.pts[m.k]=v;
   });
-  document.querySelectorAll('#oly-set-np [data-npname]').forEach(row=>{
-    const sel=row.querySelector('button[data-sel="1"]');
-    if(sel) S.npp[row.dataset.npname]=parseInt(sel.dataset.npv);
-  });
+  const npv=parseInt(document.getElementById('olyset-nppt')?.value);
+  if(npv>=1&&npv<=10) S.nppt=npv;
   setOlySettings(S);
   document.getElementById('oly-settings-modal').classList.remove('open');
   renderOlySummary();
