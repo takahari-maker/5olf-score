@@ -440,7 +440,10 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
       </div>
       <!-- 順位（固定） -->
       <div style="flex-shrink:0;padding:6px 12px;border-top:1px solid var(--bg3);background:var(--bg);max-height:40vh;overflow-y:auto;">
-        <div class="sec">🏆 順位</div>
+        <div class="sec" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>🏆 順位</span>
+          <button onclick="openOlyTotalModal()" style="border:1.5px solid var(--turf);background:#fff;color:var(--turf);border-radius:10px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ トータル入力</button>
+        </div>
         <div style="overflow-x:auto;"><table class="rtbl" id="rtbl"></table></div>
       </div>
     </div>
@@ -723,14 +726,24 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
       </select>
       <input class="fi" type="text" id="new-course" placeholder="ゴルフ場名を入力"
         style="display:none;margin-top:-4px;" oninput="onCourseManualInput()">
-      <label class="flbl">前半コース</label>
-      <select class="fsel" id="sel-out" onchange="onCourseChange()">
-        <option value="">-- 前半コース --</option>
-      </select>
-      <label class="flbl">後半コース</label>
-      <select class="fsel" id="sel-in" onchange="onCourseChange()">
-        <option value="">-- 後半コース --</option>
-      </select>
+      <div class="frow">
+        <div>
+          <label class="flbl">前半コース</label>
+          <select class="fsel" id="sel-out" onchange="onHalfSel('out')">
+            <option value="">-- 前半 --</option>
+          </select>
+          <input class="fi" type="text" id="man-out" placeholder="例：OUT"
+            style="display:none;margin-top:4px;margin-bottom:0;" oninput="onCourseChange()">
+        </div>
+        <div>
+          <label class="flbl">後半コース</label>
+          <select class="fsel" id="sel-in" onchange="onHalfSel('in')">
+            <option value="">-- 後半 --</option>
+          </select>
+          <input class="fi" type="text" id="man-in" placeholder="例：IN"
+            style="display:none;margin-top:4px;margin-bottom:0;" oninput="onCourseChange()">
+        </div>
+      </div>
       <div class="frow">
         <div>
           <label class="flbl">日付</label>
@@ -771,6 +784,20 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
 </div>
 
 
+
+
+<!-- オリンピック トータル入力モーダル -->
+<div class="mov" id="oly-total-modal">
+  <div style="background:#fff;border-radius:24px;padding:22px;width:300px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <div style="text-align:center;font-family:'Zen Kaku Gothic New',sans-serif;font-size:15px;color:var(--deep);font-weight:700;margin-bottom:4px;">🏆 トータルポイント入力</div>
+    <div style="text-align:center;font-size:11px;color:var(--ink2);margin-bottom:14px;">各ホールの入力は不要。合計ptだけ入れられます</div>
+    <div id="oly-total-rows"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-o" onclick="document.getElementById('oly-total-modal').classList.remove('open')" style="flex:1;">キャンセル</button>
+      <button class="btn btn-g" onclick="saveOlyTotals()" style="flex:1;">保存</button>
+    </div>
+  </div>
+</div>
 
 <!-- ホール一括入力モーダル -->
 <div class="mov" id="hole-input-modal">
@@ -867,7 +894,7 @@ const DPARS = [4,3,4,5,4,3,5,4,4,4,4,3,5,4,4,3,5,4];
 
 // ===== STATE =====
 let G = {
-  id:null, course:'', date:'', holes:18, weather:'', honor:'', firstOrder:[],
+  id:null, course:'', date:'', holes:18, weather:'', honor:'', firstOrder:[], olyAdj:[0,0,0,0,0,0],
   players:[], pars:[...DPARS],
   scores:null, putts:null, oly:null,
   showPutt:false, history:[], statsP:0
@@ -905,7 +932,7 @@ function persist() {
     localStorage.setItem(SKEY, JSON.stringify({
       history: G.history,
       cur: {
-        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'', firstOrder:G.firstOrder||[],
+        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'', firstOrder:G.firstOrder||[], olyAdj:G.olyAdj||[0,0,0,0,0,0],
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
         showPutt:G.showPutt, statsP:G.statsP
@@ -922,7 +949,7 @@ function loadSaved() {
     if (d.cur) {
       const c = d.cur;
       G.id=c.id||null; G.course=c.course||''; G.date=c.date||'';
-      G.holes=c.holes||18; G.weather=c.weather||''; G.honor=c.honor||''; G.firstOrder=c.firstOrder||[]; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
+      G.holes=c.holes||18; G.weather=c.weather||''; G.honor=c.honor||''; G.firstOrder=c.firstOrder||[]; G.olyAdj=c.olyAdj||[0,0,0,0,0,0]; G.players=c.players||[]; G.pars=c.pars||[...DPARS];
       G.scores=c.scores||null; G.putts=c.putts||null; G.oly=c.oly||null;
       G.showPutt=c.showPutt||false; G.statsP=c.statsP||0;
       if (!G.scores) initData();
@@ -974,7 +1001,7 @@ function persistOnly() {
     localStorage.setItem(SKEY, JSON.stringify({
       history: G.history,
       cur: {
-        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'', firstOrder:G.firstOrder||[],
+        id:G.id, course:G.course, date:G.date, holes:G.holes, weather:G.weather||'', honor:G.honor||'', firstOrder:G.firstOrder||[], olyAdj:G.olyAdj||[0,0,0,0,0,0],
         players:G.players, pars:G.pars,
         scores:G.scores, putts:G.putts, oly:G.oly,
         showPutt:G.showPutt, statsP:G.statsP
@@ -1372,17 +1399,37 @@ function refreshOlySubs(){
 function renderOlySummary(){
   const unit=parseInt(document.getElementById('unit-price').value)||100;
   const n=G.players.length,h=G.holes,out=Math.min(9,h);
-  const tots=G.players.map((_,pi)=>subPts(0,h,pi));
+  if(!G.olyAdj) G.olyAdj=[0,0,0,0,0,0];
+  // 調整値込みの合計
+  const tots=G.players.map((_,pi)=>{
+    const base=subPts(0,h,pi);
+    const adj=G.olyAdj[pi]||0;
+    return base===null&&adj===0?null:(base||0)+adj;
+  });
   const ranked=tots.map((p,i)=>({i,p})).sort((a,b)=>{if(a.p===null&&b.p===null)return 0;if(a.p===null)return 1;if(b.p===null)return -1;return a.p-b.p;});
   const fpp=v=>fpFull(v,unit);
   let html='<thead><tr><th>順位</th><th class="pnm">プレイヤー</th><th>OUT</th>'+(h>9?'<th>IN</th>':'')+'<th>合計</th></tr></thead><tbody>';
   ranked.forEach(({i:pi},rank)=>{
     const badge=rank<3?`<span class="rb r${rank+1}">${rank+1}</span>`:rank+1;
-    const tot=tots[pi],m=tot!==null?(-tot)*unit:null;
-    const ms=m===null?'-':m>=0?`<span class="pp">+¥${m.toLocaleString()}</span>`:`<span class="pm">¥${m.toLocaleString()}</span>`;
-    html+=`<tr><td>${badge}</td><td class="pnm">${G.players[pi]}</td><td>${fpp(subPts(0,out,pi))}</td>${h>9?`<td>${fpp(subPts(9,h,pi))}</td>`:''}<td style="font-weight:700;">${fpp(tot)}</td></tr>`;
+    const adj=G.olyAdj[pi]||0;
+    const adjMark=adj!==0?`<span style="font-size:9px;color:#C4763B;">※調整${adj>0?'+':''}${adj}</span>`:'';
+    html+=`<tr><td>${badge}</td><td class="pnm">${G.players[pi]}</td><td>${fpp(subPts(0,out,pi))}</td>${h>9?`<td>${fpp(subPts(9,h,pi))}</td>`:''}<td style="font-weight:700;cursor:pointer;" onclick="editOlyTotal(${pi})">${fpp(tots[pi])} ${adjMark}<div style="font-size:8px;color:#B4AE9E;">タップで修正</div></td></tr>`;
   });
   document.getElementById('rtbl').innerHTML=html+'</tbody>';
+}
+
+function editOlyTotal(pi){
+  const h=G.holes;
+  const base=subPts(0,h,pi)||0;
+  const cur=base+(G.olyAdj[pi]||0);
+  const input=prompt(`${G.players[pi]} の合計ポイントを修正\n（現在: ${cur}、各ホール計: ${base}）`, cur);
+  if(input===null) return;
+  const v=parseInt(input);
+  if(isNaN(v)){ toast('数字を入力してください'); return; }
+  G.olyAdj[pi]=v-base;
+  persist();
+  renderOlySummary();
+  toast(`✏️ ${G.players[pi]} の合計を ${v} に修正しました`);
 }
 
 // ===== 履歴 =====
@@ -1668,31 +1715,50 @@ function onClubChange(){
   const sIn =document.getElementById('sel-in');
   const manualInp=document.getElementById('new-course');
   G.pars=[...DPARS];
+  const manOpt='<option value="__manual__">✏️ 直接入力</option>';
 
-  // 直接入力モード
+  // 直接入力モード（ゴルフ場を手入力）
   if(club==='__manual__'){
     manualInp.style.display='block';
     manualInp.value='';
     manualInp.focus();
-    sOut.innerHTML='<option value="">-- 前半コース --</option>';
-    sIn.innerHTML ='<option value="">-- 後半コース --</option>';
+    sOut.innerHTML='<option value="">-- 前半 --</option>'+manOpt;
+    sIn.innerHTML ='<option value="">-- 後半 --</option>'+manOpt;
+    setHalfManual('out',false); setHalfManual('in',false);
     return;
   }
   manualInp.style.display='none';
   manualInp.value=club;
 
   if(!club){
-    sOut.innerHTML='<option value="">-- 前半コース --</option>';
-    sIn.innerHTML ='<option value="">-- 後半コース --</option>';
+    sOut.innerHTML='<option value="">-- 前半 --</option>'+manOpt;
+    sIn.innerHTML ='<option value="">-- 後半 --</option>'+manOpt;
+    setHalfManual('out',false); setHalfManual('in',false);
     return;
   }
   const cs=getCourses(),c=cs[club];
   if(!c)return;
   const names=Object.keys(c);
-  const opts='<option value="">-- 選択 --</option>'+names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  const opts='<option value="">-- 選択 --</option>'+names.map(n=>`<option value="${n}">${n}</option>`).join('')+manOpt;
   sOut.innerHTML=opts; sIn.innerHTML=opts;
   if(names.length>=1){sOut.value=names[0];}
   if(names.length>=2){sIn.value=names[1];}
+  setHalfManual('out',false); setHalfManual('in',false);
+  onCourseChange();
+}
+
+function setHalfManual(half, on){
+  const inp=document.getElementById('man-'+half);
+  if(inp){ inp.style.display=on?'block':'none'; if(!on) inp.value=''; }
+}
+
+function onHalfSel(half){
+  const sel=document.getElementById('sel-'+(half==='out'?'out':'in'));
+  setHalfManual(half, sel.value==='__manual__');
+  if(sel.value==='__manual__'){
+    const inp=document.getElementById('man-'+half);
+    if(inp) inp.focus();
+  }
   onCourseChange();
 }
 
@@ -1700,13 +1766,11 @@ function onCourseChange(){
   const club=document.getElementById('sel-club').value;
   const outN=document.getElementById('sel-out').value;
   const inN =document.getElementById('sel-in').value;
-  if(!club)return;
-  const cs=getCourses(),c=cs[club];if(!c)return;
-  const outP=(outN&&c[outN])?c[outN]:Array(9).fill(4);
-  const inP =(inN &&c[inN]) ?c[inN] :Array(9).fill(4);
+  const cs=getCourses(),c=(club&&club!=='__manual__')?cs[club]:null;
+  const outP=(c&&outN&&outN!=='__manual__'&&c[outN])?c[outN]:Array(9).fill(4);
+  const inP =(c&&inN &&inN!=='__manual__'&&c[inN]) ?c[inN] :Array(9).fill(4);
   G.pars=[...outP.slice(0,9),...inP.slice(0,9)];
-  const txt=[outN,inN].filter(Boolean).join('/');
-  if(club) document.getElementById('new-course').value=club; // コース名は表示しない
+  if(club&&club!=='__manual__') document.getElementById('new-course').value=club;
 }
 
 function openNewRound(){
@@ -1727,6 +1791,7 @@ function openNewRound(){
   document.getElementById('sel-out').innerHTML='<option value="">-- 前半コース --</option>';
   document.getElementById('sel-in').innerHTML ='<option value="">-- 後半コース --</option>';
   G.pars=[...DPARS];
+  restoreLastRound();
   document.getElementById('modal-new').classList.add('open');
 }
 
@@ -1748,6 +1813,25 @@ async function createRound(){
       }
     }
   }
+  // 前回設定として記憶
+  saveLastRound();
+  // 手入力コース名があればゴルフ場登録に自動保存
+  try{
+    const clubSel=document.getElementById('sel-club').value;
+    const clubName=(clubSel==='__manual__')?course:clubSel;
+    const outSel=document.getElementById('sel-out').value;
+    const inSel=document.getElementById('sel-in').value;
+    const outMan=document.getElementById('man-out')?.value.trim()||'';
+    const inMan=document.getElementById('man-in')?.value.trim()||'';
+    if(clubName && clubName!=='（未設定）'){
+      const cs2=getCourses();
+      if(!cs2[clubName]) cs2[clubName]={};
+      let changed=false;
+      if(outSel==='__manual__'&&outMan&&!cs2[clubName][outMan]){ cs2[clubName][outMan]=G.pars.slice(0,9); changed=true; }
+      if(inSel==='__manual__'&&inMan&&!cs2[clubName][inMan]){ cs2[clubName][inMan]=G.pars.slice(9,18); changed=true; }
+      if(changed){ setCourses(cs2); toast('⛳ コースを登録しました'); }
+    }
+  }catch(e){}
   // PARを確定
   onCourseChange();
   const pars=G.pars&&G.pars.length>=holes?G.pars.slice(0,holes):[...DPARS].slice(0,holes);
@@ -2027,7 +2111,23 @@ function openPtKpad(hi,pi){
 // ===== プレイヤー登録 =====
 const PKEY = 'golympic_players_v1';
 const MYKEY = 'golympic_myname_v1';
-function getPlayers(){ try{return JSON.parse(localStorage.getItem(PKEY)||'[]');}catch(e){return [];} }
+const DEFAULT_PLAYERS = ['髙張','竹原','金川','柿本','廣田','松村','井伊','山本秀一'];
+const DEFAULT_PLAYERS_FLAG = 'golympic_default_players_loaded';
+function getPlayers(){
+  try{
+    if(!localStorage.getItem(DEFAULT_PLAYERS_FLAG)){
+      const existing = JSON.parse(localStorage.getItem(PKEY)||'[]');
+      const merged = [...existing];
+      DEFAULT_PLAYERS.forEach(p=>{ if(!merged.includes(p)) merged.push(p); });
+      localStorage.setItem(PKEY, JSON.stringify(merged));
+      localStorage.setItem(DEFAULT_PLAYERS_FLAG, '1');
+      // 自分の名前が未設定なら「髙張」に
+      if(!localStorage.getItem(MYKEY)) localStorage.setItem(MYKEY, '髙張');
+      return merged;
+    }
+    return JSON.parse(localStorage.getItem(PKEY)||'[]');
+  }catch(e){return [];}
+}
 function setPlayers(arr){ localStorage.setItem(PKEY, JSON.stringify(arr)); }
 function getMyName(){ return localStorage.getItem(MYKEY)||''; }
 function setMyName(name){ localStorage.setItem(MYKEY, name); }
@@ -3287,6 +3387,97 @@ function renderHomeStats(){
     if(scores.length){
       if(avgEl) avgEl.textContent=(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1);
       if(bestEl) bestEl.textContent=Math.min(...scores);
+    }
+  }catch(e){}
+}
+
+
+// ===== オリンピック トータル直接入力 =====
+function openOlyTotalModal(){
+  if(!G.olyAdj) G.olyAdj=[0,0,0,0,0,0];
+  const rows=document.getElementById('oly-total-rows');
+  const h=G.holes;
+  rows.innerHTML=G.players.map((name,pi)=>{
+    const base=subPts(0,h,pi)||0;
+    const cur=base+(G.olyAdj[pi]||0);
+    const colors=getPlayerColors();
+    const bg=colors[name]||DEFAULT_COLORS[pi%DEFAULT_COLORS.length];
+    const fg=getPlayerFg(bg);
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div style="background:${bg};color:${fg};padding:6px 10px;border-radius:10px;font-size:13px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</div>
+      <input type="number" id="olyt-${pi}" value="${cur}" 
+        style="width:80px;padding:10px;border:2px solid #E4E1D8;border-radius:12px;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:20px;text-align:center;color:var(--ink);">
+      <span style="font-size:11px;color:var(--ink2);">pt</span>
+    </div>`;
+  }).join('');
+  document.getElementById('oly-total-modal').classList.add('open');
+}
+
+function saveOlyTotals(){
+  const h=G.holes;
+  G.players.forEach((_,pi)=>{
+    const inp=document.getElementById('olyt-'+pi);
+    if(!inp) return;
+    const v=parseInt(inp.value);
+    if(isNaN(v)) return;
+    const base=subPts(0,h,pi)||0;
+    G.olyAdj[pi]=v-base;
+  });
+  persist();
+  renderOlySummary();
+  document.getElementById('oly-total-modal').classList.remove('open');
+  toast('✅ トータルを保存しました');
+}
+
+
+// ===== 前回ラウンド設定の記憶 =====
+const LASTKEY='golympic_last_round_v1';
+function saveLastRound(){
+  try{
+    localStorage.setItem(LASTKEY, JSON.stringify({
+      club: document.getElementById('sel-club').value,
+      manualCourse: document.getElementById('new-course').value,
+      out: document.getElementById('sel-out').value,
+      outMan: document.getElementById('man-out')?.value||'',
+      inN: document.getElementById('sel-in').value,
+      inMan: document.getElementById('man-in')?.value||'',
+      players: [...selectedPlayers]
+    }));
+  }catch(e){}
+}
+function restoreLastRound(){
+  try{
+    const d=JSON.parse(localStorage.getItem(LASTKEY)||'null');
+    if(!d) return;
+    const selClub=document.getElementById('sel-club');
+    // ゴルフ場が選択肢に存在するか確認
+    if(d.club && [...selClub.options].some(o=>o.value===d.club)){
+      selClub.value=d.club;
+      onClubChange();
+      if(d.club==='__manual__' && d.manualCourse){
+        document.getElementById('new-course').value=d.manualCourse;
+      }
+      // コース復元
+      const sOut=document.getElementById('sel-out');
+      const sIn=document.getElementById('sel-in');
+      if(d.out && [...sOut.options].some(o=>o.value===d.out)){ sOut.value=d.out; onHalfSel('out'); }
+      if(d.out==='__manual__'&&d.outMan){ document.getElementById('man-out').value=d.outMan; }
+      if(d.inN && [...sIn.options].some(o=>o.value===d.inN)){ sIn.value=d.inN; onHalfSel('in'); }
+      if(d.inN==='__manual__'&&d.inMan){ document.getElementById('man-in').value=d.inMan; }
+      onCourseChange();
+    }
+    // メンバー復元（自分は既にP1にセット済みなのでP2以降）
+    if(Array.isArray(d.players)){
+      const myName=getMyName();
+      d.players.forEach((p,i)=>{
+        if(!p) return;
+        // 自分がP1にいる場合、同名はスキップ
+        if(myName && p===myName && i!==0) return;
+        if(i===0 && myName) return; // P1は自分のまま
+        selectedPlayers[i]=p;
+      });
+      renderPlayerSlots();
+      updateHonorSelect();
     }
   }catch(e){}
 }
