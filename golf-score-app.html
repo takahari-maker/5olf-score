@@ -3556,9 +3556,12 @@ function renderHoleInput(){
       <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:7px;">
         ${MEDALS.map(m=>{
           const selM = holeInputMedals[holeInputActive]===m.k;
-          return `<button onclick="holeInputMedal('${m.k}')" style="border:2px solid ${selM?'var(--turf)':'transparent'};border-radius:11px;padding:6px 2px;cursor:pointer;background:${selM?'#EDF6F0':'#fff'};box-shadow:0 1px 4px rgba(14,59,46,.1);display:flex;flex-direction:column;align-items:center;gap:1px;font-family:inherit;">
+          const ownerIdx = holeInputMedals.findIndex((x,j)=>x===m.k && j!==holeInputActive);
+          const taken = ownerIdx>=0;
+          const label = taken ? G.players[ownerIdx] : m.nm;
+          return `<button onclick="holeInputMedal('${m.k}')" style="border:2px solid ${selM?'var(--turf)':'transparent'};border-radius:11px;padding:6px 2px;cursor:pointer;background:${selM?'#EDF6F0':taken?'#F3F1EA':'#fff'};box-shadow:${taken?'none':'0 1px 4px rgba(14,59,46,.1)'};opacity:${taken?'.4':'1'};display:flex;flex-direction:column;align-items:center;gap:1px;font-family:inherit;min-width:0;">
             <span style="font-size:17px;line-height:1;">${m.ic}</span>
-            <span style="font-size:10px;font-weight:700;color:var(--ink2);letter-spacing:0;">${m.nm}</span>
+            <span style="font-size:10px;font-weight:700;color:var(--ink2);letter-spacing:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label}</span>
           </button>`;
         }).join('')}
         <button onclick="holeInputNear()" style="grid-column:span 6;border:2px solid ${activeNear?'#0E7490':'transparent'};border-radius:11px;padding:7px;cursor:pointer;background:${activeNear?'#E0F2F7':'#F3F8FA'};font-family:inherit;font-size:12px;font-weight:700;color:#0E7490;display:flex;align-items:center;justify-content:center;gap:6px;">
@@ -3575,7 +3578,7 @@ function renderHoleInput(){
         <button onclick="holeInputPress(0)" class="kpad-btn" style="padding:13px;">0</button>
         <button onclick="holeInputSign()" class="kpad-btn" style="padding:13px;background:${olyOn?'#FBE7E3':'#F3F1EA'};color:${olyOn?'#C05548':'#C9C5B8'};font-family:'Zen Kaku Gothic New',sans-serif;font-size:19px;font-weight:700;">−</button>
       </div>
-      <div style="text-align:center;font-size:10px;color:#B4AE9E;margin-top:6px;">${olyOn?'プラスはそのまま数字／マイナスは −を押してから数字':'数字を押すと自動で次の人へ／マスをタップで切替'}</div>
+      <div style="text-align:center;font-size:10px;color:#B4AE9E;margin-top:6px;">${olyOn?'メダルは1ホール1人まで（薄い所は使用中）／数字はそのまま、マイナスは −→数字':'数字を押すと自動で次の人へ／マスをタップで切替'}</div>
     </div>`;
 
   area.innerHTML = html + keypad;
@@ -3635,6 +3638,20 @@ function holeInputPress(n){
 
 function holeInputMedal(k){
   const S=getOlySettings();
+  // 同じメダルをもう一度押したら解除
+  if(holeInputMedals[holeInputActive]===k){
+    holeInputMedals[holeInputActive]=null;
+    holeInputOlys[holeInputActive]='';
+    renderHoleInput();
+    return;
+  }
+  // 金銀銅鉄ダイヤは1ホールに1人だけ：他の人が持っていたら移す
+  const owner=holeInputMedals.findIndex((x,j)=>x===k && j!==holeInputActive);
+  if(owner>=0){
+    holeInputMedals[owner]=null;
+    holeInputOlys[owner]='';
+    toast(`${MEDAL_IC[k]}${MEDAL_NM[k]}を ${G.players[owner]} → ${G.players[holeInputActive]} に移しました`);
+  }
   holeInputMedals[holeInputActive]=k;
   holeInputOlys[holeInputActive]=String(S.pts[k]);
   renderHoleInput();
