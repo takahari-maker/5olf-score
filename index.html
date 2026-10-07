@@ -811,8 +811,8 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
     <div style="font-size:12px;font-weight:700;color:var(--deep);margin-bottom:6px;">🏅 メダルの点数</div>
     <div class="card" style="padding:10px 12px;margin-bottom:12px;" id="oly-set-medals"></div>
 
-    <div style="font-size:12px;font-weight:700;color:var(--deep);margin-bottom:2px;">📍 ニアピンの点数（人ごとに設定可）</div>
-    <div style="font-size:10px;color:var(--ink2);margin-bottom:6px;">獲得するとこの点数が加算されます（腕前に応じて変えられます）</div>
+    <div style="font-size:12px;font-weight:700;color:var(--deep);margin-bottom:2px;">📍 ニアピンの点数（人ごとに3pt／5pt）</div>
+    <div style="font-size:10px;color:var(--ink2);margin-bottom:6px;">オリンピックとは別枠で加算されるポイントです</div>
     <div class="card" style="padding:10px 12px;margin-bottom:12px;" id="oly-set-np"></div>
 
     <div style="display:flex;gap:8px;">
@@ -1027,7 +1027,7 @@ function getOlySettings(){
   return s;
 }
 function setOlySettings(s){ localStorage.setItem(OLYSET_KEY, JSON.stringify(s)); }
-function npPts(name){ const s=getOlySettings(); const v=parseInt(s.npp[name]); return isNaN(v)?1:v; }
+function npPts(name){ const s=getOlySettings(); const v=parseInt(s.npp[name]); return (v===3||v===5)?v:3; }
 
 // ===== 永続化 =====
 function autoSaveToHistory(){
@@ -1534,34 +1534,33 @@ function renderOlySummary(){
   const n=G.players.length,h=G.holes;
   if(!G.olyAdj) G.olyAdj=[0,0,0,0,0,0];
   ensureOlyExtra();
-  // 入力ptの生合計（メダル・数字）
-  const rawBase=G.players.map((_,pi)=>{
+  // オリンピックpt（メダル・数字の生合計＋調整）
+  const olyRaw=G.players.map((_,pi)=>{
     let t=0,any=false;
     for(let hi=0;hi<h;hi++){const v=G.oly[hi][pi];if(v!==null){t+=v;any=true;}}
-    return {t,any};
+    const adj=G.olyAdj[pi]||0;
+    return {t:t+adj,any:any||adj!==0};
   });
-  // ニアピンpt
+  // ニアピンpt（並列の別ポイント）
   const npCnt=G.players.map((_,pi)=>G.nearpin.reduce((a,row)=>a+((row&&row[pi])?1:0),0));
   const npPt=G.players.map((name,pi)=>npCnt[pi]*npPts(name));
-  // 生pt合計（調整込み）
-  const raw=G.players.map((_,pi)=>rawBase[pi].t+npPt[pi]+(G.olyAdj[pi]||0));
-  const anyAt=pi=>rawBase[pi].any||npCnt[pi]>0||(G.olyAdj[pi]||0)!==0;
+  // 総合pt＝オリpt＋ニアピンpt（精算用）
+  const total=G.players.map((_,pi)=>olyRaw[pi].t+npPt[pi]);
+  const anyAt=pi=>olyRaw[pi].any||npCnt[pi]>0;
   const anyAll=G.players.some((_,pi)=>anyAt(pi));
-  const sumRaw=raw.reduce((a,b)=>a+b,0);
-  // 差分精算（ゼロサム）→円
-  const yenArr=G.players.map((_,pi)=>(n*raw[pi]-sumRaw)*unit);
-  const ranked=[...Array(n).keys()].sort((a,b)=>raw[b]-raw[a]);
-  let html='<thead><tr><th>順位</th><th class="pnm">プレイヤー</th><th>pt</th><th>📍</th><th>合計</th></tr></thead><tbody>';
+  const sumAll=total.reduce((a,b)=>a+b,0);
+  const yenArr=G.players.map((_,pi)=>(n*total[pi]-sumAll)*unit);
+  const ranked=[...Array(n).keys()].sort((a,b)=>total[b]-total[a]);
+  let html='<thead><tr><th>順位</th><th class="pnm">プレイヤー</th><th>オリpt</th><th>📍pt</th><th>合計</th></tr></thead><tbody>';
   ranked.forEach((pi,rank)=>{
     const badge=rank<3?`<span class="rb r${rank+1}">${rank+1}</span>`:rank+1;
     const adj=G.olyAdj[pi]||0;
     const adjMark=adj!==0?`<div style="font-size:9px;color:#C4763B;">※調整${adj>0?'+':''}${adj}</div>`:'';
-    const show=anyAt(pi);
-    const r=raw[pi];
-    const tStr=!show?'-':String(r);
-    const tCol=!show?'var(--g2)':r>0?'var(--turf)':r<0?'#C05548':'var(--g1)';
+    const o=olyRaw[pi];
+    const oStr=o.any?String(o.t):'-';
+    const oCol=!o.any?'var(--g2)':o.t>0?'var(--turf)':o.t<0?'#C05548':'var(--g1)';
     const npStr=npCnt[pi]>0
-      ?`${npCnt[pi]}回<div style="font-size:9px;color:#0E7490;font-weight:700;">+${npPt[pi]}pt</div>`
+      ?`<span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:17px;font-weight:700;color:#0E7490;">+${npPt[pi]}</span><div style="font-size:9px;color:#0E7490;">${npCnt[pi]}回×${npPts(G.players[pi])}pt</div>`
       :'<span style="color:#C9C5B8;">−</span>';
     const yen=yenArr[pi];
     const yenStr=!anyAll?'<span style="color:var(--g2)">-</span>'
@@ -1569,7 +1568,7 @@ function renderOlySummary(){
       :yen<0?`<span class="pm">-¥${(-yen).toLocaleString()}</span>`
       :'<span style="color:var(--g2)">±0</span>';
     html+=`<tr><td>${badge}</td><td class="pnm">${G.players[pi]}</td>
-      <td style="cursor:pointer;" onclick="editOlyTotal(${pi})"><span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:18px;font-weight:700;color:${tCol};">${tStr}</span>${adjMark}<div style="font-size:8px;color:#B4AE9E;">タップで修正</div></td>
+      <td style="cursor:pointer;" onclick="editOlyTotal(${pi})"><span style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:18px;font-weight:700;color:${oCol};">${oStr}</span>${adjMark}<div style="font-size:8px;color:#B4AE9E;">タップで修正</div></td>
       <td style="font-size:11px;">${npStr}</td>
       <td style="font-weight:700;">${yenStr}</td></tr>`;
   });
@@ -3737,13 +3736,25 @@ function openOlySettings(){
       const fg=getPlayerFg(bg);
       return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F0EEE6;">
         <span style="background:${bg};color:${fg};padding:4px 10px;border-radius:9px;font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>
-        <input type="number" step="1" min="0" data-npname="${name.replace(/"/g,'&quot;')}" value="${npPts(name)}"
-          style="width:64px;padding:7px;border:2px solid #E4E1D8;border-radius:10px;text-align:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:17px;background:#FAF9F4;">
-        <span style="font-size:11px;color:var(--ink2);">pt</span>
+        <div data-npname="${name.replace(/"/g,'&quot;')}" style="display:flex;background:#F3F1EA;border-radius:11px;padding:3px;gap:3px;">
+          <button type="button" data-npv="3" data-sel="${npPts(name)===3?'1':''}" onclick="npSel(this)" style="border:none;border-radius:9px;padding:7px 14px;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:16px;cursor:pointer;background:${npPts(name)===3?'var(--turf)':'transparent'};color:${npPts(name)===3?'#fff':'var(--ink2)'};">3pt</button>
+          <button type="button" data-npv="5" data-sel="${npPts(name)===5?'1':''}" onclick="npSel(this)" style="border:none;border-radius:9px;padding:7px 14px;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:16px;cursor:pointer;background:${npPts(name)===5?'var(--turf)':'transparent'};color:${npPts(name)===5?'#fff':'var(--ink2)'};">5pt</button>
+        </div>
       </div>`;
     }).join('');
   }
   document.getElementById('oly-settings-modal').classList.add('open');
+}
+
+
+function npSel(btn){
+  const row=btn.parentElement;
+  row.querySelectorAll('button').forEach(b=>{
+    const on=b===btn;
+    b.dataset.sel=on?'1':'';
+    b.style.background=on?'var(--turf)':'transparent';
+    b.style.color=on?'#fff':'var(--ink2)';
+  });
 }
 
 function saveOlySettings(){
@@ -3752,9 +3763,9 @@ function saveOlySettings(){
     const v=parseInt(document.getElementById('olyset-pt-'+m.k)?.value);
     if(!isNaN(v)) S.pts[m.k]=v;
   });
-  document.querySelectorAll('#oly-set-np input[data-npname]').forEach(inp=>{
-    const v=parseInt(inp.value);
-    if(!isNaN(v)&&v>=0) S.npp[inp.dataset.npname]=v;
+  document.querySelectorAll('#oly-set-np [data-npname]').forEach(row=>{
+    const sel=row.querySelector('button[data-sel="1"]');
+    if(sel) S.npp[row.dataset.npname]=parseInt(sel.dataset.npv);
   });
   setOlySettings(S);
   document.getElementById('oly-settings-modal').classList.remove('open');
