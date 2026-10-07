@@ -333,7 +333,7 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
     </div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn" id="edit-round-btn" style="display:none;" onclick="showPage('history')">📋 履歴</button>
+    <button class="hbtn" id="edit-round-btn" style="display:none;" onclick="openEditRound()">✏️ 編集</button>
   </div>
 </div>
 
@@ -342,7 +342,6 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
   <div class="snav-tab active" id="snav-score" onclick="showPage('score')">🏌️ スコア</div>
   <div class="snav-tab" id="snav-olympic" onclick="showPage('olympic')">🏅 オリンピック</div>
   <div class="snav-tab" id="snav-stats" onclick="showPage('stats')">📊 統計</div>
-  <div class="snav-tab" id="snav-back-hist" onclick="openEditRound()" style="display:none;">✏️ 編集</div>
   <div class="snav-tab snav-save" onclick="saveToHistory()">💾 保存</div>
 </div>
 
@@ -1218,11 +1217,11 @@ function renderStbl() {
 
   // ヘッダー：プレイヤー名（スコア+オーバー の2列）
   let html = '<thead>'
-    + '<tr><th class="hcol" style="top:0;">H</th>'
+    + '<tr><th class="hcol" style="position:sticky;top:0;left:0;z-index:8;">H</th>'
     + '<th style="background:#1a3a2e;color:#fff;min-width:34px;position:sticky;top:0;z-index:5;">PAR</th>'
     + G.players.map((p,pi)=>`<th colspan="2" style="min-width:72px;font-size:13px;font-weight:700;background:${getPlayerBg(pi)};color:${getPlayerFg(pi)};position:sticky;top:0;z-index:5;">${p}</th>`).join('')
     + '</tr>'
-    + '<tr><th class="hcol" style="top:36px;z-index:6;"></th><th style="background:#1a3a2e;position:sticky;top:36px;z-index:5;"></th>'
+    + '<tr><th class="hcol" style="position:sticky;top:36px;left:0;z-index:8;"></th><th style="background:#1a3a2e;position:sticky;top:36px;z-index:5;"></th>'
     + G.players.map(()=>'<th style="font-size:10px;min-width:44px;position:sticky;top:36px;z-index:5;background:var(--green);">Score</th><th style="font-size:10px;min-width:28px;color:#fff;position:sticky;top:36px;z-index:5;background:var(--green);">±</th>').join('')
     + '</tr></thead><tbody>';
 
