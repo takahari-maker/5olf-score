@@ -801,15 +801,22 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:#1a
 
 <!-- ホール一括入力モーダル -->
 <div class="mov" id="hole-input-modal">
-  <div style="background:#fff;border-radius:24px;padding:20px;width:300px;max-width:92vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
-    <div style="text-align:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:15px;color:var(--green);font-weight:700;margin-bottom:4px;" id="hole-input-title">H1 スコア入力</div>
-    <div style="text-align:center;font-size:11px;color:#888;margin-bottom:12px;" id="hole-input-par">PAR 4</div>
+  <div style="background:#fff;border-radius:24px;padding:16px 16px 14px;width:330px;max-width:94vw;max-height:94vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <!-- ホール送りヘッダー -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <button onclick="holeInputMove(-1)" id="hole-prev-btn" style="width:44px;height:44px;border:none;border-radius:12px;background:#F3F1EA;color:var(--ink);font-size:20px;cursor:pointer;">◀</button>
+      <div style="text-align:center;">
+        <div id="hole-input-title" style="font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:34px;color:var(--deep);line-height:1;">H1</div>
+        <div id="hole-input-par" style="font-size:12px;color:var(--ink2);font-weight:700;">PAR 4</div>
+      </div>
+      <button onclick="holeInputMove(1)" id="hole-next-btn" style="width:44px;height:44px;border:none;border-radius:12px;background:#F3F1EA;color:var(--ink);font-size:20px;cursor:pointer;">▶</button>
+    </div>
 
     <div id="hole-input-players"></div>
 
-    <div style="display:flex;gap:8px;margin-top:12px;">
-      <button class="btn btn-o" onclick="document.getElementById('hole-input-modal').classList.remove('open')" style="flex:1;">閉じる</button>
-      <button class="btn btn-g" onclick="saveHoleInput()" style="flex:1;">保存</button>
+    <button class="btn btn-g" onclick="holeInputSaveNext()" id="hole-save-btn" style="width:100%;margin-top:10px;padding:14px;font-size:15px;letter-spacing:1px;">保存して H2 へ ▶</button>
+    <div style="text-align:center;margin-top:8px;">
+      <button onclick="saveHoleInput()" style="border:none;background:transparent;color:var(--ink2);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;">保存して閉じる</button>
     </div>
   </div>
 </div>
@@ -1852,6 +1859,8 @@ async function createRound(){
   renderScore(); showPage('score');
   toast('ラウンドを作成しました ⛳');
   persist();
+  // すぐH1の入力画面を開く
+  setTimeout(()=>openHoleInput(0), 350);
 }
 
 // ===== UTILS =====
@@ -3234,16 +3243,27 @@ let holeInputPutts = [];
 let holeInputActive = -1; // 現在入力中のプレイヤーインデックス
 let holeInputField = 'score'; // 'score' or 'putt'
 
+let holeInputOlys = [];
+
 function openHoleInput(hi){
   holeInputHi = hi;
   const n = G.players.length;
   holeInputScores = G.scores[hi].slice(0, n).map(s => s!==null ? String(s) : '');
   holeInputPutts = G.putts[hi].slice(0, n).map(p => p!==null ? String(p) : '');
+  holeInputOlys  = G.oly[hi].slice(0, n).map(v => v!==null ? String(v) : '');
   holeInputActive = 0;
   holeInputField = 'score';
   holeInputLastTime = 0;
-  document.getElementById('hole-input-title').textContent = `H${hi+1} スコア入力`;
+  document.getElementById('hole-input-title').textContent = `H${hi+1}`;
   document.getElementById('hole-input-par').textContent = `PAR ${G.pars[hi]}`;
+  // ホール送りボタンの有効/無効
+  const prevB = document.getElementById('hole-prev-btn');
+  const nextB = document.getElementById('hole-next-btn');
+  if(prevB){ prevB.style.opacity = hi<=0?'0.25':'1'; prevB.style.pointerEvents = hi<=0?'none':'auto'; }
+  if(nextB){ nextB.style.opacity = hi>=G.holes-1?'0.25':'1'; nextB.style.pointerEvents = hi>=G.holes-1?'none':'auto'; }
+  // 保存ボタンの文言
+  const saveB = document.getElementById('hole-save-btn');
+  if(saveB) saveB.textContent = hi<G.holes-1 ? `保存して H${hi+2} へ ▶` : '保存して閉じる';
   renderHoleInput();
   document.getElementById('hole-input-modal').classList.add('open');
 }
@@ -3253,102 +3273,170 @@ function renderHoleInput(){
   if(!area) return;
   const n = G.players.length;
   const par = G.pars[holeInputHi];
-
-  let html = '';
-  for(let pi=0; pi<n; pi++){
-    const colors = getPlayerColors();
-    const bg = colors[G.players[pi]] || DEFAULT_COLORS[pi % DEFAULT_COLORS.length];
-    const fg = getPlayerFg(bg);
-    const scoreVal = holeInputScores[pi]||'';
-    const puttVal = holeInputPutts[pi]||'';
-    const scoreActive = holeInputActive===pi && holeInputField==='score';
-    const puttActive = holeInputActive===pi && holeInputField==='putt';
-    const ov = scoreVal!=='' ? parseInt(scoreVal)-par : null;
-    const ovStr = ov===null?'':ov===0?'E':ov>0?'+'+ov:''+ov;
-
-    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-      <div style="background:${bg};color:${fg};padding:4px 8px;border-radius:8px;font-size:13px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${G.players[pi]}</div>
-      <div onclick="holeInputSelect(${pi},'score')" style="width:50px;height:44px;border:2px solid ${scoreActive?'var(--green)':'#ddd'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:22px;font-weight:700;cursor:pointer;background:${scoreActive?'#f0f8f4':'#fff'};color:#1a1a1a;">${scoreVal||'−'}</div>
-      <div style="font-size:11px;color:${ov===null?'#ccc':ov<0?'#e74c3c':ov===0?'#2ecc71':'#3498db'};width:24px;">${ovStr}</div>`;
-    html += `</div>`;
-  }
+  const myName = getMyName();
+  const colors = getPlayerColors();
 
   // ヘッダーラベル
-  let labelHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:10px;color:#888;"><div style="flex:1;">プレイヤー</div><div style="width:50px;text-align:center;">スコア</div><div style="width:24px;"></div>';
+  let html = `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:9.5px;color:#888;font-weight:700;">
+    <div style="flex:1;"></div>
+    <div style="width:54px;text-align:center;">Score</div>
+    <div style="width:26px;"></div>
+    <div style="width:46px;text-align:center;">Putt</div>
+    <div style="width:50px;text-align:center;">オリ</div>
+  </div>`;
 
-  labelHtml += '</div>';
+  for(let pi=0; pi<n; pi++){
+    const bg = colors[G.players[pi]] || DEFAULT_COLORS[pi % DEFAULT_COLORS.length];
+    const fg = getPlayerFg(bg);
+    const isMe = myName && G.players[pi]===myName;
+    const scoreVal = holeInputScores[pi]||'';
+    const puttVal  = holeInputPutts[pi]||'';
+    const olyVal   = holeInputOlys[pi]||'';
+    const sa = holeInputActive===pi && holeInputField==='score';
+    const pa = holeInputActive===pi && holeInputField==='putt';
+    const oa = holeInputActive===pi && holeInputField==='oly';
+    const ov = scoreVal!=='' ? parseInt(scoreVal)-par : null;
+    const ovStr = ov===null?'':ov===0?'E':ov>0?'+'+ov:''+ov;
+    const olyNum = olyVal===''?null:parseInt(olyVal);
+    const olyCol = olyNum===null?'#C9C5B8':olyNum<0?'#C05548':'var(--turf)';
 
-  // テンキー
+    html += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">
+      <div style="background:${bg};color:${fg};padding:5px 8px;border-radius:9px;font-size:13px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${G.players[pi]}</div>
+      <div onclick="holeInputSelect(${pi},'score')" style="width:54px;height:48px;border:2.5px solid ${sa?'var(--turf)':'#E4E1D8'};border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:25px;cursor:pointer;background:${sa?'#EDF6F0':'#FAF9F4'};color:${sa?'var(--turf)':'#1a1a1a'};">${scoreVal||'−'}</div>
+      <div style="font-size:11px;font-weight:700;color:${ov===null?'#ccc':ov<0?'#2563EB':ov===0?'var(--turf)':'#C4763B'};width:26px;text-align:center;">${ovStr}</div>`;
+    if(isMe){
+      html += `<div onclick="holeInputSelect(${pi},'putt')" style="width:46px;height:48px;border:2.5px solid ${pa?'#2563EB':'#E4E1D8'};border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:22px;cursor:pointer;background:${pa?'#EFF4FE':'#FAF9F4'};color:#2563EB;">${puttVal||'−'}</div>`;
+    } else {
+      html += `<div style="width:46px;height:48px;"></div>`;
+    }
+    html += `<div onclick="holeInputSelect(${pi},'oly')" style="width:50px;height:48px;border:2.5px solid ${oa?'var(--gold)':'#E4E1D8'};border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue','Zen Kaku Gothic New',sans-serif;font-size:21px;cursor:pointer;background:${oa?'#FCF6E8':'#FAF9F4'};color:${olyCol};">${olyVal!==''?(olyNum>0?'+':'')+olyNum:'−'}</div>
+    </div>`;
+  }
+
+  // テンキー（±はオリ選択時のみ有効）
+  const olyOn = holeInputField==='oly';
   const keypad = `
-    <div style="margin-top:12px;border-top:1px solid #eee;padding-top:12px;">
+    <div style="margin-top:8px;border-top:1px solid #eee;padding-top:10px;">
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-        ${[1,2,3,4,5,6,7,8,9].map(d=>`<button onclick="holeInputPress(${d})" class="kpad-btn" style="padding:14px;">${d}</button>`).join('')}
-        <button onclick="holeInputClear()" class="kpad-btn" style="padding:14px;background:#fee;color:#e74c3c;">C</button>
-        <button onclick="holeInputPress(0)" class="kpad-btn" style="padding:14px;">0</button>
-        <button onclick="holeInputNext()" class="kpad-btn" style="padding:14px;background:var(--green);color:#fff;font-size:13px;">次へ</button>
+        ${[1,2,3,4,5,6,7,8,9].map(d=>`<button onclick="holeInputPress(${d})" class="kpad-btn" style="padding:13px;">${d}</button>`).join('')}
+        <button onclick="holeInputClear()" class="kpad-btn" style="padding:13px;background:#FBE7E3;color:#C05548;font-family:'Zen Kaku Gothic New',sans-serif;font-size:15px;font-weight:700;">C</button>
+        <button onclick="holeInputPress(0)" class="kpad-btn" style="padding:13px;">0</button>
+        <button onclick="holeInputSign()" class="kpad-btn" style="padding:13px;background:${olyOn?'var(--gold)':'#F3F1EA'};color:${olyOn?'var(--deep)':'#C9C5B8'};font-family:'Zen Kaku Gothic New',sans-serif;font-size:17px;font-weight:700;">±</button>
       </div>
+      <div style="text-align:center;font-size:10px;color:#B4AE9E;margin-top:6px;">${olyOn?'オリンピック入力中：±で符号を反転':'数字を押すと自動で次の人へ／マスをタップで切替'}</div>
     </div>`;
 
-  area.innerHTML = labelHtml + html + keypad;
+  area.innerHTML = html + keypad;
 }
 
 function holeInputSelect(pi, field){
   holeInputActive = pi;
   holeInputField = field;
+  holeInputLastTime = 0;
   renderHoleInput();
 }
 
 let holeInputLastTime = 0;
 function holeInputPress(n){
   const now = Date.now();
-  const isQuick = (now - holeInputLastTime) < 800; // 0.8秒以内の連続入力は2桁とみなす
+  const isQuick = (now - holeInputLastTime) < 800; // 0.8秒以内の連続入力は2桁目
   holeInputLastTime = now;
   const n2 = G.players.length;
 
-  let cur = holeInputScores[holeInputActive]||'';
-  // 0.8秒以内に同じマスへ連続入力したら2桁目として追加
-  if(isQuick && cur.length===1 && parseInt(cur+n)<=20){
-    holeInputScores[holeInputActive] = cur + String(n);
+  if(holeInputField==='score'){
+    let cur = holeInputScores[holeInputActive]||'';
+    if(isQuick && cur.length===1 && parseInt(cur+n)<=20){
+      holeInputScores[holeInputActive] = cur + String(n);
+      renderHoleInput();
+      return;
+    }
+    holeInputScores[holeInputActive] = String(n);
     renderHoleInput();
-    return;
+    // 自動で次の人のスコアへ
+    setTimeout(()=>{
+      if(holeInputField!=='score') return;
+      holeInputActive = (holeInputActive+1) % n2;
+      renderHoleInput();
+    }, 250);
+  } else if(holeInputField==='putt'){
+    let cur = holeInputPutts[holeInputActive]||'';
+    if(isQuick && cur.length===1 && parseInt(cur+n)<=10){
+      holeInputPutts[holeInputActive] = cur + String(n);
+    } else {
+      holeInputPutts[holeInputActive] = String(n);
+    }
+    renderHoleInput();
+  } else { // oly
+    let cur = holeInputOlys[holeInputActive]||'';
+    const neg = cur.startsWith('-');
+    let abs = cur.replace('-','');
+    if(isQuick && abs.length===1 && parseInt(abs+n)<=99){
+      abs = abs + String(n);
+    } else {
+      abs = String(n);
+    }
+    holeInputOlys[holeInputActive] = (neg?'-':'') + abs;
+    renderHoleInput();
   }
-  // 通常：1桁入力して次の人へ自動遷移
-  holeInputScores[holeInputActive] = String(n);
+}
+
+function holeInputSign(){
+  if(holeInputField!=='oly') return;
+  let cur = holeInputOlys[holeInputActive]||'';
+  if(cur==='') return;
+  holeInputOlys[holeInputActive] = cur.startsWith('-') ? cur.slice(1) : '-'+cur;
   renderHoleInput();
-  // 自動で次の人のスコアへ
-  setTimeout(()=>{
-    holeInputActive = (holeInputActive+1) % n2;
-    renderHoleInput();
-  }, 250);
 }
 
 function holeInputClear(){
   if(holeInputField==='score') holeInputScores[holeInputActive]='';
-  else holeInputPutts[holeInputActive]='';
+  else if(holeInputField==='putt') holeInputPutts[holeInputActive]='';
+  else holeInputOlys[holeInputActive]='';
   renderHoleInput();
 }
 
-function holeInputNext(){
-  const n = G.players.length;
-  holeInputActive = (holeInputActive+1) % n;
-  renderHoleInput();
-}
-
-function saveHoleInput(){
+function holeInputCommit(){
   const hi = holeInputHi;
   const n = G.players.length;
+  const myName = getMyName();
   for(let pi=0; pi<n; pi++){
     const sv = holeInputScores[pi]==='' ? null : parseInt(holeInputScores[pi]);
     G.scores[hi][pi] = (sv===null||isNaN(sv)||sv<1) ? null : sv;
+    const isMe = myName && G.players[pi]===myName;
+    if(isMe){
+      const pv = holeInputPutts[pi]==='' ? null : parseInt(holeInputPutts[pi]);
+      G.putts[hi][pi] = (pv===null||isNaN(pv)||pv<0) ? null : pv;
+    }
+    const ov = holeInputOlys[pi]==='' || holeInputOlys[pi]==='-' ? null : parseInt(holeInputOlys[pi]);
+    G.oly[hi][pi] = (ov===null||isNaN(ov)) ? null : ov;
   }
   renderStbl();
   renderSummary();
+  refreshPuttTot();
   persist();
+}
+
+function saveHoleInput(){
+  holeInputCommit();
   document.getElementById('hole-input-modal').classList.remove('open');
-  // 全員入力済みなら打順ポップアップ
-  const allFilled = G.scores[hi].slice(0,n).every(s=>s!==null);
-  if(false){}
-  else toast('✅ H'+(hi+1)+' を保存しました');
+  toast('✅ H'+(holeInputHi+1)+' を保存しました');
+}
+
+function holeInputMove(d){
+  const next = holeInputHi + d;
+  if(next<0 || next>=G.holes) return;
+  holeInputCommit();
+  openHoleInput(next);
+}
+
+function holeInputSaveNext(){
+  holeInputCommit();
+  if(holeInputHi < G.holes-1){
+    openHoleInput(holeInputHi+1);
+  } else {
+    document.getElementById('hole-input-modal').classList.remove('open');
+    toast('🏁 全ホール入力おつかれさまでした！');
+  }
 }
 
 
