@@ -1695,7 +1695,7 @@ function renderStats(){
 }
 
 // ===== ゴルフ場登録 =====
-const DEFAULT_COURSES = {"磯子カンツリークラブ": {"OUT": [4, 4, 5, 3, 4, 3, 4, 4, 5], "IN": [4, 4, 4, 3, 5, 4, 3, 5, 4]}, "小田急藤沢ゴルフクラブ": {"OUT": [5, 4, 3, 4, 3, 4, 4, 4, 5], "IN": [4, 4, 3, 3, 4, 4, 5, 5, 4]}, "ファイブハンドレッドクラブ": {"OUT": [5, 4, 4, 3, 5, 4, 4, 4, 3], "IN": [4, 3, 4, 4, 5, 4, 3, 5, 4]}, "メイプルポイントゴルフクラブ": {"OUT": [5, 4, 3, 4, 4, 4, 5, 3, 4], "IN": [5, 4, 3, 4, 4, 4, 3, 4, 5]}, "よみうりゴルフ倶楽部": {"OUT": [5, 3, 4, 4, 4, 3, 5, 4, 4], "IN": [4, 5, 3, 4, 5, 4, 3, 4, 4]}};
+const DEFAULT_COURSES = {"磯子カンツリークラブ": {"OUT": [4, 4, 5, 3, 4, 3, 4, 4, 5], "IN": [4, 4, 4, 3, 5, 4, 3, 5, 4]}, "小田急藤沢ゴルフクラブ": {"OUT": [5, 4, 3, 4, 3, 4, 4, 4, 5], "IN": [4, 4, 3, 3, 4, 4, 5, 5, 4]}, "ファイブハンドレッドクラブ": {"OUT": [5, 4, 4, 3, 5, 4, 4, 4, 3], "IN": [4, 3, 4, 4, 5, 4, 3, 5, 4]}, "メイプルポイントゴルフクラブ": {"OUT": [5, 4, 3, 4, 4, 4, 5, 3, 4], "IN": [5, 4, 3, 4, 4, 4, 3, 4, 5]}, "よみうりゴルフ倶楽部": {"OUT": [5, 3, 4, 4, 4, 3, 5, 4, 4], "IN": [4, 5, 3, 4, 5, 4, 3, 4, 4]}, "浦和ゴルフ倶楽部": {"OUT": [4, 4, 4, 5, 4, 3, 5, 3, 4], "IN": [4, 3, 5, 5, 4, 3, 4, 4, 4]}};
 const DEFAULT_COURSES_FLAG = 'golympic_default_courses_loaded';
 const DEFAULT_COURSES_V2 = 'golympic_default_courses_v2';
 
@@ -1708,19 +1708,28 @@ function getCourses(){
       localStorage.setItem(CKEY, JSON.stringify(merged));
       localStorage.setItem(DEFAULT_COURSES_FLAG, '1');
       localStorage.setItem(DEFAULT_COURSES_V2, '1');
+      localStorage.setItem('golympic_default_courses_added', JSON.stringify(Object.keys(DEFAULT_COURSES)));
       return merged;
     }
-    // v2: 既存ユーザーにも「よみうりゴルフ倶楽部」を追加（未登録の場合のみ）
-    if(!localStorage.getItem(DEFAULT_COURSES_V2)){
-      const cs = JSON.parse(localStorage.getItem(CKEY)||'{}');
-      if(!cs['よみうりゴルフ倶楽部']){
-        cs['よみうりゴルフ倶楽部'] = DEFAULT_COURSES['よみうりゴルフ倶楽部'];
-        localStorage.setItem(CKEY, JSON.stringify(cs));
-      }
-      localStorage.setItem(DEFAULT_COURSES_V2, '1');
-      return cs;
+    // 後から追加したデフォルトゴルフ場を既存ユーザーにも1回だけ追加（削除したものは復活させない）
+    const cs = JSON.parse(localStorage.getItem(CKEY)||'{}');
+    let added;
+    try{ added = JSON.parse(localStorage.getItem('golympic_default_courses_added')||'null'); }catch(e){ added=null; }
+    if(!Array.isArray(added)){
+      // 旧方式からの移行：初回4件は登録済み、v2ならよみうりも登録済み
+      added = ['磯子カンツリークラブ','小田急藤沢ゴルフクラブ','ファイブハンドレッドクラブ','メイプルポイントゴルフクラブ'];
+      if(localStorage.getItem(DEFAULT_COURSES_V2)) added.push('よみうりゴルフ倶楽部');
     }
-    return JSON.parse(localStorage.getItem(CKEY)||'{}');
+    let changed=false;
+    Object.keys(DEFAULT_COURSES).forEach(name=>{
+      if(!added.includes(name)){
+        if(!cs[name]){ cs[name]=DEFAULT_COURSES[name]; changed=true; }
+        added.push(name);
+      }
+    });
+    localStorage.setItem('golympic_default_courses_added', JSON.stringify(added));
+    if(changed) localStorage.setItem(CKEY, JSON.stringify(cs));
+    return cs;
   }catch(e){return {};}
 }
 function setCourses(obj){localStorage.setItem(CKEY,JSON.stringify(obj));}
